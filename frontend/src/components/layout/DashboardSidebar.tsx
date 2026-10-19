@@ -4,7 +4,7 @@ import { useUnreadCount } from '../../hooks/useData'
 import {
   LayoutDashboard, TrendingUp, Briefcase,
   ArrowDownCircle, ArrowUpCircle, Receipt,
-  Bell, User, Settings, LogOut, Bot,
+  Bell, User, Settings, LogOut, Bot, LifeBuoy,
 } from 'lucide-react'
 
 const navItems = [
@@ -16,6 +16,7 @@ const navItems = [
   { icon: ArrowUpCircle, label: 'سحب', href: '/dashboard/withdraw' },
   { icon: Receipt, label: 'المعاملات', href: '/dashboard/transactions' },
   { icon: Bell, label: 'الإشعارات', href: '/dashboard/notifications', badge: true },
+  { icon: LifeBuoy, label: 'الدعم', href: '/dashboard/support' },
   { icon: User, label: 'الملف الشخصي', href: '/dashboard/profile' },
   { icon: Settings, label: 'الإعدادات', href: '/dashboard/settings' },
 ]

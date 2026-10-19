@@ -201,10 +201,10 @@ export default function LoginPage() {
             </div>
 
             <div style={{ textAlign: 'left', marginBottom: 20 }}>
-              <a href="#" style={{
+              <Link to="/forgot-password" style={{
                 fontSize: 12, color: '#D4AF37',
                 textDecoration: 'none', fontFamily: 'Cairo',
-              }}>نسيت كلمة المرور؟</a>
+              }}>نسيت كلمة المرور؟</Link>
             </div>
 
             <button

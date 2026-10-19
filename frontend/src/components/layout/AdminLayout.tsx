@@ -5,7 +5,7 @@ import { useAdminStats } from '../../hooks/useData'
 import {
   LayoutDashboard, Users, ArrowDownCircle, ArrowUpCircle, TrendingUp,
   Briefcase, Bot, Wallet, BarChart2, Settings, Shield, Bell, Receipt,
-  LogOut, Menu, X, Activity, Globe, Database, MoreHorizontal, ExternalLink,
+  LogOut, Menu, X, Activity, Globe, Database, MoreHorizontal, ExternalLink, LifeBuoy, ScrollText,
 } from 'lucide-react'
 
 type NavItem = { icon: typeof Users; label: string; href: string }
@@ -41,6 +41,8 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
     { icon: Wallet, label: 'Deposit Wallets', href: '/admin/wallets' },
     { icon: Globe, label: 'Currencies', href: '/admin/currencies' },
     { icon: Bell, label: 'Notifications', href: '/admin/notifications' },
+    { icon: LifeBuoy, label: 'Support', href: '/admin/support' },
+    { icon: ScrollText, label: 'Audit Log', href: '/admin/audit' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
   ]},
 ]

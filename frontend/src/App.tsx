@@ -43,6 +43,11 @@ import AdminKyc from './pages/admin/AdminKyc'
 import AdminReserves from './pages/admin/AdminReserves'
 import AdminBalances from './pages/admin/AdminBalances'
 import AdminSignalEngine from './pages/admin/AdminSignalEngine'
+import AdminSupport from './pages/admin/AdminSupport'
+import AdminAudit from './pages/admin/AdminAudit'
+import SupportPage from './pages/dashboard/SupportPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
@@ -68,6 +73,8 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* ── User Dashboard ── */}
         <Route path="/dashboard" element={<UserPage><DashboardHome /></UserPage>} />
@@ -80,6 +87,7 @@ export default function App() {
         <Route path="/dashboard/notifications" element={<UserPage><NotificationsPage /></UserPage>} />
         <Route path="/dashboard/profile" element={<UserPage><ProfilePage /></UserPage>} />
         <Route path="/dashboard/settings" element={<UserPage><SettingsPage /></UserPage>} />
+        <Route path="/dashboard/support" element={<UserPage><SupportPage /></UserPage>} />
 
         {/* ── Admin Panel ── */}
         <Route path="/admin" element={<AdminPage><AdminDashboard /></AdminPage>} />
@@ -102,6 +110,8 @@ export default function App() {
         <Route path="/admin/notifications" element={<AdminPage><AdminNotifications /></AdminPage>} />
         <Route path="/admin/statistics" element={<AdminPage><AdminStatistics /></AdminPage>} />
         <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+        <Route path="/admin/support" element={<AdminPage><AdminSupport /></AdminPage>} />
+        <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
 
         {/* ── 404 ── */}
         <Route path="*" element={
