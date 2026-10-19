@@ -4,7 +4,7 @@ import { useUnreadCount } from '../../hooks/useData'
 import {
   LayoutDashboard, TrendingUp, Briefcase,
   ArrowDownCircle, ArrowUpCircle, Receipt,
-  Bell, User, Settings, LogOut, Bot, LifeBuoy,
+  Bell, User, Settings, LogOut, Bot, LifeBuoy, LineChart, Brain,
 } from 'lucide-react'
 
 const navItems = [
@@ -12,6 +12,8 @@ const navItems = [
   { icon: Briefcase, label: 'استثماراتي', href: '/dashboard/investments' },
   { icon: TrendingUp, label: 'التداول الذكي', href: '/dashboard/trading' },
   { icon: Bot, label: 'إشارات الذكاء الاصطناعي', href: '/dashboard/signals' },
+  { icon: Brain, label: 'ذكاء السوق', href: '/dashboard/ai' },
+  { icon: LineChart, label: 'الأسواق', href: '/dashboard/markets' },
   { icon: ArrowDownCircle, label: 'إيداع', href: '/dashboard/deposit' },
   { icon: ArrowUpCircle, label: 'سحب', href: '/dashboard/withdraw' },
   { icon: Receipt, label: 'المعاملات', href: '/dashboard/transactions' },
@@ -89,7 +91,7 @@ export default function DashboardSidebar() {
               {profile?.full_name || 'المستخدم'}
             </div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: 'Cairo' }}>
-              {profile?.kyc_status === 'approved' ? '✓ موثّق' : 'قيد التحقق'}
+              {profile?.email || ''}
             </div>
           </div>
         </div>

@@ -4,12 +4,12 @@ import { Menu, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const navLinks = [
-  { label: 'الرئيسية', href: '#home' },
-  { label: 'التداول الذكي', href: '#trading' },
-  { label: 'الاستثمار', href: '#investment' },
-  { label: 'الأسواق', href: '#markets' },
-  { label: 'الأمان', href: '#security' },
-  { label: 'عن المنصة', href: '#about' },
+  { label: 'الرئيسية', href: '/' },
+  { label: 'التداول الذكي', href: '/ai-trading' },
+  { label: 'الاستثمار', href: '/opportunities' },
+  { label: 'الأسواق', href: '/markets' },
+  { label: 'الأمان', href: '/security' },
+  { label: 'عن المنصة', href: '/about' },
 ]
 
 export default function Navbar() {
@@ -59,13 +59,13 @@ export default function Navbar() {
       {/* Desktop nav links */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }} className="nav-links">
         {navLinks.map(link => (
-          <a key={link.href} href={link.href} style={{
+          <Link key={link.href} to={link.href} style={{
             color: 'rgba(255,255,255,0.7)', textDecoration: 'none',
             fontSize: 14, fontWeight: 500, fontFamily: 'Cairo', transition: 'color 0.2s',
           }}
             onMouseEnter={e => (e.currentTarget.style.color = '#D4AF37')}
             onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-          >{link.label}</a>
+          >{link.label}</Link>
         ))}
       </div>
 
@@ -124,12 +124,12 @@ export default function Navbar() {
           zIndex: 999,
         }}>
           {navLinks.map(link => (
-            <a key={link.href} href={link.href} style={{
+            <Link key={link.href} to={link.href} style={{
               color: 'rgba(255,255,255,0.8)', textDecoration: 'none',
               fontSize: 16, fontWeight: 500, fontFamily: 'Cairo',
             }} onClick={() => setMenuOpen(false)}>
               {link.label}
-            </a>
+            </Link>
           ))}
           <div style={{
             borderTop: '1px solid rgba(212,175,55,0.1)',

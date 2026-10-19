@@ -82,13 +82,6 @@ export default function DashboardHome() {
         </button>
       </div>
 
-      {profile && profile.kyc_status !== 'approved' && (
-        <Link to="/dashboard/profile" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 16 }}>
-          <AlertTriangle size={18} color="#f59e0b" style={{ flexShrink: 0 }} />
-          <span style={{ fontSize: 13, color: '#f59e0b', fontFamily: 'Cairo' }}>التحقق من الهوية مطلوب لتفعيل الإيداع والسحب — اضغط للإكمال</span>
-        </Link>
-      )}
-
       {pending.length > 0 && (
         <Link to="/dashboard/deposit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, textDecoration: 'none', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 16 }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#818cf8', fontFamily: 'Cairo' }}><ArrowDownCircle size={18} />لديك {pending.length} إيداع قيد المراجعة — سيظهر الرصيد بعد التأكيد</span>

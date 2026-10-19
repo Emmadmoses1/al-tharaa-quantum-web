@@ -39,7 +39,6 @@ import AdminCurrencies from './pages/admin/AdminCurrencies'
 import AdminStatistics from './pages/admin/AdminStatistics'
 import AdminNotifications from './pages/admin/AdminNotifications'
 import AdminSettings from './pages/admin/AdminSettings'
-import AdminKyc from './pages/admin/AdminKyc'
 import AdminReserves from './pages/admin/AdminReserves'
 import AdminBalances from './pages/admin/AdminBalances'
 import AdminSignalEngine from './pages/admin/AdminSignalEngine'
@@ -47,6 +46,12 @@ import AdminSupport from './pages/admin/AdminSupport'
 import AdminAudit from './pages/admin/AdminAudit'
 import SupportPage from './pages/dashboard/SupportPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import { AboutPage, SecurityPage, FaqPage, ContactPage, RiskPage, PrivacyPage, TermsPage } from './pages/public/PublicPages'
+import AiTradingPage from './pages/public/AiTradingPage'
+import OpportunitiesPublic from './pages/public/OpportunitiesPublic'
+import MarketsPublic from './pages/public/MarketsPublic'
+import MarketsDash from './pages/dashboard/MarketsDash'
+import AiIntelligencePage from './pages/dashboard/AiIntelligencePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 
 function UserPage({ children }: { children: React.ReactNode }) {
@@ -74,6 +79,16 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/ai-trading" element={<AiTradingPage />} />
+        <Route path="/opportunities" element={<OpportunitiesPublic />} />
+        <Route path="/markets" element={<MarketsPublic />} />
+        <Route path="/security" element={<SecurityPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/risk" element={<RiskPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* ── User Dashboard ── */}
@@ -88,11 +103,12 @@ export default function App() {
         <Route path="/dashboard/profile" element={<UserPage><ProfilePage /></UserPage>} />
         <Route path="/dashboard/settings" element={<UserPage><SettingsPage /></UserPage>} />
         <Route path="/dashboard/support" element={<UserPage><SupportPage /></UserPage>} />
+        <Route path="/dashboard/markets" element={<UserPage><MarketsDash /></UserPage>} />
+        <Route path="/dashboard/ai" element={<UserPage><AiIntelligencePage /></UserPage>} />
 
         {/* ── Admin Panel ── */}
         <Route path="/admin" element={<AdminPage><AdminDashboard /></AdminPage>} />
         <Route path="/admin/users" element={<AdminPage><AdminUsers /></AdminPage>} />
-        <Route path="/admin/kyc" element={<AdminPage><AdminKyc /></AdminPage>} />
         <Route path="/admin/deposits" element={<AdminPage><AdminDeposits /></AdminPage>} />
         <Route path="/admin/withdrawals" element={<AdminPage><AdminWithdrawals /></AdminPage>} />
         <Route path="/admin/transactions" element={<AdminPage><AdminTransactions /></AdminPage>} />

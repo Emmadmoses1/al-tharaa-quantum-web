@@ -15,6 +15,8 @@ import notificationsRouter from './routes/notifications.js'
 import tradeActionsRouter from './routes/tradeActions.js'
 import adminRouter from './routes/admin.js'
 import reservesRouter from './routes/adminReserves.js'
+import marketsRouter from './routes/markets.js'
+import aiStatusRouter from './routes/aiStatus.js'
 import { startLoop } from './services/loop.js'
 import { scanDeposits } from './services/depositWatcher.js'
 import { runSignalEngine } from './services/signalEngine.js'
@@ -75,6 +77,8 @@ app.use('/api/profile', profileRouter)
 app.use('/api/notifications', notificationsRouter)
 app.use('/api/trade', tradeActionsRouter)
 app.use('/api/admin/reserves', reservesRouter)
+app.use('/api/markets', marketsRouter)
+app.use('/api/ai-status', aiStatusRouter)
 app.use('/api/admin', adminRouter)
 
 // 404

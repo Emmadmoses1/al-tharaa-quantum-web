@@ -17,7 +17,6 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   ]},
   { title: 'USERS', items: [
     { icon: Users, label: 'Users', href: '/admin/users' },
-    { icon: Shield, label: 'KYC Verification', href: '/admin/kyc' },
   ]},
   { title: 'FINANCE', items: [
     { icon: ArrowDownCircle, label: 'Deposits', href: '/admin/deposits' },

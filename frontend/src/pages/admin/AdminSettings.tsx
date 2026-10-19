@@ -12,7 +12,6 @@ export default function AdminSettings() {
     investmentFeePercent: '1.5',
     maintenanceMode: false,
     registrationOpen: true,
-    kycRequired: true,
     twoFactorRequired: false,
     emailNotifications: true,
     pushNotifications: false,
@@ -145,7 +144,6 @@ export default function AdminSettings() {
                 {[
                   { key: 'maintenanceMode', label: 'Maintenance Mode', desc: 'Take platform offline for maintenance', danger: true },
                   { key: 'registrationOpen', label: 'Registration Open', desc: 'Allow new user registrations', danger: false },
-                  { key: 'kycRequired', label: 'KYC Required', desc: 'Require KYC before deposits/withdrawals', danger: false },
                 ].map(item => (
                   <div key={item.key} style={{
                     display: 'flex', alignItems: 'center',

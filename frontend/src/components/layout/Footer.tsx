@@ -1,18 +1,23 @@
+import { Link } from 'react-router-dom'
 import { Twitter, Linkedin, Instagram } from 'lucide-react'
 
 const cols = [
-  {
-    title: 'المنتجات',
-    links: ['التداول بالذكاء الاصطناعي', 'فرص الاستثمار', 'قبو كوانتوم', 'الأسواق'],
-  },
-  {
-    title: 'الشركة',
-    links: ['عن المنصة', 'الفريق', 'الشركاء', 'المدونة'],
-  },
-  {
-    title: 'القانون والتنظيم',
-    links: ['الامتثال', 'سياسة الخصوصية', 'شروط الخدمة', 'إفصاح المخاطر'],
-  },
+  { title: 'المنتجات', links: [
+    { label: 'التداول بالذكاء الاصطناعي', href: '/ai-trading' },
+    { label: 'فرص الاستثمار', href: '/opportunities' },
+    { label: 'الأسواق', href: '/markets' },
+  ]},
+  { title: 'المنصة', links: [
+    { label: 'عن المنصة', href: '/about' },
+    { label: 'الأمان', href: '/security' },
+    { label: 'الأسئلة الشائعة', href: '/faq' },
+    { label: 'تواصل معنا', href: '/contact' },
+  ]},
+  { title: 'القانون', links: [
+    { label: 'إفصاح المخاطر', href: '/risk' },
+    { label: 'سياسة الخصوصية', href: '/privacy' },
+    { label: 'شروط الخدمة', href: '/terms' },
+  ]},
 ]
 
 export default function Footer() {
@@ -101,7 +106,7 @@ export default function Footer() {
             }}>{col.title}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {col.links.map((link, j) => (
-                <a key={j} href="#" style={{
+                <Link key={j} to={link.href} style={{
                   fontSize: 13,
                   color: 'rgba(255,255,255,0.4)',
                   textDecoration: 'none',
@@ -110,7 +115,7 @@ export default function Footer() {
                 }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#D4AF37')}
                   onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
-                >{link}</a>
+                >{link.label}</Link>
               ))}
             </div>
           </div>

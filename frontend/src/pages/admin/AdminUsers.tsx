@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Search, UserCheck } from 'lucide-react'
 import { useAdminUsers, useAdminUpdateUserRole } from '../../hooks/useData'
 import { useAuth } from '../../context/AuthContext'
-import { Pill, Chips, inputCss, cardGrid } from '../../components/ui/AdminKit'
+import { Chips, inputCss, cardGrid } from '../../components/ui/AdminKit'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
 
@@ -50,7 +50,6 @@ export default function AdminUsers() {
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: 'Cairo', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name || 'No name'}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</div>
                 </div>
-                <Pill text={u.kyc_status} color={KYC[u.kyc_status]} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <select value={u.role} disabled={!isSuper || u.id === profile?.id}

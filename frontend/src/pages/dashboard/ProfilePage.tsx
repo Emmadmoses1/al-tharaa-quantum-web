@@ -88,46 +88,6 @@ export default function ProfilePage() {
 
       {activeTab === 'profile' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* KYC status */}
-          {isLoading ? (
-            <Skeleton height={52} borderRadius={10} />
-          ) : (
-            <div style={{
-              padding: '14px 18px', borderRadius: 10,
-              background: profile?.kyc_status === 'approved'
-                ? 'rgba(16,185,129,0.06)' : 'rgba(245,158,11,0.06)',
-              border: `1px solid ${profile?.kyc_status === 'approved'
-                ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)'}`,
-              display: 'flex', alignItems: 'center', gap: 12,
-            }}>
-              {profile?.kyc_status === 'approved'
-                ? <CheckCircle size={18} color="#10b981" />
-                : <AlertTriangle size={18} color="#f59e0b" />
-              }
-              <div>
-                <div style={{
-                  fontSize: 13, fontWeight: 700, fontFamily: 'Cairo',
-                  color: profile?.kyc_status === 'approved' ? '#10b981' : '#f59e0b',
-                }}>
-                  {profile?.kyc_status === 'approved' ? 'الهوية موثّقة' : 'التحقق من الهوية مطلوب'}
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>
-                  {profile?.kyc_status === 'approved'
-                    ? 'حسابك موثّق بالكامل'
-                    : 'أكمل التحقق لتفعيل الإيداع والسحب'}
-                </div>
-              </div>
-              {profile?.kyc_status !== 'approved' && (
-                <button
-                  className="btn-outline-gold"
-                  style={{ marginRight: 'auto', fontSize: 12, padding: '7px 14px', flexShrink: 0 }}
-                >
-                  التحقق الآن
-                </button>
-              )}
-            </div>
-          )}
-
           <div className="glass-card" style={{ padding: 24 }}>
             <h2 style={{
               fontSize: 15, fontWeight: 700,
