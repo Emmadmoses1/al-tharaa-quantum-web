@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-color: #0B0B0B;
+    color: #ffffff;
+    font-family: 'Cairo', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  [dir="ltr"] body {
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0B0B0B;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: rgba(212, 175, 55, 0.3);
+    color: #D4AF37;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(44, 44, 44, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 16px;
+  }
+
+  .glass-card-dark {
+    background: rgba(11, 11, 11, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+    border-radius: 16px;
+  }
+
+  .gold-text {
+    background: linear-gradient(135deg, #D4AF37 0%, #E8CC6A 50%, #A8871C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-border {
+    border: 1px solid rgba(212, 175, 55, 0.3);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #D4AF37 0%, #E8CC6A 50%, #A8871C 100%);
+    color: #0B0B0B;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+  }
+
+  .btn-outline-gold {
+    background: transparent;
+    color: #D4AF37;
+    font-weight: 600;
+    padding: 11px 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+  }
+
+  .btn-outline-gold:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: #D4AF37;
+    transform: translateY(-2px);
+  }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #D4AF37;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, transparent, rgba(212,175,55,0.3), transparent);
+  }
+
+  @keyframes coinRotateY {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+  }
+
+  @keyframes floatUpDown {
+    0%, 100% { transform: translateY(0px) rotateY(0deg); }
+    50% { transform: translateY(-18px) rotateY(180deg); }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.08); }
+  }
+
+  @keyframes ringRotate {
+    0% { transform: rotateX(70deg) rotateZ(0deg); }
+    100% { transform: rotateX(70deg) rotateZ(360deg); }
+  }
+
+  @keyframes shimmerMove {
+    0% { left: -100%; }
+    100% { left: 200%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+button { touch-action: manipulation; }
+@media (max-width: 768px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+
+/* ── Scroll fix (dashboard) ── */
+html { overflow-x: clip; overflow-y: visible; height: auto; }
+body { overflow-x: clip; overflow-y: visible; height: auto; min-height: 100dvh; }
+#root { min-height: 100dvh; }
+.dl-main { min-width: 0; }
+.dl-content { max-width: 100%; overflow-x: clip; }
+.dl-content > * { min-width: 0; max-width: 100%; }
+@supports not (overflow: clip) {
+  html, body { overflow-x: visible; }
+}
