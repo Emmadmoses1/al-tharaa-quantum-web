@@ -83,7 +83,7 @@ export default function TradeRoom() {
   const levels: Level[] = open.filter(o => o.asset === asset).map(o => ({ label: o.direction === 'up' ? 'UP' : 'DOWN', price: Number(o.entry_price), color: o.direction === 'up' ? UP : DOWN }))
 
   return (
-    <div style={{ direction: 'rtl', maxWidth: 940, margin: '0 auto' }} translate="no" className="notranslate">
+    <div style={{ direction: 'rtl', maxWidth: 940, margin: '0 auto' }}>
       <div style={{ ...card, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Wallet size={20} color="#D4AF37" />

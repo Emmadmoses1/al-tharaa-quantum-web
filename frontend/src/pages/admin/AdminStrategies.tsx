@@ -1,334 +1,86 @@
 import { useState } from 'react'
-import { Bot, Shield, TrendingUp, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { api } from '../../lib/api'
+import { Pill, btn, inputCss, labelCss, cardGrid, cardCss } from '../../components/ui/AdminKit'
+import { Skeleton } from '../../components/ui/Skeleton'
+import { ErrorState } from '../../components/ui/ErrorState'
 
-const STRATEGIES = [
-  {
-    id: '1', name: 'Quantum Momentum', nameAr: 'كوانتوم مومنتم',
-    risk: 'moderate', timeframe: '1h',
-    assets: ['BTC', 'ETH'],
-    maxPositionSize: 5, maxDailyLoss: 3, maxOpenPositions: 3,
-    stopLoss: 2.5, takeProfit: 5.0, isEnabled: false,
-    description: 'Momentum-based strategy using volume and price action signals.',
-  },
-  {
-    id: '2', name: 'Quantum Trend', nameAr: 'كوانتوم ترند',
-    risk: 'moderate', timeframe: '4h',
-    assets: ['BTC', 'ETH', 'USDT'],
-    maxPositionSize: 8, maxDailyLoss: 4, maxOpenPositions: 2,
-    stopLoss: 3.0, takeProfit: 8.0, isEnabled: false,
-    description: 'Trend-following strategy using moving averages and market structure.',
-  },
-  {
-    id: '3', name: 'Quantum Conservative', nameAr: 'كوانتوم المحافظ',
-    risk: 'conservative', timeframe: '1d',
-    assets: ['BTC', 'ETH'],
-    maxPositionSize: 3, maxDailyLoss: 1.5, maxOpenPositions: 2,
-    stopLoss: 1.5, takeProfit: 3.0, isEnabled: false,
-    description: 'Low-risk strategy focused on capital preservation with minimal exposure.',
-  },
-  {
-    id: '4', name: 'Quantum Balanced', nameAr: 'كوانتوم المتوازن',
-    risk: 'moderate', timeframe: '4h',
-    assets: ['BTC', 'ETH'],
-    maxPositionSize: 6, maxDailyLoss: 3, maxOpenPositions: 3,
-    stopLoss: 2.0, takeProfit: 6.0, isEnabled: false,
-    description: 'Balanced risk-reward strategy suitable for most market conditions.',
-  },
-  {
-    id: '5', name: 'Quantum Scalper', nameAr: 'كوانتوم سكالبر',
-    risk: 'aggressive', timeframe: '15m',
-    assets: ['BTC'],
-    maxPositionSize: 4, maxDailyLoss: 5, maxOpenPositions: 5,
-    stopLoss: 1.0, takeProfit: 2.0, isEnabled: false,
-    description: 'High-frequency short-term scalping on Bitcoin with tight risk controls.',
-  },
-  {
-    id: '6', name: 'Quantum Swing', nameAr: 'كوانتوم سوينغ',
-    risk: 'moderate', timeframe: '1d',
-    assets: ['BTC', 'ETH'],
-    maxPositionSize: 10, maxDailyLoss: 3, maxOpenPositions: 2,
-    stopLoss: 4.0, takeProfit: 12.0, isEnabled: false,
-    description: 'Multi-day swing trading strategy capturing larger market movements.',
-  },
-  {
-    id: '7', name: 'Quantum Growth', nameAr: 'كوانتوم النمو',
-    risk: 'aggressive', timeframe: '4h',
-    assets: ['BTC', 'ETH'],
-    maxPositionSize: 12, maxDailyLoss: 6, maxOpenPositions: 4,
-    stopLoss: 3.5, takeProfit: 15.0, isEnabled: false,
-    description: 'Growth-focused strategy with higher risk tolerance for experienced users.',
-  },
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const RISK: Record<string, string> = { conservative: '#10b981', moderate: '#D4AF37', aggressive: '#ef4444' }
+const FIELDS: [string, string][] = [
+  ['max_position_size_percent', 'Max position size %'], ['max_daily_loss_percent', 'Max daily loss %'],
+  ['max_open_positions', 'Max open positions'], ['stop_loss_percent', 'Stop loss %'], ['take_profit_percent', 'Take profit %'],
 ]
 
-const RISK_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  conservative: { bg: 'rgba(16,185,129,0.1)', text: '#10b981', label: 'Conservative' },
-  moderate: { bg: 'rgba(212,175,55,0.1)', text: '#D4AF37', label: 'Moderate' },
-  aggressive: { bg: 'rgba(239,68,68,0.1)', text: '#ef4444', label: 'Aggressive' },
-}
-
 export default function AdminStrategies() {
-  const [strategies, setStrategies] = useState(STRATEGIES)
-  const [expanded, setExpanded] = useState<string | null>(null)
-  const [globalStop, setGlobalStop] = useState(false)
+  const q = useQuery({ queryKey: ['admin-strategies'], staleTime: 0, queryFn: () => api.get<any[]>('/api/admin/strategies') })
+  const [open, setOpen] = useState<string | null>(null)
+  const [draft, setDraft] = useState<Record<string, string>>({})
+  const [busy, setBusy] = useState<string | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
 
-  function toggleEnabled(id: string) {
-    if (globalStop) return
-    setStrategies(s => s.map(x =>
-      x.id === id ? { ...x, isEnabled: !x.isEnabled } : x
-    ))
+  async function run(key: string, fn: () => Promise<unknown>, done: string) {
+    setBusy(key); setMsg(null)
+    try { await fn(); setMsg(done); await q.refetch() } catch (e) { setMsg(e instanceof Error ? e.message : 'Failed') }
+    setBusy(null)
   }
 
-  function updateParam(id: string, key: string, val: number) {
-    setStrategies(s => s.map(x =>
-      x.id === id ? { ...x, [key]: val } : x
-    ))
-  }
-
-  const enabledCount = strategies.filter(s => s.isEnabled).length
+  const list = q.data || []
+  const on = list.filter(s => s.is_enabled).length
 
   return (
     <div>
-      <div style={{
-        display: 'flex', alignItems: 'flex-start',
-        justifyContent: 'space-between', marginBottom: 24,
-        flexWrap: 'wrap', gap: 12,
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
         <div>
-          <h1 style={{
-            fontSize: 22, fontWeight: 800,
-            fontFamily: 'Montserrat', color: '#fff', marginBottom: 4,
-          }}>AI Strategies</h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat' }}>
-            Configure and manage AI trading strategies and risk parameters
+          <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', marginBottom: 4 }}>AI Strategies</h1>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', lineHeight: 1.7 }}>
+            {on} of {list.length} enabled. Changes are saved immediately. The signal engine only runs enabled strategies; disabling one retires its live signals.
           </p>
         </div>
-
-        {/* Global emergency stop */}
-        <button
-          onClick={() => {
-            setGlobalStop(g => !g)
-            if (!globalStop) setStrategies(s => s.map(x => ({ ...x, isEnabled: false })))
-          }}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: globalStop
-              ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.08)',
-            border: `1px solid ${globalStop
-              ? 'rgba(239,68,68,0.5)' : 'rgba(239,68,68,0.2)'}`,
-            borderRadius: 8, padding: '10px 18px',
-            cursor: 'pointer', color: '#ef4444',
-            fontSize: 12, fontFamily: 'Montserrat', fontWeight: 700,
-            transition: 'all 0.2s',
-          }}
-        >
-          <Shield size={15} />
-          {globalStop ? '⚠ GLOBAL STOP ACTIVE' : 'Global Emergency Stop'}
-        </button>
+        <button disabled={busy === 'all' || on === 0} onClick={() => { if (window.confirm('Disable ALL strategies and retire every live signal?')) run('all', () => api.post('/api/admin/strategies/disable-all', {}), 'All strategies disabled') }}
+          style={{ ...btn('red', busy === 'all' || on === 0), width: 'auto', padding: '10px 16px' }}>Emergency stop all</button>
       </div>
+      {msg && <div style={{ marginBottom: 12, fontSize: 12, color: '#D4AF37', fontFamily: 'Montserrat' }}>{msg}</div>}
 
-      {/* Status bar */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(4,1fr)',
-        gap: 14, marginBottom: 24,
-      }} className="strategy-stats">
-        {[
-          { label: 'Total Strategies', value: strategies.length.toString(), color: '#D4AF37' },
-          { label: 'Enabled', value: enabledCount.toString(), color: '#10b981' },
-          { label: 'Disabled', value: (strategies.length - enabledCount).toString(), color: '#6b7280' },
-          { label: 'Global Status', value: globalStop ? 'STOPPED' : 'OPERATIONAL', color: globalStop ? '#ef4444' : '#10b981' },
-        ].map((s, i) => (
-          <div key={i} style={{
-            background: 'rgba(20,20,20,0.8)',
-            border: '1px solid rgba(212,175,55,0.08)',
-            borderRadius: 10, padding: '16px',
-          }}>
-            <div style={{
-              fontSize: 22, fontWeight: 800,
-              fontFamily: 'Montserrat', color: s.color, marginBottom: 4,
-            }}>{s.value}</div>
-            <div style={{
-              fontSize: 11, color: 'rgba(255,255,255,0.4)',
-              fontFamily: 'Montserrat',
-            }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {globalStop && (
-        <div style={{
-          background: 'rgba(239,68,68,0.08)',
-          border: '1px solid rgba(239,68,68,0.25)',
-          borderRadius: 10, padding: '14px 18px', marginBottom: 20,
-          display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <AlertTriangle size={16} color="#ef4444" />
-          <span style={{ fontSize: 12, color: '#ef4444', fontFamily: 'Montserrat', fontWeight: 600 }}>
-            GLOBAL EMERGENCY STOP ACTIVE — All strategies disabled. No new positions will be opened.
-          </span>
-        </div>
-      )}
-
-      {/* Strategies list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {strategies.map(s => {
-          const isExpanded = expanded === s.id
-          const rc = RISK_COLORS[s.risk]
-
-          return (
-            <div key={s.id} style={{
-              background: 'rgba(20,20,20,0.8)',
-              border: `1px solid ${s.isEnabled ? 'rgba(16,185,129,0.2)' : 'rgba(212,175,55,0.08)'}`,
-              borderRadius: 12, overflow: 'hidden',
-              transition: 'all 0.2s',
-            }}>
-              {/* Header row */}
-              <div style={{
-                display: 'flex', alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '16px 20px',
-                cursor: 'pointer',
-                gap: 12,
-              }} onClick={() => setExpanded(isExpanded ? null : s.id)}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 9,
-                    background: s.isEnabled
-                      ? 'rgba(16,185,129,0.1)' : 'rgba(44,44,44,0.5)',
-                    border: `1px solid ${s.isEnabled ? 'rgba(16,185,129,0.2)' : 'rgba(212,175,55,0.1)'}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    <Bot size={16} color={s.isEnabled ? '#10b981' : 'rgba(255,255,255,0.3)'} />
-                  </div>
-                  <div>
-                    <div style={{
-                      fontSize: 14, fontWeight: 700,
-                      color: '#fff', fontFamily: 'Montserrat', marginBottom: 2,
-                    }}>{s.name}</div>
-                    <div style={{
-                      fontSize: 12, color: 'rgba(255,255,255,0.35)',
-                      fontFamily: 'Cairo',
-                    }}>{s.nameAr} • {s.timeframe} • {s.assets.join(', ')}</div>
-                  </div>
+      {q.isLoading ? <div style={cardGrid}>{[1, 2, 3].map(i => <Skeleton key={i} height={120} borderRadius={14} />)}</div>
+        : q.isError ? <ErrorState english onRetry={q.refetch} />
+        : (
+          <div style={cardGrid}>
+            {list.map(s => (
+              <div key={s.id} style={{ ...cardCss, cursor: 'default', borderColor: s.is_enabled ? 'rgba(16,185,129,0.4)' : undefined }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 8 }}>
+                  <b style={{ color: '#fff', fontFamily: 'Montserrat', fontSize: 15 }}>{s.name}</b>
+                  <Pill text={s.risk_level} color={RISK[s.risk_level]} />
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{
-                    fontSize: 10, fontWeight: 700,
-                    fontFamily: 'Montserrat',
-                    color: rc.text, background: rc.bg,
-                    padding: '3px 8px', borderRadius: 4,
-                  }}>{rc.label.toUpperCase()}</span>
-
-                  {/* Enable toggle */}
-                  <button
-                    onClick={e => { e.stopPropagation(); toggleEnabled(s.id) }}
-                    disabled={globalStop}
-                    style={{
-                      width: 44, height: 24, borderRadius: 12,
-                      background: s.isEnabled ? '#10b981' : 'rgba(44,44,44,0.8)',
-                      border: `1px solid ${s.isEnabled ? '#10b981' : 'rgba(212,175,55,0.2)'}`,
-                      cursor: globalStop ? 'not-allowed' : 'pointer',
-                      position: 'relative', transition: 'all 0.3s', padding: 0,
-                      opacity: globalStop ? 0.4 : 1,
-                    }}
-                  >
-                    <div style={{
-                      position: 'absolute', top: 2,
-                      right: s.isEnabled ? 2 : undefined,
-                      left: s.isEnabled ? undefined : 2,
-                      width: 18, height: 18, borderRadius: '50%',
-                      background: '#fff', transition: 'all 0.3s',
-                    }} />
-                  </button>
-
-                  {isExpanded
-                    ? <ChevronUp size={16} color="rgba(255,255,255,0.4)" />
-                    : <ChevronDown size={16} color="rgba(255,255,255,0.4)" />
-                  }
+                <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.45)', fontFamily: 'Montserrat', marginBottom: 8, lineHeight: 1.6 }}>
+                  {s.timeframe} · {(s.supported_assets || []).join(', ') || '—'}{s.description ? ` · ${s.description}` : ''}
                 </div>
-              </div>
-
-              {/* Expanded params */}
-              {isExpanded && (
-                <div style={{
-                  padding: '0 20px 20px',
-                  borderTop: '1px solid rgba(212,175,55,0.07)',
-                }}>
-                  <p style={{
-                    fontSize: 12, color: 'rgba(255,255,255,0.4)',
-                    fontFamily: 'Montserrat', lineHeight: 1.6,
-                    margin: '14px 0',
-                  }}>{s.description}</p>
-
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3,1fr)',
-                    gap: 12,
-                  }} className="params-grid">
-                    {[
-                      { key: 'maxPositionSize', label: 'Max Position Size %', value: s.maxPositionSize, step: 0.5 },
-                      { key: 'maxDailyLoss', label: 'Max Daily Loss %', value: s.maxDailyLoss, step: 0.5 },
-                      { key: 'maxOpenPositions', label: 'Max Open Positions', value: s.maxOpenPositions, step: 1 },
-                      { key: 'stopLoss', label: 'Stop Loss %', value: s.stopLoss, step: 0.1 },
-                      { key: 'takeProfit', label: 'Take Profit %', value: s.takeProfit, step: 0.5 },
-                    ].map(param => (
-                      <div key={param.key}>
-                        <label style={{
-                          display: 'block', fontSize: 10, fontWeight: 700,
-                          color: 'rgba(255,255,255,0.35)',
-                          fontFamily: 'Montserrat', letterSpacing: 1, marginBottom: 7,
-                        }}>{param.label.toUpperCase()}</label>
-                        <input
-                          type="number"
-                          value={param.value}
-                          step={param.step}
-                          min={0}
-                          onChange={e => updateParam(s.id, param.key, parseFloat(e.target.value))}
-                          style={{
-                            width: '100%',
-                            background: 'rgba(11,11,11,0.6)',
-                            border: '1px solid rgba(212,175,55,0.15)',
-                            borderRadius: 6, padding: '9px 12px',
-                            color: '#fff', fontSize: 13,
-                            fontFamily: 'Montserrat', outline: 'none',
-                            boxSizing: 'border-box',
-                          }}
-                        />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button disabled={busy === s.id} onClick={() => run(s.id, () => api.patch(`/api/admin/strategies/${s.id}`, { is_enabled: !s.is_enabled }), s.is_enabled ? `${s.name} disabled` : `${s.name} enabled`)}
+                    style={btn(s.is_enabled ? 'red' : 'green', busy === s.id)}>{busy === s.id ? 'Saving…' : s.is_enabled ? 'Turn off' : 'Turn on'}</button>
+                  <button onClick={() => { setOpen(open === s.id ? null : s.id); setDraft({}) }} style={btn('ghost')}>{open === s.id ? 'Close' : 'Parameters'}</button>
+                </div>
+                {open === s.id && (
+                  <div style={{ marginTop: 12, display: 'grid', gap: 10 }}>
+                    {FIELDS.map(([k, label]) => (
+                      <div key={k}>
+                        <label style={labelCss}>{label}</label>
+                        <input inputMode="decimal" value={draft[k] ?? String(s[k] ?? '')} onChange={e => setDraft(d => ({ ...d, [k]: e.target.value.replace(/[^0-9.]/g, '') }))} style={inputCss} />
                       </div>
                     ))}
+                    <button disabled={busy === s.id + 'p' || Object.keys(draft).length === 0}
+                      onClick={() => run(s.id + 'p', async () => {
+                        const body: Record<string, number> = {}
+                        for (const [k, v] of Object.entries(draft)) body[k] = Number(v)
+                        await api.patch(`/api/admin/strategies/${s.id}`, body); setDraft({})
+                      }, 'Parameters saved')}
+                      style={btn('gold', busy === s.id + 'p' || Object.keys(draft).length === 0)}>Save parameters</button>
                   </div>
-
-                  <div style={{
-                    marginTop: 14,
-                    padding: '10px 14px',
-                    background: 'rgba(245,158,11,0.05)',
-                    border: '1px solid rgba(245,158,11,0.1)',
-                    borderRadius: 8,
-                  }}>
-                    <div style={{
-                      fontSize: 10, color: 'rgba(245,158,11,0.6)',
-                      fontFamily: 'Montserrat', lineHeight: 1.6,
-                    }}>
-                      ⚠ Connect a live exchange/broker API before enabling any strategy.
-                      Risk parameters are enforced server-side. Changes here require
-                      backend restart to take effect in production.
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      <style>{`
-        @media (max-width: 1024px) { .strategy-stats { grid-template-columns: 1fr 1fr !important; } }
-        @media (max-width: 640px) {
-          .strategy-stats { grid-template-columns: 1fr 1fr !important; }
-          .params-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-      `}</style>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
     </div>
   )
 }

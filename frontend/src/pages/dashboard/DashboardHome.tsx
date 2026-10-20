@@ -125,7 +125,7 @@ export default function DashboardHome() {
         <div className="glass-card" style={{ padding: 20, minWidth: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Cairo', color: '#fff' }}>التداول الذكي</h2>
-            <Link to="/dashboard/trading" style={{ fontSize: 12, color: '#D4AF37', textDecoration: 'none', fontFamily: 'Cairo', padding: 6 }}>عرض الكل</Link>
+            <Link to="/dashboard/trade" style={{ fontSize: 12, color: '#D4AF37', textDecoration: 'none', fontFamily: 'Cairo', padding: 6 }}>عرض الكل</Link>
           </div>
           {trade.isError ? <ErrorState onRetry={() => trade.refetch()} /> : !trade.data ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
@@ -153,7 +153,7 @@ export default function DashboardHome() {
           <Link to="/dashboard/deposit" style={linkBtn(true)}><ArrowDownCircle size={16} />إيداع</Link>
           <Link to="/dashboard/withdraw" style={linkBtn(false)}><ArrowUpCircle size={16} />سحب</Link>
           <Link to="/dashboard/investments" style={linkBtn(false)}><Briefcase size={16} />استثمار</Link>
-          <Link to="/dashboard/trading" style={linkBtn(false)}><Bot size={16} />التداول الذكي</Link>
+          <Link to="/dashboard/trade" style={linkBtn(false)}><Bot size={16} />التداول الذكي</Link>
         </div>
       </div>
 

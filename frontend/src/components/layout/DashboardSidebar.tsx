@@ -10,7 +10,6 @@ import {
 const navItems = [
   { icon: LayoutDashboard, label: 'لوحة التحكم', href: '/dashboard' },
   { icon: Briefcase, label: 'استثماراتي', href: '/dashboard/investments' },
-  { icon: TrendingUp, label: 'التداول الذكي', href: '/dashboard/trading' },
   { icon: TrendingUp, label: 'غرفة التداول', href: '/dashboard/trade' },
   { icon: Bot, label: 'إشارات الذكاء الاصطناعي', href: '/dashboard/signals' },
   { icon: Brain, label: 'ذكاء السوق', href: '/dashboard/ai' },

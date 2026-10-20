@@ -168,7 +168,7 @@ export default function DepositPage() {
   const done = dep?.status === 'confirmed'
 
   return (
-    <div style={{ direction: 'rtl', maxWidth: 600, margin: '0 auto' }} translate="no" className="notranslate">
+    <div style={{ direction: 'rtl', maxWidth: 600, margin: '0 auto' }}>
       <h1 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', marginBottom: 6 }}><span>إيداع الأصول</span></h1>
       <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo', marginBottom: 22 }}><span>يُضاف الرصيد تلقائياً بعد رصد التحويل وتأكيده على الشبكة</span></p>
 

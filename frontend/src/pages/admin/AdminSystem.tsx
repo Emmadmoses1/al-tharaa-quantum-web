@@ -30,7 +30,7 @@ export default function AdminSystem() {
 
   const bad = rows?.filter(r => !r.ok).length ?? 0
   return (
-    <div translate="no" className="notranslate">
+    <div>
       <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', marginBottom: 4 }}>System Check</h1>
       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', marginBottom: 14, lineHeight: 1.7 }}>
         Tests every table you can read and every API route. A "permission denied" or "row-level security" error means a policy is missing: run the heal SQL. "Failed to fetch" means the API is asleep, down, or blocked by CORS.

@@ -113,7 +113,7 @@ export default function WithdrawPage() {
   const h2: React.CSSProperties = { fontSize: 17, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', marginBottom: 16 }
 
   return (
-    <div style={{ direction: 'rtl', maxWidth: 560, margin: '0 auto' }} translate="no" className="notranslate">
+    <div style={{ direction: 'rtl', maxWidth: 560, margin: '0 auto' }}>
       <h1 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', marginBottom: 6 }}><span>سحب الأصول</span></h1>
       <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo', marginBottom: 20 }}><span>سحب العملات المشفرة إلى محفظتك الخارجية</span></p>
 

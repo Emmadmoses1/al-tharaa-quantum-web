@@ -28,7 +28,7 @@ export default function AdminTrades() {
   const pnl = rows.reduce((s, t) => s + (t.pnl != null ? Number(t.pnl) : 0), 0)
 
   return (
-    <div translate="no" className="notranslate">
+    <div>
       <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', marginBottom: 4 }}>User Trades</h1>
       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', marginBottom: 14 }}>
         Every user trade. Open trades update live. Force-close settles at the current market price.

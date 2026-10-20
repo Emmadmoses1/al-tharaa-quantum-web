@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import LangSwitch from './components/LangSwitch'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import AdminRoute from './components/layout/AdminRoute'
@@ -76,6 +77,7 @@ function AdminPage({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <AuthProvider>
+      <LangSwitch />
       <Routes>
         {/* ── Public ── */}
         <Route path="/" element={<LandingPage />} />
@@ -99,7 +101,7 @@ export default function App() {
         <Route path="/dashboard/deposit" element={<UserPage><DepositPage /></UserPage>} />
         <Route path="/dashboard/withdraw" element={<UserPage><WithdrawPage /></UserPage>} />
         <Route path="/dashboard/investments" element={<UserPage><InvestmentsPage /></UserPage>} />
-        <Route path="/dashboard/trading" element={<UserPage><TradingPage /></UserPage>} />
+        <Route path="/dashboard/trading" element={<Navigate to="/dashboard/trade" replace />} />
         <Route path="/dashboard/signals" element={<UserPage><SignalsPage /></UserPage>} />
         <Route path="/dashboard/trade" element={<UserPage><TradeRoom /></UserPage>} />
         <Route path="/dashboard/transactions" element={<UserPage><TransactionsPage /></UserPage>} />

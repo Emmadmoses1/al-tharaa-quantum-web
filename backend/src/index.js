@@ -17,6 +17,7 @@ import binaryRouter from './routes/binary.js'
 import { settleBinary } from './services/binarySettler.js'
 import adminTradesRouter from './routes/adminTrades.js'
 import adminUsersRouter from './routes/adminUsers.js'
+import adminStrategiesRouter from './routes/adminStrategies.js'
 import adminRouter from './routes/admin.js'
 import reservesRouter from './routes/adminReserves.js'
 import marketsRouter from './routes/markets.js'
@@ -86,6 +87,7 @@ app.use('/api/markets', marketsRouter)
 app.use('/api/ai-status', aiStatusRouter)
 app.use('/api/admin/trades', adminTradesRouter)
 app.use('/api/admin/users', adminUsersRouter)
+app.use('/api/admin/strategies', adminStrategiesRouter)
 app.use('/api/admin', adminRouter)
 
 // 404

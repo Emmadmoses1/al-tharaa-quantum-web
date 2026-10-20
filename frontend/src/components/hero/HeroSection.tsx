@@ -84,7 +84,7 @@ export default function HeroSection() {
                     ابدأ الاستثمار
                   </button>
                 </Link>
-                <Link to="/dashboard/trading" style={{ textDecoration: 'none' }}>
+                <Link to="/dashboard/trade" style={{ textDecoration: 'none' }}>
                   <button className="btn-outline-gold" style={{ fontSize: 15 }}>
                     استكشف التداول الذكي
                   </button>

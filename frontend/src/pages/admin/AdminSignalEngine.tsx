@@ -27,7 +27,7 @@ export default function AdminSignalEngine() {
   const e = q.data
   const last = e?.last_result
   return (
-    <div translate="no" className="notranslate">
+    <div>
       <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', marginBottom: 4 }}>AI Signal Engine</h1>
       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', marginBottom: 16, lineHeight: 1.7 }}>
         Rule-based engine (EMA20/50, RSI, ATR on live Binance candles). Publishes signals for every enabled strategy and closes user positions at stop-loss or take-profit.

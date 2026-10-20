@@ -60,7 +60,7 @@ export default function AdminBalances() {
   const live = q.data?.users.find(u => u.id === sel?.id) || sel
 
   return (
-    <div translate="no" className="notranslate">
+    <div>
       <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', marginBottom: 4 }}>User Balances</h1>
       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', marginBottom: 14, lineHeight: 1.7 }}>
         What the platform owes users, per wallet. Compare the totals with what your deposit wallets actually hold.

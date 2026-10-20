@@ -87,7 +87,7 @@ export default function SignalsPage() {
   const card: React.CSSProperties = { background: 'rgba(20,20,20,0.85)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 14, padding: 18 }
 
   return (
-    <div style={{ direction: 'rtl' }} translate="no" className="notranslate">
+    <div style={{ direction: 'rtl' }}>
       <h1 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', marginBottom: 6 }}><span>إشارات الذكاء الاصطناعي</span></h1>
       <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo', marginBottom: 18, lineHeight: 1.8 }}>
         <span>تُحدَّث الإشارات تلقائياً من تحليل فني (EMA وRSI وATR). الصفقات تُنفَّذ داخل المنصة على رصيد محفظة التداول بسعر السوق الحالي.</span>

@@ -8,7 +8,7 @@ import { useUnreadCount } from '../../hooks/useData'
 const TABS = [
   { href: '/dashboard', label: 'الرئيسية', icon: LayoutDashboard },
   { href: '/dashboard/investments', label: 'استثمار', icon: Briefcase },
-  { href: '/dashboard/trading', label: 'تداول', icon: TrendingUp },
+  { href: '/dashboard/trade', label: 'تداول', icon: TrendingUp },
   { href: '/dashboard/deposit', label: 'إيداع', icon: ArrowDownCircle },
 ]
 

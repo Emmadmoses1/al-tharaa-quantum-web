@@ -22,7 +22,7 @@ export default function AdminReserves() {
   }
 
   return (
-    <div translate="no" className="notranslate">
+    <div>
       <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', marginBottom: 4 }}>Reserves Check</h1>
       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', marginBottom: 14, lineHeight: 1.7 }}>
         Compares what your deposit wallets hold on-chain with what users are owed (ledger balances plus money inside open trades).
