@@ -1,3 +1,4 @@
+import { useSoundWhen } from '../../lib/sound'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -166,6 +167,7 @@ export default function DepositPage() {
   const h2: React.CSSProperties = { fontSize: 17, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', marginBottom: 6 }
   const sub: React.CSSProperties = { fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo', marginBottom: 18, lineHeight: 1.8 }
   const done = dep?.status === 'confirmed'
+  useSoundWhen(done, 'deposit')
 
   return (
     <div style={{ direction: 'rtl', maxWidth: 600, margin: '0 auto' }}>

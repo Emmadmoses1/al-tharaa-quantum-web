@@ -1,3 +1,4 @@
+import { playSound } from '../../lib/sound'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -63,6 +64,7 @@ export default function TradeRoom() {
       if (seen.current.has(o.id)) continue
       seen.current.add(o.id)
       const net = o.status === 'won' ? Number(o.payout) - Number(o.amount) : o.status === 'lost' ? -Number(o.amount) : 0
+      playSound(o.status === 'won' ? 'win' : o.status === 'lost' ? 'lose' : 'tie')
       setToast({ ok: net >= 0 && o.status !== 'lost', text: o.status === 'won' ? `ربحت +${num(net)} USDT` : o.status === 'lost' ? `خسرت ${num(net)} USDT` : o.status === 'tie' ? 'تعادل: أُعيد المبلغ' : 'أُلغيت الصفقة وأُعيد المبلغ' })
       qc.invalidateQueries({ queryKey: ['wallet-balances'] })
       qc.invalidateQueries({ queryKey: ['turnover'] })
@@ -74,8 +76,9 @@ export default function TradeRoom() {
     setBusy(true); setErr(null)
     try {
       await api.post('/api/binary/place', { asset, direction, amount: amt, seconds })
+      playSound('order')
       qc.invalidateQueries({ queryKey: ['bin-orders'] }); qc.invalidateQueries({ queryKey: ['wallet-balances'] })
-    } catch (e) { setErr(e instanceof Error ? e.message : 'فشل تنفيذ الصفقة') }
+    } catch (e) { playSound('error'); setErr(e instanceof Error ? e.message : 'فشل تنفيذ الصفقة') }
     setBusy(false)
   }
 

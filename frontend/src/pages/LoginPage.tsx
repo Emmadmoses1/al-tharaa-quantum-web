@@ -1,3 +1,4 @@
+import { playSound } from '../lib/sound'
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -22,6 +23,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (!loading && user) {
       const dest = state?.from?.pathname || '/dashboard'
+      playSound('login')
       navigate(dest, { replace: true })
     }
   }, [user, loading, navigate, state])

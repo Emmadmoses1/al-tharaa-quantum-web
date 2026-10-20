@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import LangSwitch from './components/LangSwitch'
+import SoundEvents from './components/SoundEvents'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import AdminRoute from './components/layout/AdminRoute'
@@ -78,6 +79,7 @@ export default function App() {
   return (
     <AuthProvider>
       <LangSwitch />
+      <SoundEvents />
       <Routes>
         {/* ── Public ── */}
         <Route path="/" element={<LandingPage />} />

@@ -1,3 +1,4 @@
+import { playSound } from '../../lib/sound'
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Shield, CheckCircle, Copy } from 'lucide-react'
@@ -94,6 +95,7 @@ export default function WithdrawPage() {
       })
       qc.invalidateQueries({ queryKey: ['wd-hist'] })
       qc.invalidateQueries({ queryKey: ['wallet-balances'] })
+      playSound('withdraw')
       setStep(4)
     } catch (e) {
       const m = e instanceof Error ? e.message : ''

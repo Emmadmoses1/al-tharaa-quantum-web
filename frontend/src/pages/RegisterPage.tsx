@@ -1,3 +1,4 @@
+import { playSound } from '../lib/sound'
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -19,6 +20,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (success && !loading && user) {
+      playSound('welcome')
       navigate('/dashboard', { replace: true })
     }
   }, [success, user, loading, navigate])

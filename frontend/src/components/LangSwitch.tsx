@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Globe } from 'lucide-react'
+import { Globe, Volume2, VolumeX } from 'lucide-react'
+import { isMuted, setMuted } from '../lib/sound'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Stops React crashing when Google Translate rewrites text nodes
@@ -37,6 +38,7 @@ function choose(code: string) {
 
 export default function LangSwitch() {
   const [open, setOpen] = useState(false)
+  const [muted, setMut] = useState(() => isMuted())
   const [lang] = useState(() => { try { return current() } catch { return 'ar' } })
 
   useEffect(() => {
@@ -63,6 +65,10 @@ export default function LangSwitch() {
             ))}
           </div>
         )}
+        <button type="button" aria-label="Sound" onClick={() => { setMuted(!muted); setMut(!muted) }}
+          style={{ width: 44, height: 44, marginBottom: 8, borderRadius: '50%', background: '#141414', border: '1px solid rgba(212,175,55,0.5)', color: muted ? '#6b7280' : '#D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,0,0,0.5)' }}>
+          {muted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </button>
         <button type="button" aria-label="Language" onClick={() => setOpen(o => !o)}
           style={{ width: 44, height: 44, borderRadius: '50%', background: '#141414', border: '1px solid rgba(212,175,55,0.5)', color: '#D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,0,0,0.5)' }}>
           <Globe size={20} />
