@@ -39,6 +39,8 @@ import AdminCurrencies from './pages/admin/AdminCurrencies'
 import AdminStatistics from './pages/admin/AdminStatistics'
 import AdminNotifications from './pages/admin/AdminNotifications'
 import AdminSettings from './pages/admin/AdminSettings'
+import AdminTrades from './pages/admin/AdminTrades'
+import AdminSystem from './pages/admin/AdminSystem'
 import AdminReserves from './pages/admin/AdminReserves'
 import AdminBalances from './pages/admin/AdminBalances'
 import AdminSignalEngine from './pages/admin/AdminSignalEngine'
@@ -126,6 +128,8 @@ export default function App() {
         <Route path="/admin/notifications" element={<AdminPage><AdminNotifications /></AdminPage>} />
         <Route path="/admin/statistics" element={<AdminPage><AdminStatistics /></AdminPage>} />
         <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+        <Route path="/admin/trades" element={<AdminPage><AdminTrades /></AdminPage>} />
+        <Route path="/admin/system" element={<AdminPage><AdminSystem /></AdminPage>} />
         <Route path="/admin/support" element={<AdminPage><AdminSupport /></AdminPage>} />
         <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
 

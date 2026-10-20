@@ -21,6 +21,9 @@ export async function requireAuth(req, res, next) {
     }
 
     req.user = user
+    const { supabase } = await import('../lib/supabase.js')
+    const { data: sp } = await supabase.from('profiles').select('is_suspended').eq('id', user.id).maybeSingle()
+    if (sp?.is_suspended) return res.status(403).json({ success: false, error: { message: 'Account suspended. Contact support.', code: 'ACCOUNT_SUSPENDED' } })
     next()
   } catch (err) {
     next(err)

@@ -33,6 +33,7 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   { title: 'AI TRADING', items: [
     { icon: Bot, label: 'Signal Engine', href: '/admin/signal-engine' },
     { icon: Bot, label: 'AI Overview', href: '/admin/ai' },
+    { icon: TrendingUp, label: 'User Trades', href: '/admin/trades' },
     { icon: BarChart2, label: 'Strategies', href: '/admin/strategies' },
     { icon: Shield, label: 'Risk Controls', href: '/admin/risk' },
   ]},
@@ -43,6 +44,7 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
     { icon: LifeBuoy, label: 'Support', href: '/admin/support' },
     { icon: ScrollText, label: 'Audit Log', href: '/admin/audit' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
+    { icon: Activity, label: 'System Check', href: '/admin/system' },
   ]},
 ]
 
