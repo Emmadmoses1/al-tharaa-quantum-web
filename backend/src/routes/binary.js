@@ -7,22 +7,31 @@ import { getPrice } from '../services/prices.js'
 const router = Router()
 router.use(requireAuth)
 
-// Keep in sync with the constants inside place_binary_order()
-const CFG = { payout_percent: 85, durations: [60, 180, 300, 900], min: 1, max: 500, max_open: 10, assets: ['BTC', 'ETH'] }
-const placeSchema = Joi.object({
-  asset: Joi.string().valid(...CFG.assets).required(),
-  direction: Joi.string().valid('up', 'down').required(),
-  amount: Joi.number().min(CFG.min).max(CFG.max).required(),
-  seconds: Joi.number().valid(...CFG.durations).required(),
-})
+const DURATIONS = [60, 180, 300, 900]
+const ASSETS = ['BTC', 'ETH']
 const priceCache = new Map()
+let cfgCache = { at: 0, v: null }
 
-router.get('/config', (_req, res) => res.json({ success: true, data: CFG }))
+export async function loadConfig() {
+  if (cfgCache.v && Date.now() - cfgCache.at < 4000) return cfgCache.v
+  const { data, error } = await supabase.from('trading_config').select('*').eq('id', 1).single()
+  if (error || !data) throw new Error('Trading configuration missing. Run the trading_config SQL.')
+  cfgCache = { at: Date.now(), v: {
+    enabled: data.binary_enabled, payout_percent: Number(data.payout_percent), min: Number(data.min_stake), max: Number(data.max_stake),
+    max_open: data.max_open_per_user, durations: DURATIONS, assets: ASSETS,
+  } }
+  return cfgCache.v
+}
+export function clearConfigCache() { cfgCache = { at: 0, v: null } }
+
+router.get('/config', async (_req, res, next) => {
+  try { res.json({ success: true, data: await loadConfig() }) } catch (err) { next(err) }
+})
 
 router.get('/price', async (req, res, next) => {
   try {
     const asset = String(req.query.asset || 'BTC').toUpperCase()
-    if (!CFG.assets.includes(asset)) return res.status(400).json({ success: false, error: { message: 'Unsupported asset', code: 'BAD_REQUEST' } })
+    if (!ASSETS.includes(asset)) return res.status(400).json({ success: false, error: { message: 'Unsupported asset', code: 'BAD_REQUEST' } })
     const hit = priceCache.get(asset)
     if (hit && Date.now() - hit.at < 1500) return res.json({ success: true, data: { asset, price: hit.price } })
     const price = await getPrice(asset)
@@ -45,7 +54,15 @@ router.get('/orders', async (req, res, next) => {
 
 router.post('/place', async (req, res, next) => {
   try {
-    const { value, error: ve } = placeSchema.validate(req.body)
+    const cfg = await loadConfig()
+    if (!cfg.enabled) return res.status(400).json({ success: false, error: { message: 'Trading is temporarily paused', code: 'PAUSED' } })
+    const schema = Joi.object({
+      asset: Joi.string().valid(...ASSETS).required(),
+      direction: Joi.string().valid('up', 'down').required(),
+      amount: Joi.number().min(cfg.min).max(cfg.max).required(),
+      seconds: Joi.number().valid(...DURATIONS).required(),
+    })
+    const { value, error: ve } = schema.validate(req.body)
     if (ve) return res.status(400).json({ success: false, error: { message: ve.message, code: 'BAD_REQUEST' } })
     const price = await getPrice(value.asset)
     const { data, error } = await supabase.rpc('place_binary_order', {

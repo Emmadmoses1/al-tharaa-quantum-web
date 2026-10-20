@@ -15,9 +15,11 @@ import notificationsRouter from './routes/notifications.js'
 import tradeActionsRouter from './routes/tradeActions.js'
 import binaryRouter from './routes/binary.js'
 import { settleBinary } from './services/binarySettler.js'
+import { sendNotificationEmails } from './services/emailNotifier.js'
 import adminTradesRouter from './routes/adminTrades.js'
 import adminUsersRouter from './routes/adminUsers.js'
 import adminStrategiesRouter from './routes/adminStrategies.js'
+import adminBinaryRouter from './routes/adminBinary.js'
 import adminRouter from './routes/admin.js'
 import reservesRouter from './routes/adminReserves.js'
 import marketsRouter from './routes/markets.js'
@@ -88,6 +90,7 @@ app.use('/api/ai-status', aiStatusRouter)
 app.use('/api/admin/trades', adminTradesRouter)
 app.use('/api/admin/users', adminUsersRouter)
 app.use('/api/admin/strategies', adminStrategiesRouter)
+app.use('/api/admin/binary', adminBinaryRouter)
 app.use('/api/admin', adminRouter)
 
 // 404
@@ -106,5 +109,6 @@ app.listen(PORT, () => {
   if (process.env.SIGNAL_ENGINE !== 'off') startLoop('signals', runSignalEngine, Number(process.env.SIGNAL_INTERVAL_MIN || 15) * 60000)
   if (process.env.POSITION_MONITOR !== 'off') startLoop('positions', monitorPositions, 30000)
   startLoop('binary', settleBinary, 2000)
+  startLoop('email', sendNotificationEmails, 20000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })

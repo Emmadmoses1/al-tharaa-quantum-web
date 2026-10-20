@@ -13,7 +13,7 @@ type Order = {
   expires_at: string; status: string; close_price: number | null; payout: number | null; expiry_seconds: number
 }
 type Orders = { open: Order[]; history: Order[] }
-type Cfg = { payout_percent: number; durations: number[]; min: number; max: number; max_open: number; assets: string[] }
+type Cfg = { enabled?: boolean; payout_percent: number; durations: number[]; min: number; max: number; max_open: number; assets: string[] }
 
 const UP = '#10b981', DOWN = '#ef4444'
 const num = (n: unknown, d = 2) => (n == null ? '—' : Number(n).toLocaleString('en-US', { maximumFractionDigits: d }))
@@ -49,7 +49,7 @@ export default function TradeRoom() {
   const C = cfg.data
   const payout = C?.payout_percent ?? 85
   const amt = Number(amount) || 0
-  const amountOk = !!C && amt >= C.min && amt <= C.max && amt <= balance
+  const amountOk = !!C && C.enabled !== false && amt >= C.min && amt <= C.max && amt <= balance
   const px = price.data?.price
   const prevPx = useRef<number | undefined>(undefined)
   const pxDir = px != null && prevPx.current != null ? (px > prevPx.current ? 1 : px < prevPx.current ? -1 : 0) : 0
@@ -101,6 +101,8 @@ export default function TradeRoom() {
       <TurnoverCard />
 
       {toast && <div role="status" style={{ ...card, marginBottom: 12, textAlign: 'center', fontWeight: 800, fontFamily: 'Cairo', fontSize: 16, color: toast.ok ? UP : DOWN, borderColor: toast.ok ? `${UP}66` : `${DOWN}66` }}>{toast.text}</div>}
+
+      {C && C.enabled === false && <div role="alert" style={{ ...card, marginBottom: 12, textAlign: 'center', color: '#f59e0b', fontFamily: 'Cairo', fontSize: 14, borderColor: 'rgba(245,158,11,0.4)' }}>التداول متوقف مؤقتاً. الصفقات المفتوحة ستُحسم كالمعتاد.</div>}
 
       <div className="tr-grid">
         <div className="tr-chart">

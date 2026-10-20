@@ -60,6 +60,18 @@ router.post('/', validate(withdrawalSchema), async (req, res, next) => {
       if (!t.eligible) return bad(res, `يجب أن تتداول ${Number(t.multiplier)} أضعاف إيداعك قبل السحب. المتبقي: ${Number(t.remaining).toFixed(2)} USDT`, 'TURNOVER_REQUIRED')
     }
 
+    if (asset === 'USDT' || asset === 'USDC') {
+      const { data: cfgRow } = await supabase.from('trading_config').select('withdraw_daily_limit_usdt').eq('id', 1).maybeSingle()
+      const limit = Number(cfgRow?.withdraw_daily_limit_usdt ?? 0)
+      if (limit > 0) {
+        const since = new Date(Date.now() - 86400000).toISOString()
+        const { data: recent } = await supabase.from('withdrawals').select('amount')
+          .eq('user_id', userId).in('asset', ['USDT', 'USDC']).not('status', 'in', '(rejected,cancelled)').gte('created_at', since)
+        const used = (recent || []).reduce((s, w) => s + Number(w.amount), 0)
+        if (used + amount > limit) return bad(res, `تجاوزت حد السحب اليومي (${limit} USDT). المتبقي: ${Math.max(0, limit - used).toFixed(2)} USDT`, 'DAILY_LIMIT')
+      }
+    }
+
     const ledgerType = withdrawal_type === 'trading' ? 'trading' : 'investment'
     const { data: last } = await supabase.from('ledger_entries').select('balance_after')
       .eq('user_id', userId).eq('ledger_type', ledgerType).eq('asset', asset)

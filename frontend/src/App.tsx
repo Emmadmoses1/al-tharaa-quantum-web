@@ -43,6 +43,7 @@ import AdminStatistics from './pages/admin/AdminStatistics'
 import AdminNotifications from './pages/admin/AdminNotifications'
 import AdminSettings from './pages/admin/AdminSettings'
 import AdminTrades from './pages/admin/AdminTrades'
+import AdminBinary from './pages/admin/AdminBinary'
 import AdminSystem from './pages/admin/AdminSystem'
 import AdminReserves from './pages/admin/AdminReserves'
 import AdminBalances from './pages/admin/AdminBalances'
@@ -135,6 +136,7 @@ export default function App() {
         <Route path="/admin/statistics" element={<AdminPage><AdminStatistics /></AdminPage>} />
         <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
         <Route path="/admin/trades" element={<AdminPage><AdminTrades /></AdminPage>} />
+        <Route path="/admin/binary" element={<AdminPage><AdminBinary /></AdminPage>} />
         <Route path="/admin/system" element={<AdminPage><AdminSystem /></AdminPage>} />
         <Route path="/admin/support" element={<AdminPage><AdminSupport /></AdminPage>} />
         <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
