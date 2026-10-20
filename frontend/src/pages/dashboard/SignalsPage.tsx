@@ -7,6 +7,9 @@ import { api } from '../../lib/api'
 import { useWalletBalances } from '../../hooks/useWallet'
 import Sheet from '../../components/ui/Sheet'
 import { Skeleton } from '../../components/ui/Skeleton'
+import TurnoverCard from '../../components/TurnoverCard'
+import PriceChart from '../../components/PriceChart'
+import { buildLevels } from '../../lib/chartLevels'
 import { ErrorState } from '../../components/ui/ErrorState'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -30,6 +33,7 @@ export default function SignalsPage() {
   const balance = wallet.data?.find(w => w.ledger_type === 'trading' && w.asset === 'USDT')?.balance ?? 0
 
   const [sel, setSel] = useState<Signal | null>(null)
+  const [chartAsset, setChartAsset] = useState('BTC')
   const [amount, setAmount] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -55,6 +59,7 @@ export default function SignalsPage() {
     qc.invalidateQueries({ queryKey: ['wallet-balances'] })
     qc.invalidateQueries({ queryKey: ['trading-portfolio'] })
     qc.invalidateQueries({ queryKey: ['trades'] })
+    qc.invalidateQueries({ queryKey: ['turnover'] })
   }
 
   function openSheet(s: Signal) { setSel(s); setAmount(''); setErr(null) }
@@ -99,7 +104,13 @@ export default function SignalsPage() {
         <Link to="/dashboard/deposit" className="btn-gold" style={{ textDecoration: 'none', fontSize: 12, padding: '10px 18px' }}><span>إيداع</span></Link>
       </div>
 
+      <TurnoverCard />
+
       {ok && <div role="status" style={{ ...card, marginBottom: 14, color: '#10b981', fontFamily: 'Cairo', fontSize: 13, borderColor: 'rgba(16,185,129,0.3)' }}><span>{ok}</span></div>}
+
+      <div className="glass-card" style={{ padding: 12, marginBottom: 18 }}>
+        <PriceChart asset={chartAsset} onAsset={setChartAsset} levels={buildLevels(chartAsset, signals.data, positions.data)} />
+      </div>
 
       <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', margin: '4px 0 10px' }}><span>صفقاتي المفتوحة</span></h2>
       {positions.isLoading ? <Skeleton height={80} borderRadius={14} /> : positions.isError ? <ErrorState onRetry={positions.refetch} /> :

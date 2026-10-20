@@ -22,6 +22,14 @@ const ADDRESS = {
 const MIN = { USDT: 10, USDC: 10, BTC: 0.0005, ETH: 0.005 }
 const bad = (res, message, code) => res.status(400).json({ success: false, error: { message, code } })
 
+router.get('/turnover', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase.rpc('trading_turnover', { p_user: req.user.id })
+    if (error) throw error
+    res.json({ success: true, data })
+  } catch (err) { next(err) }
+})
+
 router.get('/', async (req, res, next) => {
   try {
     const { data, error } = await supabase.from('withdrawals').select('*')
@@ -45,6 +53,12 @@ router.post('/', validate(withdrawalSchema), async (req, res, next) => {
     const { data: existing } = await supabase.from('withdrawals').select('id')
       .eq('user_id', userId).in('status', ['pending', 'approved', 'processing']).limit(1)
     if (existing && existing.length > 0) return bad(res, 'You already have a pending withdrawal request.', 'DUPLICATE_WITHDRAWAL')
+
+    if (withdrawal_type === 'trading') {
+      const { data: t, error: te } = await supabase.rpc('trading_turnover', { p_user: userId })
+      if (te) throw te
+      if (!t.eligible) return bad(res, `يجب أن تتداول ${Number(t.multiplier)} أضعاف إيداعك قبل السحب. المتبقي: ${Number(t.remaining).toFixed(2)} USDT`, 'TURNOVER_REQUIRED')
+    }
 
     const ledgerType = withdrawal_type === 'trading' ? 'trading' : 'investment'
     const { data: last } = await supabase.from('ledger_entries').select('balance_after')

@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { AiStatus, SIGNAL_COLOR, SIGNAL_AR, RISK_AR, trendOf, rsiOf, volOf, fmtTime, minutesAgo } from '../../lib/ai'
 import { Skeleton } from '../../components/ui/Skeleton'
+import PriceChart from '../../components/PriceChart'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const sec = { fontSize: 15, fontWeight: 700, fontFamily: 'Cairo', color: '#D4AF37', margin: '26px 0 12px' } as const
@@ -106,6 +107,9 @@ export default function AiIntelligencePage() {
           })}
         </div>
       )}
+
+      <div style={sec}>الرسم البياني</div>
+      <div className="glass-card" style={{ padding: 12 }}><PriceChart /></div>
 
       <div style={sec}>الاستراتيجيات المفعّلة</div>
       {d && d.strategies.length > 0 ? d.strategies.map(s => (

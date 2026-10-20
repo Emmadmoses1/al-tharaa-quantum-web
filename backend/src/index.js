@@ -53,7 +53,7 @@ app.use(cors({
 // Global rate limiting
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 600,
   message: { success: false, error: { message: 'Too many requests', code: 'RATE_LIMITED' } },
   standardHeaders: true,
   legacyHeaders: false,

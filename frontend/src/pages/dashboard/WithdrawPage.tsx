@@ -6,6 +6,7 @@ import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { useWalletBalances } from '../../hooks/useWallet'
 import { Skeleton } from '../../components/ui/Skeleton'
+import TurnoverCard, { useTurnover } from '../../components/TurnoverCard'
 
 type Wd = {
   id: string; asset: string; network: string; amount: number; net_amount: number; status: string
@@ -69,7 +70,9 @@ export default function WithdrawPage() {
   const addr = address.trim()
   const addrOk = !!network && ADDRESS[network]?.test(addr)
   const amountOk = amt >= min && amt <= balance
-  const canNext = !!asset && !!network && addrOk && amountOk
+  const turn = useTurnover(wType === 'trading')
+  const blocked = wType === 'trading' && !!turn.data && !turn.data.eligible
+  const canNext = !!asset && !!network && addrOk && amountOk && !blocked
 
   const hist = useQuery({
     queryKey: ['wd-hist', user?.id], enabled: !!user?.id, staleTime: 0, refetchInterval: 20000,
@@ -142,6 +145,7 @@ export default function WithdrawPage() {
       {step === 2 && (
         <div className="glass-card" style={{ padding: 24 }}>
           <h2 style={h2}><span>تفاصيل السحب</span></h2>
+          {wType === 'trading' && <TurnoverCard />}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
             {assets.map(a => (
               <button key={a.symbol} type="button" onClick={() => { setAsset(a.symbol); setNetwork(a.networks.length === 1 ? a.networks[0] : null) }}
