@@ -3,7 +3,7 @@ import { fetchJson, getCandles } from '../services/prices.js'
 
 const router = Router()
 const PAIRS = { BTC: 'BTCUSDT', ETH: 'ETHUSDT' }
-const INTERVALS = new Set(['15m', '1h', '4h', '1d'])
+const INTERVALS = new Set(['1m', '5m', '15m', '1h', '4h', '1d'])
 let cache = { at: 0, data: null }
 const candleCache = new Map()
 
@@ -51,7 +51,7 @@ router.get('/candles', async (req, res) => {
   const key = `${asset}|${interval}`
   const now = Date.now()
   const hit = candleCache.get(key)
-  if (hit && now - hit.at < 10000) return res.json({ success: true, data: hit.data })
+  if (hit && now - hit.at < 3000) return res.json({ success: true, data: hit.data })
   try {
     const q = `symbol=${PAIRS[asset]}&interval=${interval}&limit=200`
     let rows

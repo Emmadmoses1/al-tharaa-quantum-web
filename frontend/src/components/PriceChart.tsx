@@ -9,7 +9,7 @@ export type Level = { label: string; price: number; color: string; band?: [numbe
 type Data = { asset: string; interval: string; candles: Candle[]; stale?: boolean }
 
 const ASSETS = ['BTC', 'ETH']
-const INTERVALS = ['15m', '1h', '4h', '1d']
+const INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d']
 const UP = '#10b981'
 const DOWN = '#ef4444'
 
@@ -54,10 +54,10 @@ const chip = (on: boolean): CSSProperties => ({
   fontFamily: 'Montserrat', cursor: 'pointer',
 })
 
-export default function PriceChart({ asset, interval, onAsset, onInterval, levels = [] }: {
+export default function PriceChart({ asset, interval, onAsset, onInterval, levels = [], refreshMs }: {
   asset?: string; interval?: string
   onAsset?: (a: string) => void; onInterval?: (i: string) => void
-  levels?: Level[]
+  levels?: Level[]; refreshMs?: number
 }) {
   const [a, setA] = useState(asset || 'BTC')
   const [iv, setIv] = useState(interval || '1h')
@@ -83,7 +83,7 @@ export default function PriceChart({ asset, interval, onAsset, onInterval, level
   const q = useQuery({
     queryKey: ['candles', a, iv],
     queryFn: () => api.get<Data>(`/api/markets/candles?asset=${a}&interval=${iv}`),
-    refetchInterval: 20000, staleTime: 10000,
+    refetchInterval: refreshMs ?? 20000, staleTime: 2000,
   })
 
   function pickAsset(x: string) { setA(x); setHover(null); onAsset?.(x) }

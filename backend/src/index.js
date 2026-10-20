@@ -13,6 +13,8 @@ import tradingRouter from './routes/trading.js'
 import profileRouter from './routes/profile.js'
 import notificationsRouter from './routes/notifications.js'
 import tradeActionsRouter from './routes/tradeActions.js'
+import binaryRouter from './routes/binary.js'
+import { settleBinary } from './services/binarySettler.js'
 import adminTradesRouter from './routes/adminTrades.js'
 import adminUsersRouter from './routes/adminUsers.js'
 import adminRouter from './routes/admin.js'
@@ -55,7 +57,7 @@ app.use(cors({
 // Global rate limiting
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 600,
+  max: 1500,
   message: { success: false, error: { message: 'Too many requests', code: 'RATE_LIMITED' } },
   standardHeaders: true,
   legacyHeaders: false,
@@ -78,6 +80,7 @@ app.use('/api/trading', tradingRouter)
 app.use('/api/profile', profileRouter)
 app.use('/api/notifications', notificationsRouter)
 app.use('/api/trade', tradeActionsRouter)
+app.use('/api/binary', binaryRouter)
 app.use('/api/admin/reserves', reservesRouter)
 app.use('/api/markets', marketsRouter)
 app.use('/api/ai-status', aiStatusRouter)
@@ -100,5 +103,6 @@ app.listen(PORT, () => {
   if (process.env.DEPOSIT_WATCHER !== 'off') startLoop('deposits', scanDeposits, Number(process.env.DEPOSIT_SCAN_SEC || 45) * 1000)
   if (process.env.SIGNAL_ENGINE !== 'off') startLoop('signals', runSignalEngine, Number(process.env.SIGNAL_INTERVAL_MIN || 15) * 60000)
   if (process.env.POSITION_MONITOR !== 'off') startLoop('positions', monitorPositions, 30000)
+  startLoop('binary', settleBinary, 2000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })

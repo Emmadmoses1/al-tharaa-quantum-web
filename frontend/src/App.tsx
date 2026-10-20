@@ -16,6 +16,7 @@ import DepositPage from './pages/dashboard/DepositPage'
 import InvestmentsPage from './pages/dashboard/InvestmentsPage'
 import TradingPage from './pages/dashboard/TradingPage'
 import SignalsPage from './pages/dashboard/SignalsPage'
+import TradeRoom from './pages/dashboard/TradeRoom'
 import TransactionsPage from './pages/dashboard/TransactionsPage'
 import ProfilePage from './pages/dashboard/ProfilePage'
 import NotificationsPage from './pages/dashboard/NotificationsPage'
@@ -100,6 +101,7 @@ export default function App() {
         <Route path="/dashboard/investments" element={<UserPage><InvestmentsPage /></UserPage>} />
         <Route path="/dashboard/trading" element={<UserPage><TradingPage /></UserPage>} />
         <Route path="/dashboard/signals" element={<UserPage><SignalsPage /></UserPage>} />
+        <Route path="/dashboard/trade" element={<UserPage><TradeRoom /></UserPage>} />
         <Route path="/dashboard/transactions" element={<UserPage><TransactionsPage /></UserPage>} />
         <Route path="/dashboard/notifications" element={<UserPage><NotificationsPage /></UserPage>} />
         <Route path="/dashboard/profile" element={<UserPage><ProfilePage /></UserPage>} />
