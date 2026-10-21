@@ -8,6 +8,7 @@ import {
   LogOut, Menu, X, Activity, Globe, Database, MoreHorizontal, ExternalLink, LifeBuoy, ScrollText,
 } from 'lucide-react'
 
+import { LogoMark } from '../Logo'
 type NavItem = { icon: typeof Users; label: string; href: string }
 
 const SECTIONS: { title: string; items: NavItem[] }[] = [
@@ -83,11 +84,7 @@ function SidebarContent({
         padding: '18px 16px', borderBottom: '1px solid rgba(212,175,55,0.08)',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
-        <div style={{
-          width: 34, height: 34, background: 'linear-gradient(135deg,#D4AF37,#E8CC6A)',
-          borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 900, fontSize: 13, color: '#0B0B0B', fontFamily: 'Montserrat',
-        }}>AQ</div>
+        <LogoMark size={34} />
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat', letterSpacing: 2 }}>ADMIN</div>
           <div style={{ fontSize: 9, color: 'rgba(212,175,55,0.45)', fontFamily: 'Montserrat', letterSpacing: 3 }}>AL THARAA QUANTUM</div>

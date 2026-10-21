@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
 
+import { LogoMark } from '../components/Logo'
 export default function LoginPage() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
@@ -98,15 +99,7 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <div style={{
-              width: 52, height: 52,
-              background: 'linear-gradient(135deg, #D4AF37, #E8CC6A)',
-              borderRadius: 12,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 900, fontSize: 20,
-              color: '#0B0B0B', fontFamily: 'Montserrat',
-              margin: '0 auto 14px',
-            }}>AQ</div>
+            <LogoMark size={52} />
           </Link>
           <h1 style={{
             fontSize: 24, fontWeight: 800,

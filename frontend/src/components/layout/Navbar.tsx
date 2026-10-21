@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
+import { LogoMark } from '../Logo'
 const navLinks = [
   { label: 'الرئيسية', href: '/' },
   { label: 'التداول الذكي', href: '/ai-trading' },
@@ -36,14 +37,7 @@ export default function Navbar() {
     }}>
       {/* Logo */}
       <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{
-          width: 36, height: 36,
-          background: 'linear-gradient(135deg, #D4AF37, #E8CC6A)',
-          borderRadius: '8px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 900, fontSize: 15, color: '#0B0B0B', fontFamily: 'Montserrat',
-          flexShrink: 0,
-        }}>AQ</div>
+        <LogoMark size={36} />
         <div>
           <div style={{
             fontSize: 12, fontWeight: 700, color: '#D4AF37',

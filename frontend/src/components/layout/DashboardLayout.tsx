@@ -5,6 +5,7 @@ import DashboardSidebar from './DashboardSidebar'
 import ErrorBoundary from '../ui/ErrorBoundary'
 import { useUnreadCount } from '../../hooks/useData'
 
+import { LogoMark } from '../Logo'
 const TABS = [
   { href: '/dashboard', label: 'الرئيسية', icon: LayoutDashboard },
   { href: '/dashboard/investments', label: 'استثمار', icon: Briefcase },
@@ -44,7 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           position: 'sticky', top: 0, zIndex: 50,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#D4AF37,#E8CC6A)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 12, color: '#0B0B0B', fontFamily: 'Montserrat' }}>AQ</div>
+            <LogoMark size={32} />
             <span style={{ fontSize: 13, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat', letterSpacing: 1.5 }}>AL THARAA</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

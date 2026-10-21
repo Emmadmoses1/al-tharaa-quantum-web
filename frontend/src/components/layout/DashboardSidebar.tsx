@@ -7,6 +7,7 @@ import {
   Bell, User, Settings, LogOut, Bot, LifeBuoy, LineChart, Brain,
 } from 'lucide-react'
 
+import { LogoMark } from '../Logo'
 const navItems = [
   { icon: LayoutDashboard, label: 'لوحة التحكم', href: '/dashboard' },
   { icon: Briefcase, label: 'استثماراتي', href: '/dashboard/investments' },
@@ -48,14 +49,7 @@ export default function DashboardSidebar() {
         borderBottom: '1px solid rgba(212,175,55,0.08)',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
-        <div style={{
-          width: 36, height: 36,
-          background: 'linear-gradient(135deg,#D4AF37,#E8CC6A)',
-          borderRadius: 8,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 900, fontSize: 14, color: '#0B0B0B',
-          fontFamily: 'Montserrat', flexShrink: 0,
-        }}>AQ</div>
+        <LogoMark size={36} />
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat', letterSpacing: 2 }}>
             AL THARAA

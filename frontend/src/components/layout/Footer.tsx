@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Twitter, Linkedin, Instagram } from 'lucide-react'
 
+import { LogoMark } from '../Logo'
 const cols = [
   { title: 'المنتجات', links: [
     { label: 'التداول بالذكاء الاصطناعي', href: '/ai-trading' },
@@ -38,19 +39,7 @@ export default function Footer() {
         {/* Brand */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <div style={{
-              width: 34,
-              height: 34,
-              background: 'linear-gradient(135deg, #D4AF37, #E8CC6A)',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 900,
-              fontSize: 14,
-              color: '#0B0B0B',
-              fontFamily: 'Montserrat',
-            }}>AQ</div>
+            <LogoMark size={34} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat', letterSpacing: 2 }}>AL THARAA</div>
               <div style={{ fontSize: 9, color: 'rgba(212,175,55,0.5)', fontFamily: 'Montserrat', letterSpacing: 3 }}>QUANTUM</div>
