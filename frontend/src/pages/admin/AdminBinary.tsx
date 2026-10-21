@@ -4,6 +4,7 @@ import { api } from '../../lib/api'
 import { Pill, Chips, KV, btn, inputCss, labelCss, cardCss, cardGrid, ago } from '../../components/ui/AdminKit'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
+import SafetyPanel from '../../components/SafetyPanel'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const n = (v: unknown, d = 2) => (v == null ? '—' : Number(v).toLocaleString('en-US', { maximumFractionDigits: d }))
@@ -91,6 +92,8 @@ export default function AdminBinary() {
         </div>
       )}
       {msg && <div style={{ marginTop: 10, fontSize: 12, color: '#D4AF37', fontFamily: 'Montserrat' }}>{msg}</div>}
+
+      <SafetyPanel />
 
       <h2 style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Montserrat', color: '#D4AF37', margin: '22px 0 10px' }}>Recent orders</h2>
       {orders.isLoading ? <Skeleton height={120} borderRadius={14} /> : orders.isError ? <ErrorState english onRetry={orders.refetch} /> : (

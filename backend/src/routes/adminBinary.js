@@ -78,4 +78,30 @@ router.get('/orders', async (_req, res, next) => {
   } catch (err) { next(err) }
 })
 
+const capObj = Joi.object({ USDT: Joi.number().min(0).max(1e9), USDC: Joi.number().min(0).max(1e9), BTC: Joi.number().min(0).max(1e6), ETH: Joi.number().min(0).max(1e7) })
+const safetySchema = Joi.object({ credit_caps: capObj, approval_thresholds: capObj }).min(1)
+
+router.get('/safety', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase.from('trading_config').select('credit_caps, approval_thresholds').eq('id', 1).single()
+    if (error) throw error
+    res.json({ success: true, data })
+  } catch (err) { next(err) }
+})
+
+router.patch('/safety', async (req, res, next) => {
+  try {
+    if (req.userRole !== 'super_admin') return res.status(403).json({ success: false, error: { message: 'Only a super admin can change safety limits', code: 'FORBIDDEN' } })
+    const { value, error: ve } = safetySchema.validate(req.body)
+    if (ve) return res.status(400).json({ success: false, error: { message: ve.message, code: 'BAD_REQUEST' } })
+    const { data: cur } = await supabase.from('trading_config').select('credit_caps, approval_thresholds').eq('id', 1).single()
+    const patch = {}
+    for (const k of ['credit_caps', 'approval_thresholds']) if (value[k]) patch[k] = { ...(cur?.[k] || {}), ...value[k] }
+    const { data, error } = await supabase.from('trading_config').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', 1).select('credit_caps, approval_thresholds').single()
+    if (error) throw error
+    await supabase.from('audit_logs').insert({ user_id: req.user.id, action: 'SAFETY_LIMITS_UPDATED', entity: 'trading_config', metadata: value })
+    res.json({ success: true, data })
+  } catch (err) { next(err) }
+})
+
 export default router

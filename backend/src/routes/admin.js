@@ -17,7 +17,7 @@ const adjustSchema = Joi.object({
   user_id: Joi.string().uuid().required(),
   ledger_type: Joi.string().valid('investment', 'trading').required(),
   asset: Joi.string().valid('USDT', 'BTC', 'ETH', 'USDC').required(),
-  amount: Joi.number().invalid(0).min(-10000000).max(10000000).required(),
+  amount: Joi.number().invalid(0).min(-100000).max(100000).required(),
   reason: Joi.string().trim().min(5).max(200).required(),
 })
 
