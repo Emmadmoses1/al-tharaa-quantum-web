@@ -1,3 +1,4 @@
+import { getSecret } from '../lib/secrets.js'
 import { fetchJson } from './prices.js'
 
 const TOKENS = {
@@ -13,7 +14,8 @@ const TOKENS = {
 const scale = (v, dec) => Number(v) / 10 ** Number(dec)
 
 async function tron(address, contract) {
-  const h = process.env.TRONGRID_API_KEY ? { 'TRON-PRO-API-KEY': process.env.TRONGRID_API_KEY } : {}
+  const tk = await getSecret('TRONGRID_API_KEY')
+  const h = tk ? { 'TRON-PRO-API-KEY': tk } : {}
   const base = `https://api.trongrid.io/v1/accounts/${address}/transactions/trc20?only_to=true&limit=50&contract_address=${contract}`
   const [all, done] = await Promise.all([fetchJson(base, h), fetchJson(base + '&only_confirmed=true', h)])
   const confirmed = new Set((done.data || []).map(t => t.transaction_id))
@@ -28,8 +30,8 @@ async function tron(address, contract) {
 }
 
 async function evm(address, cfg) {
-  const key = process.env.ETHERSCAN_API_KEY
-  if (!key) throw new Error('ETHERSCAN_API_KEY is not set')
+  const key = await getSecret('ETHERSCAN_API_KEY')
+  if (!key) throw new Error('ETHERSCAN_API_KEY is not set. Add it in Admin > Integrations.')
   const action = cfg.kind === 'evm-native' ? 'txlist' : 'tokentx'
   const extra = cfg.contract ? `&contractaddress=${cfg.contract}` : ''
   const url = `https://api.etherscan.io/v2/api?chainid=${cfg.chainid}&module=account&action=${action}${extra}&address=${address}&page=1&offset=50&sort=desc&apikey=${key}`

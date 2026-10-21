@@ -1,3 +1,4 @@
+import { getSetting } from '../lib/settings.js'
 import { Router } from 'express'
 import Joi from 'joi'
 import { supabase } from '../lib/supabase.js'
@@ -55,6 +56,8 @@ router.get('/orders', async (req, res, next) => {
 router.post('/place', async (req, res, next) => {
   try {
     const cfg = await loadConfig()
+    const gen = await getSetting('general')
+    if (gen.maintenance) return res.status(503).json({ success: false, error: { message: gen.maintenance_message || 'The platform is under maintenance.', code: 'MAINTENANCE' } })
     if (!cfg.enabled) return res.status(400).json({ success: false, error: { message: 'Trading is temporarily paused', code: 'PAUSED' } })
     const schema = Joi.object({
       asset: Joi.string().valid(...ASSETS).required(),

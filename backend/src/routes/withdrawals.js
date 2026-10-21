@@ -1,3 +1,4 @@
+import { getSetting } from '../lib/settings.js'
 import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { requireAuth } from '../middleware/authGuard.js'
@@ -42,6 +43,8 @@ router.get('/', async (req, res, next) => {
 router.post('/', validate(withdrawalSchema), async (req, res, next) => {
   try {
     const { withdrawal_type, asset, network, amount, destination_address } = req.body
+    const gen = await getSetting('general')
+    if (gen.maintenance) return bad(res, gen.maintenance_message || 'The platform is under maintenance. Withdrawals are paused.', 'MAINTENANCE')
     const userId = req.user.id
     const address = destination_address.trim()
 

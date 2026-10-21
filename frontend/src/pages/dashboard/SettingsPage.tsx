@@ -1,424 +1,112 @@
 import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Copy, CheckCircle, Gift } from 'lucide-react'
+import { api } from '../../lib/api'
+import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
-import { useUpdateProfile, useCurrencies } from '../../hooks/useData'
-import { Globe, Bell, Palette, Shield, CheckCircle } from 'lucide-react'
+import { useCurrencies } from '../../hooks/useData'
+import { Skeleton } from '../../components/ui/Skeleton'
+import { ErrorState } from '../../components/ui/ErrorState'
 
-const LANGUAGES = [
-  { code: 'ar', label: 'العربية', dir: 'rtl' },
-  { code: 'en', label: 'English', dir: 'ltr' },
-]
+type Prefs = { full_name: string | null; phone: string | null; preferred_language: string; preferred_currency: string; notify_email: boolean }
+type Ref = { code: string; referred: number; earned_usdt: number; enabled: boolean; reward_usdt: number; min_deposit_usdt: number }
 
-const CURRENCIES_FALLBACK = [
-  { code: 'BHD', name: 'دينار بحريني' },
-  { code: 'USD', name: 'دولار أمريكي' },
-  { code: 'EUR', name: 'يورو' },
-  { code: 'SAR', name: 'ريال سعودي' },
-  { code: 'AED', name: 'درهم إماراتي' },
-  { code: 'KWD', name: 'دينار كويتي' },
-  { code: 'OMR', name: 'ريال عماني' },
-  { code: 'QAR', name: 'ريال قطري' },
-  { code: 'GBP', name: 'جنيه إسترليني' },
-  { code: 'NGN', name: 'نيرة نيجيرية' },
-]
+const card: React.CSSProperties = { background: 'rgba(20,20,20,0.85)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 14, padding: 20, display: 'grid', gap: 14 }
+const lbl: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', fontFamily: 'Cairo', marginBottom: 6 }
+const inp: React.CSSProperties = { width: '100%', background: 'rgba(11,11,11,0.5)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 8, padding: '11px 14px', color: '#fff', fontSize: 14, fontFamily: 'Cairo', outline: 'none', boxSizing: 'border-box' }
+const h2: React.CSSProperties = { fontSize: 16, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', margin: 0 }
 
 export default function SettingsPage() {
-  const { profile } = useAuth()
+  const { user } = useAuth()
+  const qc = useQueryClient()
   const { data: currencies } = useCurrencies()
-  const updateProfile = useUpdateProfile()
+  const prefs = useQuery({ queryKey: ['prefs'], staleTime: 0, queryFn: () => api.get<Prefs>('/api/settings') })
+  const ref = useQuery({ queryKey: ['referral'], staleTime: 0, retry: 0, queryFn: () => api.get<Ref>('/api/referral/me') })
+  const [d, setD] = useState<Partial<Prefs>>({})
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState('')
+  const [pw, setPw] = useState({ a: '', b: '' })
+  const [pwMsg, setPwMsg] = useState('')
+  const [copied, setCopied] = useState(false)
 
-  const [language, setLanguage] = useState(profile?.preferred_language || 'ar')
-  const [currency, setCurrency] = useState(profile?.preferred_currency || 'BHD')
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [activeSection, setActiveSection] = useState('general')
+  const p = prefs.data
+  const v = <K extends keyof Prefs>(k: K) => (k in d ? d[k] : p?.[k]) as Prefs[K]
 
-  // Notification preferences (stored locally — connect to DB later)
-  const [notifs, setNotifs] = useState({
-    deposit_confirmed: true,
-    withdrawal_processed: true,
-    investment_update: true,
-    ai_trade_opened: false,
-    ai_trade_closed: true,
-    risk_alert: true,
-    security_alert: true,
-    marketing: false,
-  })
-
-  async function handleSave() {
-    setSaving(true)
+  async function save() {
+    setBusy(true); setMsg('')
     try {
-      await updateProfile.mutateAsync({
-        preferred_language: language,
-        preferred_currency: currency,
-      } as Parameters<typeof updateProfile.mutateAsync>[0])
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2500)
-    } finally {
-      setSaving(false)
-    }
+      await api.patch('/api/settings', { full_name: v('full_name') || '', phone: v('phone') || '', preferred_language: v('preferred_language'), preferred_currency: v('preferred_currency'), notify_email: v('notify_email') })
+      setD({}); await prefs.refetch(); qc.invalidateQueries({ queryKey: ['profile'] })
+      setMsg('تم الحفظ')
+    } catch (e) { setMsg(e instanceof Error ? e.message : 'فشل الحفظ') }
+    setBusy(false)
   }
 
-  const sections = [
-    { key: 'general', label: 'عام', icon: <Globe size={15} /> },
-    { key: 'notifications', label: 'الإشعارات', icon: <Bell size={15} /> },
-    { key: 'appearance', label: 'المظهر', icon: <Palette size={15} /> },
-    { key: 'privacy', label: 'الخصوصية', icon: <Shield size={15} /> },
-  ]
-
-  const notifLabels: Record<string, { label: string; desc: string }> = {
-    deposit_confirmed: { label: 'تأكيد الإيداع', desc: 'عند تأكيد إيداعك على البلوكتشين' },
-    withdrawal_processed: { label: 'معالجة السحب', desc: 'عند اكتمال طلب السحب' },
-    investment_update: { label: 'تحديثات الاستثمار', desc: 'أخبار وتحديثات فرصك الاستثمارية' },
-    ai_trade_opened: { label: 'فتح صفقة ذكاء اصطناعي', desc: 'عند فتح صفقة جديدة بالذكاء الاصطناعي' },
-    ai_trade_closed: { label: 'إغلاق صفقة ذكاء اصطناعي', desc: 'عند إغلاق صفقة مع النتيجة' },
-    risk_alert: { label: 'تنبيهات المخاطر', desc: 'عند الوصول لحدود المخاطر المحددة' },
-    security_alert: { label: 'تنبيهات الأمان', desc: 'تسجيل دخول من جهاز أو موقع جديد' },
-    marketing: { label: 'عروض ومستجدات', desc: 'فرص استثمارية جديدة ونشرات إخبارية' },
+  async function changePw() {
+    setPwMsg('')
+    if (pw.a.length < 8) return setPwMsg('كلمة المرور 8 أحرف على الأقل')
+    if (pw.a !== pw.b) return setPwMsg('كلمتا المرور غير متطابقتين')
+    const { error } = await supabase.auth.updateUser({ password: pw.a })
+    if (error) return setPwMsg(error.message)
+    setPw({ a: '', b: '' }); setPwMsg('تم تغيير كلمة المرور')
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', background: 'rgba(11,11,11,0.5)',
-    border: '1px solid rgba(212,175,55,0.15)', borderRadius: 8,
-    padding: '11px 14px', color: '#fff', fontSize: 14,
-    fontFamily: 'Cairo', outline: 'none', boxSizing: 'border-box',
-    appearance: 'none' as const, cursor: 'pointer',
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'left 12px center',
-    paddingLeft: 36,
-  }
+  const link = ref.data ? `${window.location.origin}/register?ref=${ref.data.code}` : ''
+  const cur = (currencies && currencies.length ? currencies : [{ code: 'USD', name_ar: 'دولار أمريكي' }]) as { code: string; name_ar?: string; name?: string }[]
 
-  const labelStyle: React.CSSProperties = {
-    display: 'block', fontSize: 13, fontWeight: 600,
-    color: 'rgba(255,255,255,0.65)', fontFamily: 'Cairo', marginBottom: 8,
-  }
+  if (prefs.isLoading) return <Skeleton height={300} borderRadius={14} />
+  if (prefs.isError || !p) return <ErrorState onRetry={prefs.refetch} />
 
   return (
-    <div style={{ direction: 'rtl', maxWidth: 700 }}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', marginBottom: 6 }}>
-          الإعدادات
-        </h1>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo' }}>
-          تخصيص تجربتك في الثراء كوانتوم
-        </p>
+    <div style={{ direction: 'rtl', maxWidth: 640, margin: '0 auto', display: 'grid', gap: 16 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', margin: 0 }}>الإعدادات</h1>
+
+      <div style={card}>
+        <h2 style={h2}>الحساب</h2>
+        <div><label style={lbl}>الاسم</label><input style={inp} value={v('full_name') || ''} onChange={e => setD(x => ({ ...x, full_name: e.target.value }))} /></div>
+        <div><label style={lbl}>البريد</label><input style={{ ...inp, opacity: 0.6 }} value={user?.email || ''} disabled dir="ltr" /></div>
+        <div><label style={lbl}>الهاتف</label><input style={inp} dir="ltr" value={v('phone') || ''} onChange={e => setD(x => ({ ...x, phone: e.target.value }))} /></div>
+        <div><label style={lbl}>اللغة</label>
+          <select style={inp} value={v('preferred_language')} onChange={e => setD(x => ({ ...x, preferred_language: e.target.value }))}>
+            <option value="ar">العربية</option><option value="en">English</option>
+          </select></div>
+        <div><label style={lbl}>العملة المفضلة</label>
+          <select style={inp} value={v('preferred_currency')} onChange={e => setD(x => ({ ...x, preferred_currency: e.target.value }))}>
+            {cur.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name_ar || c.name}</option>)}
+          </select></div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff', fontFamily: 'Cairo', fontSize: 14, cursor: 'pointer' }}>
+          <input type="checkbox" checked={!!v('notify_email')} onChange={e => setD(x => ({ ...x, notify_email: e.target.checked }))} />
+          إرسال الإشعارات والفواتير إلى بريدي
+        </label>
+        <button className="btn-gold" disabled={busy || !Object.keys(d).length} onClick={save} style={{ padding: '12px', opacity: busy || !Object.keys(d).length ? 0.5 : 1 }}>{busy ? '...' : 'حفظ'}</button>
+        {msg && <div style={{ fontSize: 13, color: msg === 'تم الحفظ' ? '#10b981' : '#ef4444', fontFamily: 'Cairo', display: 'flex', gap: 6, alignItems: 'center' }}>{msg === 'تم الحفظ' && <CheckCircle size={14} />}{msg}</div>}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 20 }} className="settings-layout">
-        {/* Sidebar */}
-        <div style={{
-          background: 'rgba(20,20,20,0.7)',
-          border: '1px solid rgba(212,175,55,0.08)',
-          borderRadius: 12, padding: '10px 0',
-          height: 'fit-content',
-        }}>
-          {sections.map(s => (
-            <button key={s.key} onClick={() => setActiveSection(s.key)} style={{
-              width: '100%', background: activeSection === s.key
-                ? 'rgba(212,175,55,0.08)' : 'transparent',
-              border: 'none',
-              borderRight: `2px solid ${activeSection === s.key ? '#D4AF37' : 'transparent'}`,
-              padding: '11px 16px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 9,
-              color: activeSection === s.key ? '#D4AF37' : 'rgba(255,255,255,0.5)',
-              fontSize: 13, fontFamily: 'Cairo',
-              fontWeight: activeSection === s.key ? 600 : 400,
-              transition: 'all 0.15s', textAlign: 'right',
-            }}>
-              {s.icon}{s.label}
+      <div style={card}>
+        <h2 style={h2}>تغيير كلمة المرور</h2>
+        <input type="password" style={inp} dir="ltr" placeholder="كلمة المرور الجديدة" value={pw.a} onChange={e => setPw(x => ({ ...x, a: e.target.value }))} autoComplete="new-password" />
+        <input type="password" style={inp} dir="ltr" placeholder="تأكيد كلمة المرور" value={pw.b} onChange={e => setPw(x => ({ ...x, b: e.target.value }))} autoComplete="new-password" />
+        <button className="btn-outline-gold" onClick={changePw} style={{ padding: '11px' }}>تغيير</button>
+        {pwMsg && <div style={{ fontSize: 13, color: pwMsg.startsWith('تم') ? '#10b981' : '#ef4444', fontFamily: 'Cairo' }}>{pwMsg}</div>}
+      </div>
+
+      {ref.data && (
+        <div style={card}>
+          <h2 style={{ ...h2, display: 'flex', alignItems: 'center', gap: 8 }}><Gift size={18} color="#D4AF37" />دعوة الأصدقاء</h2>
+          <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.55)', fontFamily: 'Cairo', lineHeight: 1.9 }}>
+            {ref.data.enabled
+              ? `تحصل على ${ref.data.reward_usdt} USDT عندما يودع صديقك لأول مرة ${ref.data.min_deposit_usdt}$ أو أكثر.`
+              : 'برنامج المكافآت غير مفعّل حالياً، لكن رابطك جاهز.'}
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input style={{ ...inp, direction: 'ltr', fontSize: 12 }} readOnly value={link} />
+            <button className="btn-outline-gold" style={{ padding: '0 14px' }} onClick={async () => { try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* ignore */ } }}>
+              {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
             </button>
-          ))}
+          </div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontFamily: 'Cairo' }}>المدعوون: {ref.data.referred} · المكتسب: {ref.data.earned_usdt} USDT</div>
         </div>
-
-        {/* Content */}
-        <div className="glass-card" style={{ padding: 28 }}>
-
-          {/* General */}
-          {activeSection === 'general' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', marginBottom: 4 }}>
-                الإعدادات العامة
-              </h2>
-
-              <div>
-                <label style={labelStyle}>اللغة المفضّلة</label>
-                <div style={{ display: 'flex', gap: 10 }}>
-                  {LANGUAGES.map(l => (
-                    <button key={l.code} onClick={() => setLanguage(l.code)} style={{
-                      flex: 1, padding: '12px',
-                      background: language === l.code ? 'rgba(212,175,55,0.1)' : 'rgba(44,44,44,0.3)',
-                      border: `1px solid ${language === l.code ? '#D4AF37' : 'rgba(212,175,55,0.1)'}`,
-                      borderRadius: 8, cursor: 'pointer',
-                      color: language === l.code ? '#D4AF37' : 'rgba(255,255,255,0.6)',
-                      fontSize: 14, fontFamily: l.code === 'ar' ? 'Cairo' : 'Montserrat',
-                      fontWeight: language === l.code ? 700 : 400, transition: 'all 0.2s',
-                    }}>{l.label}</button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={labelStyle}>عملة العرض</label>
-                <select value={currency} onChange={e => setCurrency(e.target.value)} style={inputStyle}>
-                  {(currencies as { code: string; name: string }[] || CURRENCIES_FALLBACK).map(c => (
-                    <option key={c.code} value={c.code} style={{ background: '#141414', color: '#fff' }}>
-                      {c.code} — {(c as { code: string; name_ar?: string; name: string }).name_ar || c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelStyle}>المنطقة الزمنية</label>
-                <select style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }} disabled>
-                  <option>Asia/Bahrain (GMT+3)</option>
-                </select>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo', marginTop: 6 }}>
-                  يتم تحديدها تلقائياً بناءً على موقعك
-                </div>
-              </div>
-
-              {updateProfile.isError && (
-                <div style={{
-                  padding: '10px 14px',
-                  background: 'rgba(239,68,68,0.08)',
-                  border: '1px solid rgba(239,68,68,0.2)',
-                  borderRadius: 8, fontSize: 13,
-                  color: '#ef4444', fontFamily: 'Cairo',
-                }}>
-                  فشل حفظ الإعدادات. يرجى المحاولة مرة أخرى.
-                </div>
-              )}
-
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="btn-gold"
-                style={{
-                  fontSize: 14, padding: '13px',
-                  display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', gap: 8,
-                  opacity: saving ? 0.7 : 1,
-                }}
-              >
-                {saved
-                  ? <><CheckCircle size={16} /> تم الحفظ</>
-                  : saving ? 'جارٍ الحفظ...' : 'حفظ الإعدادات'
-                }
-              </button>
-            </div>
-          )}
-
-          {/* Notifications */}
-          {activeSection === 'notifications' && (
-            <div>
-              <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', marginBottom: 20 }}>
-                إعدادات الإشعارات
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {Object.entries(notifs).map(([key, value], i, arr) => {
-                  const info = notifLabels[key] || { label: key, desc: '' }
-                  return (
-                    <div key={key} style={{
-                      display: 'flex', alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '14px 0',
-                      borderBottom: i < arr.length - 1 ? '1px solid rgba(212,175,55,0.06)' : 'none',
-                      gap: 16,
-                    }}>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', fontFamily: 'Cairo' }}>
-                          {info.label}
-                        </div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: 'Cairo', marginTop: 2 }}>
-                          {info.desc}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setNotifs(n => ({ ...n, [key]: !n[key as keyof typeof n] }))}
-                        style={{
-                          width: 42, height: 23, borderRadius: 12, flexShrink: 0,
-                          background: value ? '#D4AF37' : 'rgba(44,44,44,0.8)',
-                          border: `1px solid ${value ? '#D4AF37' : 'rgba(212,175,55,0.2)'}`,
-                          cursor: 'pointer', position: 'relative', transition: 'all 0.3s', padding: 0,
-                        }}
-                      >
-                        <div style={{
-                          position: 'absolute', top: 2,
-                          right: value ? 2 : undefined,
-                          left: value ? undefined : 2,
-                          width: 17, height: 17, borderRadius: '50%',
-                          background: value ? '#0B0B0B' : '#fff',
-                          transition: 'all 0.3s',
-                        }} />
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Appearance */}
-          {activeSection === 'appearance' && (
-            <div>
-              <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', marginBottom: 20 }}>
-                المظهر والألوان
-              </h2>
-              <div style={{
-                padding: '20px',
-                background: 'rgba(44,44,44,0.2)',
-                border: '1px solid rgba(212,175,55,0.08)',
-                borderRadius: 10,
-                textAlign: 'center',
-              }}>
-                <div style={{
-                  width: 52, height: 52,
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.1)',
-                  borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 14px',
-                }}>
-                  <Palette size={22} color="rgba(212,175,55,0.4)" />
-                </div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)', fontFamily: 'Cairo', marginBottom: 8 }}>
-                  الوضع الداكن (مفعّل)
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo' }}>
-                  منصة الثراء كوانتوم تعمل بالوضع الداكن الأمثل حصراً.
-                  سيتم إضافة خيارات المظهر في تحديثات قادمة.
-                </div>
-              </div>
-
-              <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', fontFamily: 'Cairo', marginBottom: 14 }}>
-                  لوحة الألوان الحالية
-                </div>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  {[
-                    { label: 'الأساسي', color: '#0B0B0B' },
-                    { label: 'ذهبي', color: '#D4AF37' },
-                    { label: 'رمادي', color: '#2C2C2C' },
-                    { label: 'أخضر', color: '#10b981' },
-                    { label: 'أحمر', color: '#ef4444' },
-                  ].map(c => (
-                    <div key={c.label} style={{ textAlign: 'center' }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 8,
-                        background: c.color,
-                        border: '1px solid rgba(212,175,55,0.15)',
-                        marginBottom: 6,
-                      }} />
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontFamily: 'Cairo' }}>
-                        {c.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Privacy */}
-          {activeSection === 'privacy' && (
-            <div>
-              <h2 style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Cairo', color: '#fff', marginBottom: 20 }}>
-                الخصوصية والبيانات
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {[
-                  {
-                    label: 'سجل النشاط',
-                    desc: 'نحتفظ بسجل كامل لجميع معاملاتك المالية لأغراض الأمان والامتثال',
-                    locked: true,
-                  },
-                  {
-                    label: 'مشاركة بيانات التحليل',
-                    desc: 'السماح للمنصة باستخدام بيانات الاستخدام المجهولة لتحسين الخدمة',
-                    locked: false,
-                  },
-                  {
-                    label: 'تحسين نماذج الذكاء الاصطناعي',
-                    desc: 'المساهمة في تحسين دقة إشارات التداول (مجهولة الهوية)',
-                    locked: false,
-                  },
-                ].map((item, i) => (
-                  <div key={i} style={{
-                    display: 'flex', alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    padding: '16px',
-                    background: 'rgba(44,44,44,0.2)',
-                    border: '1px solid rgba(212,175,55,0.07)',
-                    borderRadius: 10, gap: 16,
-                  }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', fontFamily: 'Cairo', marginBottom: 4 }}>
-                        {item.label}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo', lineHeight: 1.6 }}>
-                        {item.desc}
-                      </div>
-                      {item.locked && (
-                        <div style={{ fontSize: 10, color: '#f59e0b', fontFamily: 'Cairo', marginTop: 4 }}>
-                          ⚠ مطلوب قانوناً — لا يمكن إلغاؤه
-                        </div>
-                      )}
-                    </div>
-                    <div style={{
-                      width: 42, height: 23, borderRadius: 12, flexShrink: 0,
-                      background: item.locked ? '#D4AF37' : 'rgba(44,44,44,0.8)',
-                      border: `1px solid ${item.locked ? '#D4AF37' : 'rgba(212,175,55,0.2)'}`,
-                      opacity: item.locked ? 0.5 : 1,
-                      position: 'relative',
-                    }}>
-                      <div style={{
-                        position: 'absolute', top: 2, right: item.locked ? 2 : undefined, left: item.locked ? undefined : 2,
-                        width: 17, height: 17, borderRadius: '50%',
-                        background: item.locked ? '#0B0B0B' : '#fff',
-                      }} />
-                    </div>
-                  </div>
-                ))}
-
-                <div style={{
-                  marginTop: 8, padding: '16px',
-                  background: 'rgba(239,68,68,0.06)',
-                  border: '1px solid rgba(239,68,68,0.12)',
-                  borderRadius: 10,
-                }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#ef4444', fontFamily: 'Cairo', marginBottom: 6 }}>
-                    تصدير أو حذف البيانات
-                  </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo', lineHeight: 1.7, marginBottom: 14 }}>
-                    يمكنك طلب تصدير بياناتك أو حذف حسابك. ملاحظة: لا يمكن حذف السجلات المالية وفق متطلبات الامتثال.
-                  </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button className="btn-outline-gold" style={{ fontSize: 12, padding: '8px 16px' }}>
-                      تصدير البيانات
-                    </button>
-                    <button style={{
-                      background: 'rgba(239,68,68,0.1)',
-                      border: '1px solid rgba(239,68,68,0.2)',
-                      borderRadius: 8, padding: '8px 16px',
-                      cursor: 'pointer', color: '#ef4444',
-                      fontSize: 12, fontFamily: 'Cairo',
-                    }}>
-                      طلب حذف الحساب
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width:768px) {
-          .settings-layout { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+      )}
     </div>
   )
 }

@@ -2,50 +2,29 @@ import { Router } from 'express'
 import OpenAI from 'openai'
 import { supabase } from '../lib/supabase.js'
 import { requireAdmin } from '../middleware/authGuard.js'
-import 'dotenv/config'
+import { getSecret } from '../lib/secrets.js'
 
 const router = Router()
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-// Admin: generate an opportunity cover image with DALL-E and store it
+// Admin: AI cover ILLUSTRATION (not a photo of the project). Stored in the public opportunity-images bucket.
 router.post('/generate', requireAdmin, async (req, res, next) => {
   try {
-    const { prompt } = req.body
-
-    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'A prompt is required', code: 'BAD_REQUEST' },
-      })
-    }
-
+    const prompt = String(req.body?.prompt || '').trim()
+    if (!prompt) return res.status(400).json({ success: false, error: { message: 'A prompt is required', code: 'BAD_REQUEST' } })
+    const key = await getSecret('OPENAI_API_KEY')
+    if (!key) return res.status(400).json({ success: false, error: { message: 'No OpenAI key saved. Add one in Admin → Integrations, or upload a photo.', code: 'NO_KEY' } })
+    const openai = new OpenAI({ apiKey: key })
     const result = await openai.images.generate({
-      model: 'dall-e-3',
-      prompt: prompt.trim(),
-      n: 1,
-      size: '1024x1024',
-      quality: 'standard',
-      response_format: 'b64_json',
+      model: 'dall-e-3', size: '1792x1024', quality: 'standard', response_format: 'b64_json', n: 1,
+      prompt: `Clean, premium flat illustration, dark navy and gold palette, no text, no logos, no people's faces. Subject: ${prompt.slice(0, 400)}`,
     })
-
-    const b64 = result.data[0].b64_json
-    const buffer = Buffer.from(b64, 'base64')
-    const fileName = `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`
-
-    const { error: uploadError } = await supabase.storage
-      .from('opportunity-images')
-      .upload(fileName, buffer, { contentType: 'image/png', upsert: false })
-
-    if (uploadError) throw uploadError
-
-    const { data: publicUrlData } = supabase.storage
-      .from('opportunity-images')
-      .getPublicUrl(fileName)
-
-    res.json({ success: true, data: { url: publicUrlData.publicUrl } })
-  } catch (err) {
-    next(err)
-  }
+    const buffer = Buffer.from(result.data[0].b64_json, 'base64')
+    const fileName = `ai/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`
+    const { error: upErr } = await supabase.storage.from('opportunity-images').upload(fileName, buffer, { contentType: 'image/png', upsert: false })
+    if (upErr) throw upErr
+    const { data } = supabase.storage.from('opportunity-images').getPublicUrl(fileName)
+    res.json({ success: true, data: { url: data.publicUrl } })
+  } catch (err) { next(err) }
 })
 
 export default router

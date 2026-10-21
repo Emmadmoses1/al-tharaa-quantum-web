@@ -14,6 +14,16 @@ import profileRouter from './routes/profile.js'
 import notificationsRouter from './routes/notifications.js'
 import tradeActionsRouter from './routes/tradeActions.js'
 import binaryRouter from './routes/binary.js'
+import { processInvoices } from './services/invoiceMailer.js'
+import publicSettingsRouter from './routes/publicSettings.js'
+import adminIntegrationsRouter from './routes/adminIntegrations.js'
+import adminSettingsRouter from './routes/adminSettings.js'
+import aiRouter from './routes/ai.js'
+import opportunityImagesRouter from './routes/opportunityImages.js'
+import bonusRouter from './routes/bonus.js'
+import referralRouter from './routes/referral.js'
+import userSettingsRouter from './routes/userSettings.js'
+import redeemRouter from './routes/redeem.js'
 import { settleBinary } from './services/binarySettler.js'
 import { sendNotificationEmails } from './services/emailNotifier.js'
 import adminTradesRouter from './routes/adminTrades.js'
@@ -84,6 +94,15 @@ app.use('/api/profile', profileRouter)
 app.use('/api/notifications', notificationsRouter)
 app.use('/api/trade', tradeActionsRouter)
 app.use('/api/binary', binaryRouter)
+app.use('/api/public/settings', publicSettingsRouter)
+app.use('/api/admin/integrations', adminIntegrationsRouter)
+app.use('/api/admin/settings', adminSettingsRouter)
+app.use('/api/admin/ai', aiRouter)
+app.use('/api/admin/opportunity-images', opportunityImagesRouter)
+app.use('/api/bonus', bonusRouter)
+app.use('/api/referral', referralRouter)
+app.use('/api/settings', userSettingsRouter)
+app.use('/api/redeem', redeemRouter)
 app.use('/api/admin/reserves', reservesRouter)
 app.use('/api/markets', marketsRouter)
 app.use('/api/ai-status', aiStatusRouter)
@@ -109,6 +128,7 @@ app.listen(PORT, () => {
   if (process.env.SIGNAL_ENGINE !== 'off') startLoop('signals', runSignalEngine, Number(process.env.SIGNAL_INTERVAL_MIN || 15) * 60000)
   if (process.env.POSITION_MONITOR !== 'off') startLoop('positions', monitorPositions, 30000)
   startLoop('binary', settleBinary, 2000)
+  startLoop('invoices', processInvoices, 20000)
   startLoop('email', sendNotificationEmails, 20000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })

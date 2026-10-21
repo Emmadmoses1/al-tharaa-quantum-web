@@ -1,57 +1,59 @@
 import { Router } from 'express'
-import { requireAuth } from '../middleware/authGuard.js'
-import OpenAI from 'openai'
+import Joi from 'joi'
+import { requireAdmin } from '../middleware/authGuard.js'
+import { getSecret } from '../lib/secrets.js'
 
+// Admin-only writing assistant. It rewrites facts the admin supplies. It never invents numbers, returns or claims.
 const router = Router()
-router.use(requireAuth)
+router.use(requireAdmin)
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const SYSTEM = `You write listings for a digital investment platform. Use ONLY the facts the admin provides.
+Rules: never invent figures, percentages, returns, partners, licenses, regulatory approvals or guarantees. Never promise profit.
+Tone: professional, clear, balanced, mention that returns are not guaranteed. Maximum 4 sentences per language.
+Respond with ONLY JSON: {"name_ar":"...","description":"English text","description_ar":"Arabic text"}`
 
-router.post('/enhance-text', async (req, res, next) => {
-  try {
-    const { text, name, category } = req.body
-    if (!text) return res.status(400).json({ success: false, error: { message: 'text required' } })
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{
-        role: 'user',
-        content: `You are a professional investment copywriter for a premium Gulf-region investment platform. Rewrite the following investment opportunity description to be captivating, professional, and compelling for high-net-worth investors. Keep it 3-4 sentences max.\n\nOpportunity name: ${name || 'Investment Opportunity'}\nCategory: ${category || 'Investment'}\nOriginal description: ${text}\n\nRespond ONLY with valid JSON, no markdown:\n{"enhanced": "English description here", "arabic": "الوصف بالعربية هنا"}`
-      }],
-      max_tokens: 600,
+async function llm(user) {
+  const a = await getSecret('ANTHROPIC_API_KEY')
+  if (a) {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'x-api-key': a, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5', max_tokens: 800, system: SYSTEM, messages: [{ role: 'user', content: user }] }),
     })
-
-    const raw = completion.choices[0].message.content || ''
-    const clean = raw.replace(/```json|```/g, '').trim()
-    const parsed = JSON.parse(clean)
-    res.json({ success: true, enhanced: parsed.enhanced, arabic: parsed.arabic })
-  } catch (err) {
-    next(err)
+    const d = await r.json()
+    if (!r.ok) throw new Error(d?.error?.message || `Anthropic HTTP ${r.status}`)
+    return d.content?.[0]?.text || ''
   }
+  const o = await getSecret('OPENAI_API_KEY')
+  if (o) {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST', headers: { Authorization: `Bearer ${o}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 800, messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: user }] }),
+    })
+    const d = await r.json()
+    if (!r.ok) throw new Error(d?.error?.message || `OpenAI HTTP ${r.status}`)
+    return d.choices?.[0]?.message?.content || ''
+  }
+  throw new Error('No AI key saved. Add one in Admin → Integrations.')
+}
+
+const schema = Joi.object({
+  name: Joi.string().trim().min(2).max(120).required(),
+  category: Joi.string().trim().max(60).allow(''),
+  location: Joi.string().trim().max(120).allow(''),
+  facts: Joi.string().trim().min(10).max(2000).required(),
 })
 
-router.post('/generate-image', async (req, res, next) => {
+router.post('/polish', async (req, res, next) => {
   try {
-    const { name, category } = req.body
-    if (!name) return res.status(400).json({ success: false, error: { message: 'name required' } })
-
-    const keywords = {
-      technology: 'technology,innovation,digital',
-      real_estate: 'real-estate,architecture,building',
-      startups: 'startup,business,office',
-      agriculture: 'agriculture,farm,green',
-      renewable_energy: 'solar,renewable,energy',
-      infrastructure: 'infrastructure,construction,city',
-      funds: 'finance,investment,wealth',
-      sukuk: 'finance,gold,luxury',
-    }
-
-    const query = keywords[category?.toLowerCase()] || 'investment,finance,business'
-    const seed = Math.floor(Math.random() * 1000)
-    const url = `https://source.unsplash.com/1200x600/?${query}&sig=${seed}`
-
-    res.json({ success: true, url })
+    const { value, error } = schema.validate(req.body)
+    if (error) return res.status(400).json({ success: false, error: { message: error.message, code: 'BAD_REQUEST' } })
+    const raw = await llm(`Name: ${value.name}\nCategory: ${value.category || '-'}\nLocation: ${value.location || '-'}\nFacts from the admin:\n${value.facts}`)
+    const m = raw.replace(/```json|```/g, '').match(/\{[\s\S]*\}/)
+    if (!m) throw new Error('The AI did not return usable text. Try again.')
+    const p = JSON.parse(m[0])
+    res.json({ success: true, data: { name_ar: p.name_ar || '', description: p.description || '', description_ar: p.description_ar || '' } })
   } catch (err) {
+    if (/No AI key/.test(err.message)) return res.status(400).json({ success: false, error: { message: err.message, code: 'NO_KEY' } })
     next(err)
   }
 })

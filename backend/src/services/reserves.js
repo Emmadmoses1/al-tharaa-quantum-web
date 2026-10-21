@@ -1,3 +1,4 @@
+import { getSecret } from '../lib/secrets.js'
 import { supabase } from '../lib/supabase.js'
 import { fetchJson } from './prices.js'
 
@@ -17,13 +18,14 @@ async function holding(asset, network, address) {
   }
   const t = TOKEN[key]
   if (network === 'TRC20') {
-    const h = process.env.TRONGRID_API_KEY ? { 'TRON-PRO-API-KEY': process.env.TRONGRID_API_KEY } : {}
+    const tk = await getSecret('TRONGRID_API_KEY')
+    const h = tk ? { 'TRON-PRO-API-KEY': tk } : {}
     const d = await fetchJson(`https://api.trongrid.io/v1/accounts/${address}`, h)
     const hit = (d.data?.[0]?.trc20 || []).find(o => o[t.contract] !== undefined)
     return hit ? Number(hit[t.contract]) / 10 ** t.dec : 0
   }
-  const k = process.env.ETHERSCAN_API_KEY
-  if (!k) throw new Error('ETHERSCAN_API_KEY is not set')
+  const k = await getSecret('ETHERSCAN_API_KEY')
+  if (!k) throw new Error('ETHERSCAN_API_KEY is not set. Add it in Admin > Integrations.')
   const chainid = key === 'ETH:ERC20' ? 1 : t.chainid
   const q = key === 'ETH:ERC20'
     ? 'action=balance'
