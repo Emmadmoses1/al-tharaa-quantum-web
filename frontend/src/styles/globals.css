@@ -203,3 +203,19 @@ html { scroll-behavior: smooth; }
 ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.25); border-radius: 6px; border: 2px solid #0B0B0B; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.45); }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ── Phase 12 polish ── */
+::selection { background: rgba(212,175,55,0.35); color: #fff; }
+.glass-card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+@media (hover: hover) {
+  .glass-card:hover { transform: translateY(-2px); border-color: rgba(212,175,55,0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
+  outline: 2px solid #D4AF37; outline-offset: 2px;
+}
+button:not(:disabled):active { transform: scale(0.97); }
+.dl-content { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .glass-card:hover { transform: none; }
+}

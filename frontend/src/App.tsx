@@ -62,6 +62,10 @@ import MarketsPublic from './pages/public/MarketsPublic'
 import MarketsDash from './pages/dashboard/MarketsDash'
 import AiIntelligencePage from './pages/dashboard/AiIntelligencePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import AdminIntegrations from './pages/admin/AdminIntegrations'
+import SiteNotice from './components/SiteNotice'
+import WelcomeBonus from './components/WelcomeBonus'
+import InstallButton from './components/InstallButton'
 
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
@@ -84,6 +88,10 @@ export default function App() {
     <AuthProvider>
       <LangSwitch />
       <SoundEvents />
+      <SiteNotice />
+      <WelcomeBonus />
+      <InstallButton />
+      <Tracker />
       <Routes>
         {/* ── Public ── */}
         <Route path="/" element={<LandingPage />} />
@@ -143,6 +151,9 @@ export default function App() {
         <Route path="/admin/system" element={<AdminPage><AdminSystem /></AdminPage>} />
         <Route path="/admin/support" element={<AdminPage><AdminSupport /></AdminPage>} />
         <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
+        <Route path="/admin/integrations" element={<AdminPage><AdminIntegrations /></AdminPage>} />
+        <Route path="/admin/payments" element={<AdminPage><AdminPayments /></AdminPage>} />
+        <Route path="/admin/traffic" element={<AdminPage><AdminTraffic /></AdminPage>} />
 
         {/* ── 404 ── */}
         <Route path="*" element={
