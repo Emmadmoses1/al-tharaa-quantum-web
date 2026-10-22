@@ -16,6 +16,7 @@ const SECTIONS: Section[] = [
     { k: 'support_email', label: 'Support email', kind: 'text', placeholder: 'support@yourdomain.com' },
     { k: 'maintenance', label: 'Maintenance mode (pauses new trades and withdrawals, shows a banner)', kind: 'bool' },
     { k: 'maintenance_message', label: 'Banner message (optional)', kind: 'text' },
+    { k: 'license_text', label: 'Licence / regulator statement (leave empty unless true)', kind: 'text', help: 'Shown in the footer and security section only when filled. Example: Licensed by <regulator>, licence no. <number>.', placeholder: '' },
   ] },
   { key: 'bonus', title: 'Welcome bonus', desc: 'Credited once per account to the trading wallet. Withdrawal unlocks after the 4x trading rule.', fields: [
     { k: 'enabled', label: 'Bonus enabled', kind: 'bool' },
@@ -43,6 +44,9 @@ const SECTIONS: Section[] = [
     { k: 'sandbox', label: 'Sandbox mode (test payments only, no real money)', kind: 'bool' },
     { k: 'min_usd', label: 'Minimum deposit (USD)', kind: 'number' },
     { k: 'max_usd', label: 'Maximum deposit (USD)', kind: 'number' },
+  ] },
+  { key: 'public', title: 'Public site', desc: 'Real numbers only. These come straight from your database.', fields: [
+    { k: 'show_users', label: 'Show the real registered-user count on the home page', kind: 'bool' },
   ] },
   { key: 'email', title: 'Email', desc: 'Needs a Resend key under Integrations. Without it nothing is sent.', fields: [
     { k: 'enabled', label: 'Email enabled', kind: 'bool' },

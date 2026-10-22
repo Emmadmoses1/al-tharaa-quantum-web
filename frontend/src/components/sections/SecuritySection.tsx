@@ -1,24 +1,27 @@
 import { Lock, Eye, Server } from 'lucide-react'
+import { useSite } from '../../lib/useSite'
 
 const items = [
   {
     icon: <Lock size={22} color="#D4AF37" />,
-    title: 'تشفير مقاوم للكم',
-    desc: 'حماية بيانات المستخدم باستخدام خوارزميات تشفير حديثة مصممة لمقاومة الحوسبة الكمومية المستقبلية.',
+    title: 'تشفير ومفاتيح محمية',
+    desc: 'مفاتيح الربط الخارجية تُخزَّن مشفّرة بخوارزمية AES-256-GCM، وكل سجل في قاعدة البيانات محمي بسياسات وصول لكل مستخدم.',
   },
   {
     icon: <Eye size={22} color="#D4AF37" />,
-    title: 'محافظ باردة متعددة التوقيع',
-    desc: 'تخزين غالبية الأصول في محافظ باردة معزولة تماماً عن الشبكة، تتطلب توقيعات متعددة لأي معاملة.',
+    title: 'سجل حسابات لا يُعدَّل',
+    desc: 'كل إيداع وسحب واستثمار يُسجَّل في دفتر حسابات غير قابل للتعديل، وتُطابَق الأرصدة مع العناوين على الشبكة في فحص الاحتياطي.',
   },
   {
     icon: <Server size={22} color="#D4AF37" />,
-    title: 'رقابة CBB التنظيمية',
-    desc: 'المنصة خاضعة لرقابة مصرف البحرين المركزي مع الالتزام بمعايير الإبلاغ وحماية العملاء المقررة.',
+    title: 'إيداعات موثّقة تلقائياً',
+    desc: 'تُضاف الإيداعات فقط بعد تأكيد الدفع عبر إشعار موقّع رقمياً، وتُسجَّل كل عملية إدارية في سجل تدقيق.',
   },
 ]
 
 export default function SecuritySection() {
+  const { data: site } = useSite()
+  const lic = site?.license_text || ''
   return (
     <section id="security" style={{
       padding: '100px 24px',
@@ -77,8 +80,7 @@ export default function SecuritySection() {
             marginBottom: 16,
             lineHeight: 1.3,
           }}>
-            آمن ومرخّص في{' '}
-            <span className="gold-text">مملكة البحرين</span>
+            أمان <span className="gold-text">تستطيع التحقق منه</span>
           </h2>
           <p style={{
             fontSize: 14,
@@ -87,7 +89,7 @@ export default function SecuritySection() {
             fontFamily: 'Cairo',
             marginBottom: 36,
           }}>
-            بنية تحتية أمنية مؤسسية وأنظمة ذكاء اصطناعي متطورة، تحت إشراف تنظيمي من مصرف البحرين المركزي.
+            ضوابط أمنية حقيقية مبنية في المنصة، وليست شعارات.{lic ? ` ${lic}` : ''}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

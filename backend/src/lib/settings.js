@@ -1,7 +1,8 @@
 import { supabase } from './supabase.js'
 
 export const DEFAULTS = {
-  general: { platform_name: 'الثراء كوانتوم', support_email: '', maintenance: false, maintenance_message: '' },
+  general: { platform_name: 'الثراء كوانتوم', support_email: '', maintenance: false, maintenance_message: '', license_text: '' },
+  public: { show_users: false },
   bonus: { enabled: true, usd: 5, daily_cap: 50, require_email_confirmed: true },
   referral: { enabled: false, reward_usdt: 0, min_deposit_usdt: 20 },
   investments: { early_redeem_enabled: true, early_redeem_penalty_percent: 10 },

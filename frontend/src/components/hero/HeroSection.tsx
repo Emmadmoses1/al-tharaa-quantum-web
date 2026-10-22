@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import GoldCoin from './GoldCoin'
+import { useSite } from '../../lib/useSite'
 
-const stats = [
+const baseStats = [
   { value: '3', label: 'شبكات إيداع USDT' },
   { value: '24/7', label: 'إيداع تلقائي' },
   { value: 'AI', label: 'إشارات تداول ذكية' },
@@ -11,6 +12,9 @@ const stats = [
 
 export default function HeroSection() {
   const { user } = useAuth()
+  const { data: site } = useSite()
+  const n = site?.public?.users
+  const stats = n != null && n > 0 ? [{ value: n.toLocaleString('en-US'), label: 'مستخدم مسجّل' }, ...baseStats.slice(0, 3)] : baseStats
 
   return (
     <section id="home" style={{

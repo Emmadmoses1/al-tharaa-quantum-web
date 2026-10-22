@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Twitter, Linkedin, Instagram } from 'lucide-react'
+import { useSite } from '../../lib/useSite'
 
 import { LogoMark } from '../Logo'
 const cols = [
@@ -22,6 +23,8 @@ const cols = [
 ]
 
 export default function Footer() {
+  const { data: site } = useSite()
+  const lic = site?.license_text || ''
   return (
     <footer style={{
       borderTop: '1px solid rgba(212,175,55,0.1)',
@@ -52,7 +55,7 @@ export default function Footer() {
             fontFamily: 'Cairo',
             marginBottom: 20,
           }}>
-            منصة التمويل الرقمي المتميزة بالذكاء الاصطناعي — مرخصة ومنظمة في مملكة البحرين.
+            منصة التمويل الرقمي بالذكاء الاصطناعي.{lic ? ` ${lic}` : ''}
           </p>
           <div style={{ display: 'flex', gap: 12 }}>
             {[Twitter, Linkedin, Instagram].map((Icon, i) => (
@@ -122,7 +125,7 @@ export default function Footer() {
         gap: 12,
       }}>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo' }}>
-          © 2025 الثراء كوانتوم. جميع الحقوق محفوظة. مرخص من مصرف البحرين المركزي.
+          © {new Date().getFullYear()} الثراء كوانتوم. جميع الحقوق محفوظة.{lic ? ` ${lic}` : ''}
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: 'Cairo' }}>
           الاستثمار ينطوي على مخاطر. النتائج السابقة لا تضمن الأداء المستقبلي.

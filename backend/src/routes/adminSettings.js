@@ -9,7 +9,8 @@ router.use(requireAdmin)
 const str = (max) => Joi.string().trim().max(max).allow('')
 
 const SCHEMAS = {
-  general: Joi.object({ platform_name: str(80), support_email: Joi.string().trim().email().allow(''), maintenance: Joi.boolean(), maintenance_message: str(300) }),
+  general: Joi.object({ platform_name: str(80), support_email: Joi.string().trim().email().allow(''), maintenance: Joi.boolean(), maintenance_message: str(300), license_text: str(200) }),
+  public: Joi.object({ show_users: Joi.boolean() }),
   bonus: Joi.object({ enabled: Joi.boolean(), usd: Joi.number().min(0).max(100), daily_cap: Joi.number().integer().min(0).max(100000), require_email_confirmed: Joi.boolean() }),
   referral: Joi.object({ enabled: Joi.boolean(), reward_usdt: Joi.number().min(0).max(100), min_deposit_usdt: Joi.number().min(0).max(100000) }),
   investments: Joi.object({ early_redeem_enabled: Joi.boolean(), early_redeem_penalty_percent: Joi.number().min(0).max(90) }),
