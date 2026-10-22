@@ -11,8 +11,8 @@ router.get('/opportunities', async (req, res, next) => {
 
     let query = supabase
       .from('investment_opportunities')
-      .select('id, name, category, location, description, minimum_investment, target_amount, amount_raised, risk_level, duration_days, deadline, status, cover_image_url, gallery_urls, projected_return_min, projected_return_max')
-      .eq('status', status)
+      .select('id, name, name_ar, currency, category, location, description, minimum_investment, target_amount, amount_raised, risk_level, duration_days, deadline, status, cover_image_url, gallery_urls, projected_return_min, projected_return_max')
+      .in('status', req.query.status ? [String(status)] : ['open', 'funding'])
       .order('created_at', { ascending: false })
 
     if (category) query = query.eq('category', category)

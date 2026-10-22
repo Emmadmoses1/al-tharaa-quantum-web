@@ -21,7 +21,7 @@ function sortKeys(v) {
   return v
 }
 
-async function npFetch(path, opts = {}) {
+export async function npFetch(path, opts = {}) {
   const [rawKey, cfg] = await Promise.all([getSecret('NOWPAYMENTS_API_KEY'), getSetting('payments')])
   const key = String(rawKey || '').trim()
   if (!key) throw Object.assign(new Error('NOWPayments is not connected yet.'), { status: 400 })
@@ -48,8 +48,21 @@ export async function applyPayment(p) {
   const paid = p.actually_paid != null ? Number(p.actually_paid) : null
   await supabase.from('nowpayments_payments').update({ np_status: status, actually_paid: paid ?? row.actually_paid, updated_at: new Date().toISOString() }).eq('id', row.id)
 
-  const { data: dep } = await supabase.from('deposits').select('id, user_id, status').eq('id', row.deposit_id).single()
+  const { data: dep } = await supabase.from('deposits').select('id, user_id, status, purpose').eq('id', row.deposit_id).single()
   if (!dep) return { ignored: true }
+  const SEEN = ['confirming', 'confirmed', 'sending']
+  if (SEEN.includes(status) && !SEEN.includes(row.np_status)) {
+    await supabase.from('notifications').insert({
+      user_id: dep.user_id, type: 'deposit', title: 'Payment detected', title_ar: 'تم رصد تحويلك',
+      message: 'We detected your transfer. It will be added to your wallet once the network confirms it.', message_ar: 'تم رصد تحويلك على الشبكة، وسيُضاف إلى رصيدك فور التأكيد.',
+    })
+  }
+  if (status === 'partially_paid' && row.np_status !== 'partially_paid') {
+    await supabase.from('notifications').insert({
+      user_id: dep.user_id, type: 'deposit', title: 'Partial payment received', title_ar: 'وصل جزء من المبلغ',
+      message: 'We received less than the requested amount. Our team will review it and contact you.', message_ar: 'وصل مبلغ أقل من المطلوب. سيراجعه فريقنا ويتواصل معك.',
+    })
+  }
   if (status !== 'finished') {
     const next = DEP_STATUS[status]
     if (next && next !== 'confirmed' && dep.status !== 'confirmed') {
@@ -72,7 +85,7 @@ export async function applyPayment(p) {
   }
   await supabase.from('notifications').insert({
     user_id: dep.user_id, type: 'deposit', title: 'Deposit credited', title_ar: 'تمت إضافة إيداعك',
-    message: `${paid} USDT was credited to your wallet.`, message_ar: `تمت إضافة ${paid} USDT إلى رصيدك.`,
+    message: `${paid} USDT was credited to your ${dep.purpose === 'investment' ? 'investment' : 'trading'} wallet.`, message_ar: `تمت إضافة ${paid} USDT إلى ${dep.purpose === 'investment' ? 'محفظة الاستثمار' : 'محفظة التداول'}.`,
   })
   return { credited: true }
 }
@@ -139,12 +152,38 @@ router.post('/create', async (req, res, next) => {
   }
 })
 
+const syncAt = new Map()
+const TERMINAL = ['finished', 'failed', 'expired', 'refunded']
+
 router.get('/status/:depositId', async (req, res, next) => {
   try {
-    const { data: dep } = await supabase.from('deposits').select('id, status').eq('id', req.params.depositId).eq('user_id', req.user.id).maybeSingle()
+    const { data: dep } = await supabase.from('deposits').select('id, status, expires_at').eq('id', req.params.depositId).eq('user_id', req.user.id).maybeSingle()
     if (!dep) return bad(res, 'Not found', 'NOT_FOUND', 404)
-    const { data: np } = await supabase.from('nowpayments_payments').select('np_status, actually_paid, pay_amount').eq('deposit_id', dep.id).maybeSingle()
-    res.json({ success: true, data: { status: dep.status, np_status: np?.np_status || null, paid: np?.actually_paid ?? null, expected: np?.pay_amount ?? null } })
+    let { data: np } = await supabase.from('nowpayments_payments').select('np_payment_id, np_status, actually_paid, pay_amount').eq('deposit_id', dep.id).maybeSingle()
+    // Ask NOWPayments directly (at most every 8s), so the screen updates even without the webhook
+    if (np && !TERMINAL.includes(np.np_status) && Date.now() - (syncAt.get(dep.id) || 0) > 8000) {
+      syncAt.set(dep.id, Date.now())
+      try {
+        await applyPayment(await npFetch(`/payment/${encodeURIComponent(np.np_payment_id)}`))
+        const r = await supabase.from('nowpayments_payments').select('np_payment_id, np_status, actually_paid, pay_amount').eq('deposit_id', dep.id).maybeSingle()
+        np = r.data
+        const d2 = await supabase.from('deposits').select('status').eq('id', dep.id).single()
+        if (d2.data) dep.status = d2.data.status
+      } catch { /* keep the last known status */ }
+    }
+    res.json({ success: true, data: { status: dep.status, np_status: np?.np_status || null, paid: np?.actually_paid ?? null, expected: np?.pay_amount ?? null, expires_at: dep.expires_at } })
+  } catch (err) { next(err) }
+})
+
+// The user's newest unfinished payment, so the screen can continue after a reload
+router.get('/active', async (req, res, next) => {
+  try {
+    const { data: np } = await supabase.from('nowpayments_payments').select('deposit_id, pay_address, pay_amount, network, price_usd, np_status')
+      .eq('user_id', req.user.id).eq('credited', false).not('np_status', 'in', '(finished,failed,expired,refunded)').order('created_at', { ascending: false }).limit(1).maybeSingle()
+    if (!np) return res.json({ success: true, data: null })
+    const { data: dep } = await supabase.from('deposits').select('expires_at, status').eq('id', np.deposit_id).maybeSingle()
+    if (!dep || !['awaiting_payment', 'detected', 'confirming'].includes(dep.status) || new Date(dep.expires_at).getTime() < Date.now()) return res.json({ success: true, data: null })
+    res.json({ success: true, data: { deposit_id: np.deposit_id, address: np.pay_address, pay_amount: np.pay_amount, network: np.network, expires_at: dep.expires_at, price_usd: np.price_usd } })
   } catch (err) { next(err) }
 })
 

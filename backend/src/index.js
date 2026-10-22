@@ -44,6 +44,9 @@ import { scanDeposits } from './services/depositWatcher.js'
 import { runSignalEngine } from './services/signalEngine.js'
 import { monitorPositions } from './services/positionMonitor.js'
 import { errorHandler } from './middleware/errorHandler.js'
+import pushRouter from './routes/push.js'
+import { runEngagement } from './services/engagement.js'
+import { syncPendingPayments } from './services/nowpaymentsSync.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -119,6 +122,7 @@ app.use('/api/admin/trades', adminTradesRouter)
 app.use('/api/admin/users', adminUsersRouter)
 app.use('/api/admin/strategies', adminStrategiesRouter)
 app.use('/api/admin/binary', adminBinaryRouter)
+app.use('/api/push', pushRouter)
 app.use('/api/admin', adminRouter)
 
 // 404
@@ -139,6 +143,8 @@ app.listen(PORT, () => {
   startLoop('binary', settleBinary, 2000)
   startLoop('invoices', processInvoices, 20000)
   startLoop('prune-views', async () => { await sbPrune.rpc('prune_page_views') }, 6 * 3600 * 1000)
-  startLoop('email', sendNotificationEmails, 20000)
+  startLoop('deliver', sendNotificationEmails, 10000)
+  startLoop('engagement', runEngagement, 60000)
+  startLoop('np-sync', syncPendingPayments, 60000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })

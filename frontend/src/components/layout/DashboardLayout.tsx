@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Menu, Bell, LayoutDashboard, Briefcase, TrendingUp, ArrowDownCircle, MoreHorizontal } from 'lucide-react'
 import DashboardSidebar from './DashboardSidebar'
 import ErrorBoundary from '../ui/ErrorBoundary'
+import PushPrompt from '../PushPrompt'
 import { useUnreadCount } from '../../hooks/useData'
 
 import { LogoMark } from '../Logo'
@@ -57,7 +58,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="dl-content" style={{ padding: 32 }}><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
+        <div className="dl-content" style={{ padding: 32 }}><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
       </main>
 
       <nav className="dl-bottom" style={{
