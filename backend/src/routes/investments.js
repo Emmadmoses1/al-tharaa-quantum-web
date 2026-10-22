@@ -11,7 +11,7 @@ router.get('/opportunities', async (req, res, next) => {
 
     let query = supabase
       .from('investment_opportunities')
-      .select('id, name, category, location, description, minimum_investment, target_amount, amount_raised, risk_level, duration_days, deadline, status, cover_image_url, projected_return_min, projected_return_max')
+      .select('id, name, category, location, description, minimum_investment, target_amount, amount_raised, risk_level, duration_days, deadline, status, cover_image_url, gallery_urls, projected_return_min, projected_return_max')
       .eq('status', status)
       .order('created_at', { ascending: false })
 

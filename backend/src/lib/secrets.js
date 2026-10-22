@@ -7,6 +7,8 @@ export const SECRET_NAMES = {
   ANTHROPIC_API_KEY: { label: 'Anthropic (AI text)', help: 'Optional. Used to polish opportunity descriptions and Arabic translations.' },
   OPENAI_API_KEY: { label: 'OpenAI (AI text and images)', help: 'Optional. Used for text polishing and AI cover illustrations.' },
   TRONGRID_API_KEY: { label: 'TronGrid (TRC20 deposits)', help: 'Raises the rate limit for USDT TRC20 deposit detection.' },
+  NOWPAYMENTS_API_KEY: { label: 'NOWPayments (API key)', help: 'Automatic USDT deposits. From account.nowpayments.io > Store Settings > API keys.' },
+  NOWPAYMENTS_IPN_SECRET: { label: 'NOWPayments (IPN secret)', help: 'From NOWPayments > Store Settings > IPN. Verifies payment notifications.' },
   ETHERSCAN_API_KEY: { label: 'Etherscan (ERC20/BEP20/ETH deposits)', help: 'Required to detect ERC20, BEP20 and ETH deposits.' },
 }
 

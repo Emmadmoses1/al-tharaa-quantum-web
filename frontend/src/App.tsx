@@ -14,7 +14,10 @@ import RegisterPage from './pages/RegisterPage'
 
 // User dashboard pages
 import DashboardHome from './pages/dashboard/DashboardHome'
-import DepositPage from './pages/dashboard/DepositPage'
+import DepositSwitch from './components/DepositSwitch'
+import Tracker from './components/Tracker'
+import AdminPayments from './pages/admin/AdminPayments'
+import AdminTraffic from './pages/admin/AdminTraffic'
 import InvestmentsPage from './pages/dashboard/InvestmentsPage'
 import TradingPage from './pages/dashboard/TradingPage'
 import SignalsPage from './pages/dashboard/SignalsPage'
@@ -101,7 +104,7 @@ export default function App() {
 
         {/* ── User Dashboard ── */}
         <Route path="/dashboard" element={<UserPage><DashboardHome /></UserPage>} />
-        <Route path="/dashboard/deposit" element={<UserPage><DepositPage /></UserPage>} />
+        <Route path="/dashboard/deposit" element={<UserPage><DepositSwitch /></UserPage>} />
         <Route path="/dashboard/withdraw" element={<UserPage><WithdrawPage /></UserPage>} />
         <Route path="/dashboard/investments" element={<UserPage><InvestmentsPage /></UserPage>} />
         <Route path="/dashboard/trading" element={<Navigate to="/dashboard/trade" replace />} />

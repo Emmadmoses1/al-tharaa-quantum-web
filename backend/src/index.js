@@ -24,6 +24,11 @@ import bonusRouter from './routes/bonus.js'
 import referralRouter from './routes/referral.js'
 import userSettingsRouter from './routes/userSettings.js'
 import redeemRouter from './routes/redeem.js'
+import nowpaymentsRouter from './routes/nowpayments.js'
+import adminPaymentsRouter from './routes/adminPayments.js'
+import trackRouter from './routes/track.js'
+import adminAnalyticsRouter from './routes/adminAnalytics.js'
+import { supabase as sbPrune } from './lib/supabase.js'
 import { settleBinary } from './services/binarySettler.js'
 import { sendNotificationEmails } from './services/emailNotifier.js'
 import adminTradesRouter from './routes/adminTrades.js'
@@ -103,6 +108,10 @@ app.use('/api/bonus', bonusRouter)
 app.use('/api/referral', referralRouter)
 app.use('/api/settings', userSettingsRouter)
 app.use('/api/redeem', redeemRouter)
+app.use('/api/nowpayments', nowpaymentsRouter)
+app.use('/api/admin/nowpayments', adminPaymentsRouter)
+app.use('/api/track', trackRouter)
+app.use('/api/admin/analytics', adminAnalyticsRouter)
 app.use('/api/admin/reserves', reservesRouter)
 app.use('/api/markets', marketsRouter)
 app.use('/api/ai-status', aiStatusRouter)
@@ -129,6 +138,7 @@ app.listen(PORT, () => {
   if (process.env.POSITION_MONITOR !== 'off') startLoop('positions', monitorPositions, 30000)
   startLoop('binary', settleBinary, 2000)
   startLoop('invoices', processInvoices, 20000)
+  startLoop('prune-views', async () => { await sbPrune.rpc('prune_page_views') }, 6 * 3600 * 1000)
   startLoop('email', sendNotificationEmails, 20000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })

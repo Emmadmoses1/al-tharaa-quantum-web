@@ -66,6 +66,14 @@ router.post('/:name/test', async (req, res, next) => {
       const restricted = r.status === 401 && /restricted/i.test(JSON.stringify(r.body || {}))
       return res.json({ success: true, data: { ok: r.status === 200 || restricted, detail: r.status === 200 ? 'Key works' : restricted ? 'Key works (send-only key)' : `Rejected (HTTP ${r.status})` } })
     }
+    if (name === 'NOWPAYMENTS_IPN_SECRET') return res.json({ success: true, data: { ok: true, detail: 'Saved. It is checked on every payment notification.' } })
+    if (name === 'NOWPAYMENTS_API_KEY') {
+      for (const [host, label] of [['https://api.nowpayments.io', 'live'], ['https://api-sandbox.nowpayments.io', 'sandbox']]) {
+        const t = await http(`${host}/v1/currencies`, { headers: { 'x-api-key': key } })
+        if (t.status === 200) return res.json({ success: true, data: { ok: true, detail: `Key works (${label})` } })
+      }
+      return res.json({ success: true, data: { ok: false, detail: 'Rejected by live and sandbox' } })
+    }
     if (name === 'OPENAI_API_KEY') r = await http('https://api.openai.com/v1/models', { headers: { Authorization: `Bearer ${key}` } })
     else if (name === 'ANTHROPIC_API_KEY') r = await http('https://api.anthropic.com/v1/models', { headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' } })
     else if (name === 'TRONGRID_API_KEY') r = await http('https://api.trongrid.io/wallet/getnowblock', { method: 'POST', headers: { 'TRON-PRO-API-KEY': key } })

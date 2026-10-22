@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { api } from '../lib/api'
 import { supabase } from '../lib/supabase'
 
-type Form = { name: string; category: string; location: string; cover_image_url: string }
+type Form = { name: string; category: string; location: string; cover_image_url: string; gallery_urls: string }
 type Props = { form: Form; setF: (k: string, v: string) => void }
 
 const box: React.CSSProperties = { border: '1px solid rgba(212,175,55,0.2)', borderRadius: 10, padding: 12, display: 'grid', gap: 10 }
@@ -18,6 +18,14 @@ async function shrink(file: File): Promise<Blob> {
   c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
   return await new Promise<Blob>((ok, no) => c.toBlob(x => x ? ok(x) : no(new Error('Image conversion failed')), 'image/jpeg', 0.85))
 }
+async function uploadFile(file: File): Promise<string> {
+  if (!file.type.startsWith('image/')) throw new Error('Choose image files only')
+  const blob = await shrink(file)
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+  const { error } = await supabase.storage.from('opportunity-images').upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+  if (error) throw error
+  return supabase.storage.from('opportunity-images').getPublicUrl(path).data.publicUrl
+}
 
 export default function OpportunityMedia({ form, setF }: Props) {
   const [busy, setBusy] = useState<string | null>(null)
@@ -25,22 +33,26 @@ export default function OpportunityMedia({ form, setF }: Props) {
   const [prompt, setPrompt] = useState('')
   const [facts, setFacts] = useState('')
   const [ai, setAi] = useState(false)
+  const gallery = (form.gallery_urls || '').split('\n').filter(Boolean)
+  const setGallery = (g: string[]) => setF('gallery_urls', g.join('\n'))
 
   async function upload(file: File | undefined) {
     if (!file) return
     setBusy('up'); setMsg('')
+    try { setF('cover_image_url', await uploadFile(file)); setAi(false); setMsg('Cover photo uploaded') }
+    catch (e) { setMsg(e instanceof Error ? e.message : 'Upload failed') }
+    setBusy(null)
+  }
+  async function addGallery(files: FileList | null) {
+    if (!files || files.length === 0) return
+    setBusy('gal'); setMsg('')
     try {
-      if (!file.type.startsWith('image/')) throw new Error('Choose an image file')
-      const blob = await shrink(file)
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
-      const { error } = await supabase.storage.from('opportunity-images').upload(path, blob, { contentType: 'image/jpeg', upsert: false })
-      if (error) throw error
-      setF('cover_image_url', supabase.storage.from('opportunity-images').getPublicUrl(path).data.publicUrl)
-      setMsg('Photo uploaded')
+      const urls: string[] = []
+      for (const f of Array.from(files).slice(0, 8)) urls.push(await uploadFile(f))
+      setGallery([...gallery, ...urls].slice(0, 12)); setMsg(`${urls.length} photo(s) added to the gallery`)
     } catch (e) { setMsg(e instanceof Error ? e.message : 'Upload failed') }
     setBusy(null)
   }
-
   async function illustrate() {
     setBusy('img'); setMsg('')
     try {
@@ -49,7 +61,6 @@ export default function OpportunityMedia({ form, setF }: Props) {
     } catch (e) { setMsg(e instanceof Error ? e.message : 'Failed') }
     setBusy(null)
   }
-
   async function polish() {
     setBusy('txt'); setMsg('')
     try {
@@ -63,17 +74,34 @@ export default function OpportunityMedia({ form, setF }: Props) {
 
   return (
     <div style={box}>
-      <div style={lbl}>PHOTO</div>
+      <div style={lbl}>COVER PHOTO</div>
       {form.cover_image_url && <img src={form.cover_image_url} alt="" style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 8 }} />}
       {ai && <div style={{ fontSize: 11, color: '#D4AF37', fontFamily: 'Montserrat' }}>AI illustration. Prefer a real photo of the asset when you have one.</div>}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <label style={b(busy === 'up')}>{busy === 'up' ? 'Uploading…' : 'Upload photo'}
+        <label style={b(!!busy)}>{busy === 'up' ? 'Uploading…' : 'Upload cover'}
           <input type="file" accept="image/*" hidden disabled={!!busy} onChange={e => { upload(e.target.files?.[0]); e.target.value = '' }} />
         </label>
         {form.cover_image_url && <button type="button" style={b(false)} onClick={() => { setF('cover_image_url', ''); setAi(false) }}>Remove</button>}
       </div>
+
+      <div style={lbl}>GALLERY ({gallery.length}/12), shown to investors when they tap the cover</div>
+      {gallery.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(84px,1fr))', gap: 8 }}>
+          {gallery.map((u, idx) => (
+            <div key={u} style={{ position: 'relative' }}>
+              <img src={u} alt="" style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 6, display: 'block' }} />
+              <button type="button" aria-label="Remove photo" onClick={() => setGallery(gallery.filter((_, j) => j !== idx))}
+                style={{ position: 'absolute', top: 3, right: 3, width: 24, height: 24, borderRadius: '50%', border: 'none', background: 'rgba(239,68,68,0.9)', color: '#fff', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
+      <label style={b(!!busy || gallery.length >= 12)}>{busy === 'gal' ? 'Uploading…' : 'Add gallery photos (up to 8 at once)'}
+        <input type="file" accept="image/*" multiple hidden disabled={!!busy || gallery.length >= 12} onChange={e => { addGallery(e.target.files); e.target.value = '' }} />
+      </label>
+
       <input style={inp} value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="AI illustration idea (optional, defaults to name + category)" />
-      <button type="button" disabled={!!busy || !form.name.trim()} style={b(!!busy || !form.name.trim())} onClick={illustrate}>{busy === 'img' ? 'Generating…' : 'Generate AI illustration'}</button>
+      <button type="button" disabled={!!busy || !form.name.trim()} style={b(!!busy || !form.name.trim())} onClick={illustrate}>{busy === 'img' ? 'Generating…' : 'Generate AI cover illustration'}</button>
       <div style={lbl}>WRITE DESCRIPTION WITH AI</div>
       <textarea style={{ ...inp, minHeight: 70, resize: 'vertical' }} value={facts} onChange={e => setFacts(e.target.value)} placeholder="Type the real facts (what it is, where, how it earns, term). AI only rewrites these in English and Arabic. It adds no numbers." />
       <button type="button" disabled={!!busy || !form.name.trim() || facts.trim().length < 10} style={b(!!busy || !form.name.trim() || facts.trim().length < 10)} onClick={polish}>{busy === 'txt' ? 'Writing…' : 'Write English + Arabic text'}</button>
