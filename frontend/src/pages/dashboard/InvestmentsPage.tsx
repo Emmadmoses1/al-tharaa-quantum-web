@@ -11,6 +11,7 @@ import {
 import { CardSkeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
 import InvestAction from '../../components/InvestAction'
+import GalleryCover from '../../components/GalleryCover'
 
 const CATEGORIES = [
   { key: 'all', label: 'الكل' },
@@ -61,118 +62,101 @@ function OpportunityCard({
   const pct = opp.target_amount > 0
     ? Math.min(Math.round((opp.amount_raised / opp.target_amount) * 100), 100)
     : 0
+  const extra = opp as unknown as { deadline?: string | null; status?: string; gallery_urls?: string[] }
+  const daysLeft = extra.deadline ? Math.max(0, Math.ceil((new Date(extra.deadline).getTime() - Date.now()) / 86400000)) : null
+  const full = pct >= 100
+  const risk = RISK_COLORS[opp.risk_level] || '#f59e0b'
 
   return (
     <div
-      className="glass-card"
+      className="glass-card opp-card"
       onClick={onClick}
-      style={{ padding: 0, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.3s ease' }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.35)'
-        ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
-        ;(e.currentTarget as HTMLElement).style.boxShadow = '0 16px 48px rgba(212,175,55,0.1)'
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.15)'
-        ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
-        ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-      }}
+      style={{ padding: 0, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
     >
-      {/* Cover */}
       <div style={{
-        height: 110,
-        background: 'linear-gradient(135deg,rgba(44,44,44,0.8),rgba(11,11,11,0.9))',
-        borderBottom: '1px solid rgba(212,175,55,0.08)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative',
+        height: 176, position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(135deg,rgba(44,44,44,0.9),rgba(11,11,11,0.95))',
       }}>
         {opp.cover_image_url ? (
-          <img src={opp.cover_image_url} alt={opp.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <GalleryCover name={opp.name} cover={opp.cover_image_url} gallery={extra.gallery_urls || []} />
         ) : (
-          <TrendingUp size={32} color="rgba(212,175,55,0.2)" />
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <TrendingUp size={44} color="rgba(212,175,55,0.25)" />
+          </div>
         )}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(11,11,11,0) 45%,rgba(11,11,11,0.92) 100%)', pointerEvents: 'none' }} />
         <div style={{
-          position: 'absolute', top: 10, right: 10,
-          background: 'rgba(11,11,11,0.75)',
-          border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: 5, padding: '2px 9px',
-          fontSize: 9, fontWeight: 700,
-          color: '#D4AF37', fontFamily: 'Cairo',
-          backdropFilter: 'blur(8px)',
+          position: 'absolute', top: 10, right: 10, background: 'rgba(11,11,11,0.78)',
+          border: '1px solid rgba(212,175,55,0.25)', borderRadius: 100, padding: '3px 11px',
+          fontSize: 10, fontWeight: 700, color: '#D4AF37', fontFamily: 'Cairo', backdropFilter: 'blur(8px)', pointerEvents: 'none',
         }}>
           {CATEGORIES.find(c => c.key === opp.category)?.label || opp.category}
         </div>
         <div style={{
-          position: 'absolute', top: 10, left: 10,
-          background: `rgba(${RISK_COLORS[opp.risk_level] === '#10b981' ? '16,185,129' : '245,158,11'},0.15)`,
-          border: `1px solid ${RISK_COLORS[opp.risk_level]}30`,
-          borderRadius: 5, padding: '2px 9px',
-          fontSize: 9, fontWeight: 600,
-          color: RISK_COLORS[opp.risk_level], fontFamily: 'Cairo',
+          position: 'absolute', top: 10, left: 10, background: 'rgba(11,11,11,0.78)',
+          border: `1px solid ${risk}55`, borderRadius: 100, padding: '3px 11px',
+          fontSize: 10, fontWeight: 700, color: risk, fontFamily: 'Cairo', backdropFilter: 'blur(8px)', pointerEvents: 'none',
         }}>
           مخاطرة {RISK_LABELS[opp.risk_level]}
         </div>
+        <div style={{ position: 'absolute', bottom: 10, right: 14, left: 14, pointerEvents: 'none' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', margin: 0, lineHeight: 1.35, textShadow: '0 2px 10px rgba(0,0,0,0.7)' }}>
+            {opp.name_ar || opp.name}
+          </h3>
+        </div>
       </div>
 
-      <div style={{ padding: '18px 16px' }}>
-        <h3 style={{
-          fontSize: 14, fontWeight: 700, fontFamily: 'Cairo',
-          color: '#fff', marginBottom: 8, lineHeight: 1.4,
-        }}>
-          {opp.name_ar || opp.name}
-        </h3>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10 }}>
-          <MapPin size={11} color="rgba(255,255,255,0.3)" />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'Cairo' }}>
-            {opp.location || 'البحرين'}
+      <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: 'Cairo' }}>
+            <MapPin size={12} color="#D4AF37" />{opp.location || 'البحرين'}
           </span>
-          {opp.duration_days && (
-            <>
-              <span style={{ color: 'rgba(255,255,255,0.15)' }}>•</span>
-              <Clock size={11} color="rgba(255,255,255,0.3)" />
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'Cairo' }}>
-                {opp.duration_days} يوم
-              </span>
-            </>
+          {opp.duration_days ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: 'Cairo' }}>
+              <Clock size={12} color="#D4AF37" />{opp.duration_days} يوم
+            </span>
+          ) : null}
+          {daysLeft !== null && !full && (
+            <span style={{ fontSize: 11, color: daysLeft <= 7 ? '#f59e0b' : 'rgba(255,255,255,0.5)', fontFamily: 'Cairo', marginInlineStart: 'auto' }}>
+              {daysLeft === 0 ? 'ينتهي اليوم' : `متبقي ${daysLeft} يوم`}
+            </span>
           )}
         </div>
 
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>
-              {pct}% ممول
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: full ? '#10b981' : '#fff', fontFamily: 'Cairo' }}>
+              {full ? 'اكتمل التمويل' : `${pct}% ممول`}
             </span>
-            <span style={{ fontSize: 10, color: '#D4AF37', fontFamily: 'Montserrat', fontWeight: 700 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'Montserrat' }}>
               {Number(opp.amount_raised).toLocaleString()} / {Number(opp.target_amount).toLocaleString()} {opp.currency}
             </span>
           </div>
           <ProgressBar value={opp.amount_raised} max={opp.target_amount} />
         </div>
 
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          paddingTop: 12, borderTop: '1px solid rgba(212,175,55,0.08)',
-        }}>
-          <div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo' }}>
-              الحد الأدنى
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: opp.projected_return_min ? '1fr 1fr' : '1fr', gap: 8 }}>
+          <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.14)', borderRadius: 10, padding: '9px 11px' }}>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>الحد الأدنى</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#D4AF37', fontFamily: 'Montserrat', marginTop: 2 }}>
               {opp.currency} {Number(opp.minimum_investment).toLocaleString()}
             </div>
           </div>
-          {opp.projected_return_min && (
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo' }}>
-                عائد متوقع*
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981', fontFamily: 'Montserrat' }}>
+          {opp.projected_return_min ? (
+            <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.16)', borderRadius: 10, padding: '9px 11px' }}>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>عائد متوقع (غير مضمون)</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#10b981', fontFamily: 'Montserrat', marginTop: 2 }}>
                 {opp.projected_return_min}–{opp.projected_return_max}%
               </div>
             </div>
-          )}
+          ) : null}
+        </div>
+
+        <div style={{
+          marginTop: 'auto', textAlign: 'center', padding: '10px 0', borderRadius: 10, fontFamily: 'Cairo', fontWeight: 800, fontSize: 13,
+          background: full ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg,#D4AF37,#E8CC6A)', color: full ? 'rgba(255,255,255,0.4)' : '#0B0B0B',
+        }}>
+          {full ? 'عرض التفاصيل' : 'استثمر الآن'}
         </div>
       </div>
     </div>

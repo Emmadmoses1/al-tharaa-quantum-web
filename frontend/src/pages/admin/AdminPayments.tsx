@@ -16,7 +16,16 @@ export default function AdminPayments() {
   const [busy, setBusy] = useState('')
   const [msg, setMsg] = useState('')
   const [copied, setCopied] = useState(false)
+  const [test, setTest] = useState<{ ok: boolean; detail: string } | null>(null)
+  const [testing, setTesting] = useState(false)
   const d = q.data
+
+  async function runTest() {
+    setTesting(true); setTest(null)
+    try { setTest(await api.post<{ ok: boolean; detail: string }>('/api/admin/nowpayments/test', {})) }
+    catch (e) { setTest({ ok: false, detail: e instanceof Error ? e.message : 'Test failed' }) }
+    setTesting(false)
+  }
 
   async function sync(id: string) {
     setBusy(id); setMsg('')
@@ -50,6 +59,10 @@ export default function AdminPayments() {
               <span>API key {ok(d.api_key_set)}</span><span>IPN secret {ok(d.ipn_secret_set)}</span>
               <span>Switch <Pill text={d.enabled ? 'on' : 'off'} color={d.enabled ? '#10b981' : '#9ca3af'} /></span>
               {d.sandbox && <Pill text="sandbox" color="#f59e0b" />}
+            </div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button disabled={testing} style={{ ...btn('gold', testing), padding: '9px 16px' }} onClick={runTest}>{testing ? 'Testing…' : 'Test connection'}</button>
+              {test && <span style={{ fontSize: 12, fontFamily: 'Montserrat', lineHeight: 1.6, color: test.ok ? '#10b981' : '#ef4444' }}>{test.detail}</span>}
             </div>
           </div>
           {msg && <div style={{ fontSize: 12, color: '#D4AF37', fontFamily: 'Montserrat', marginBottom: 10, wordBreak: 'break-all' }}>{msg}</div>}

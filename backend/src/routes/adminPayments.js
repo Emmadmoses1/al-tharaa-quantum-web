@@ -28,6 +28,29 @@ router.get('/', async (_req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// Tells the admin exactly what is wrong with the NOWPayments connection
+router.post('/test', async (_req, res, next) => {
+  try {
+    const [rawKey, cfg] = await Promise.all([getSecret('NOWPAYMENTS_API_KEY'), getSetting('payments')])
+    const key = String(rawKey || '').trim()
+    const out = (ok, detail) => res.json({ success: true, data: { ok, detail } })
+    if (!key) return out(false, 'No API key saved. Add it in Admin > API Keys.')
+    const probe = async (sandbox) => { const r = await fetch(`${npBase(sandbox)}/currencies`, { headers: { 'x-api-key': key } }); return r.ok }
+    const env = cfg.sandbox ? 'sandbox' : 'live'
+    if (await probe(!!cfg.sandbox)) {
+      const r = await fetch(`${npBase(!!cfg.sandbox)}/estimate?amount=10&currency_from=usd&currency_to=usdttrc20`, { headers: { 'x-api-key': key } })
+      const d = await r.json().catch(() => ({}))
+      return out(r.ok, r.ok ? `Key works (${env} mode). 10 USD = ${d.estimated_amount} USDT on TRC20.` : `Key accepted (${env}) but pricing failed: ${d?.message || r.status}`)
+    }
+    if (await probe(!cfg.sandbox)) {
+      return out(false, cfg.sandbox
+        ? 'This is a LIVE key but Sandbox mode is ON. Turn Sandbox off in Admin > Settings > Payments.'
+        : 'This is a SANDBOX key but Sandbox mode is OFF. Turn Sandbox on in Admin > Settings > Payments, or paste your live key.')
+    }
+    return out(false, 'NOWPayments rejects this key in both live and sandbox. Copy the API key again from NOWPayments > Store Settings > API keys (not the IPN secret) and paste it in Admin > API Keys.')
+  } catch (err) { next(err) }
+})
+
 // Re-check one payment directly with NOWPayments (use if a webhook was missed)
 router.post('/:paymentId/sync', async (req, res, next) => {
   try {

@@ -20,11 +20,11 @@ export default function GalleryCover({ name, cover, gallery }: { name: string; c
 
   return (
     <>
-      <button type="button" aria-label={`${name}: عرض الصور`} onClick={() => { setI(0); setOpen(true) }}
+      <button type="button" aria-label={`${name}: عرض الصور`} onClick={e => { e.stopPropagation(); setI(0); setOpen(true) }}
         style={{ all: 'unset', cursor: 'zoom-in', display: 'block', width: '100%', height: '100%', position: 'relative' }}>
         <img src={cover} alt={name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         {all.length > 1 && (
-          <span style={{ position: 'absolute', bottom: 8, left: 8, background: 'rgba(11,11,11,0.75)', color: '#D4AF37', fontFamily: 'Montserrat', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5 }}>{all.length} صور</span>
+          <span style={{ position: 'absolute', top: 40, left: 10, background: 'rgba(11,11,11,0.75)', color: '#D4AF37', fontFamily: 'Montserrat', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5 }}>{all.length} صور</span>
         )}
       </button>
       {open && (

@@ -22,11 +22,18 @@ function sortKeys(v) {
 }
 
 async function npFetch(path, opts = {}) {
-  const [key, cfg] = await Promise.all([getSecret('NOWPAYMENTS_API_KEY'), getSetting('payments')])
+  const [rawKey, cfg] = await Promise.all([getSecret('NOWPAYMENTS_API_KEY'), getSetting('payments')])
+  const key = String(rawKey || '').trim()
   if (!key) throw Object.assign(new Error('NOWPayments is not connected yet.'), { status: 400 })
   const r = await fetch(npBase(cfg.sandbox) + path, { ...opts, headers: { 'x-api-key': key, 'Content-Type': 'application/json', ...(opts.headers || {}) } })
   const d = await r.json().catch(() => ({}))
-  if (!r.ok) throw Object.assign(new Error(d?.message || `NOWPayments error (HTTP ${r.status})`), { status: 502 })
+  if (!r.ok) {
+    if (r.status === 403 || d?.code === 'INVALID_API_KEY' || /invalid api key/i.test(String(d?.message || ''))) {
+      console.error(`[nowpayments] key rejected (sandbox mode ${cfg.sandbox ? 'ON' : 'OFF'}). Use Admin > Payments > Test connection.`)
+      throw Object.assign(new Error('Automatic deposit is not set up correctly yet. Please use the manual deposit below or contact support.'), { status: 502 })
+    }
+    throw Object.assign(new Error(d?.message || `NOWPayments error (HTTP ${r.status})`), { status: 502 })
+  }
   return d
 }
 
