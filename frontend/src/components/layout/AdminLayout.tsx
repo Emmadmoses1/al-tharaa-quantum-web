@@ -2,25 +2,28 @@ import { useState, useEffect, ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useAdminStats } from '../../hooks/useData'
+import { LogoMark } from '../Logo'
 import {
   LayoutDashboard, Users, ArrowDownCircle, ArrowUpCircle, TrendingUp,
   Briefcase, Bot, Wallet, BarChart2, Settings, Shield, Bell, Receipt,
-  LogOut, Menu, X, Activity, Globe, Database, MoreHorizontal, ExternalLink, LifeBuoy, ScrollText,
+  LogOut, Menu, Activity, Globe, Database, MoreHorizontal, ExternalLink, ChevronRight,
 } from 'lucide-react'
 
-import { LogoMark } from '../Logo'
 type NavItem = { icon: typeof Users; label: string; href: string }
 
 const SECTIONS: { title: string; items: NavItem[] }[] = [
   { title: 'OVERVIEW', items: [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
+    { icon: BarChart2, label: 'Traffic', href: '/admin/traffic' },
     { icon: Activity, label: 'Public Statistics', href: '/admin/statistics' },
   ]},
   { title: 'USERS', items: [
     { icon: Users, label: 'Users', href: '/admin/users' },
+    { icon: Shield, label: 'KYC Verification', href: '/admin/kyc' },
   ]},
   { title: 'FINANCE', items: [
     { icon: ArrowDownCircle, label: 'Deposits', href: '/admin/deposits' },
+    { icon: Wallet, label: 'Payments', href: '/admin/payments' },
     { icon: ArrowUpCircle, label: 'Withdrawals', href: '/admin/withdrawals' },
     { icon: Receipt, label: 'Transactions', href: '/admin/transactions' },
     { icon: Database, label: 'Ledger', href: '/admin/ledger' },
@@ -34,8 +37,6 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   { title: 'AI TRADING', items: [
     { icon: Bot, label: 'Signal Engine', href: '/admin/signal-engine' },
     { icon: Bot, label: 'AI Overview', href: '/admin/ai' },
-    { icon: TrendingUp, label: 'User Trades', href: '/admin/trades' },
-    { icon: BarChart2, label: 'Binary Desk', href: '/admin/binary' },
     { icon: BarChart2, label: 'Strategies', href: '/admin/strategies' },
     { icon: Shield, label: 'Risk Controls', href: '/admin/risk' },
   ]},
@@ -43,10 +44,8 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
     { icon: Wallet, label: 'Deposit Wallets', href: '/admin/wallets' },
     { icon: Globe, label: 'Currencies', href: '/admin/currencies' },
     { icon: Bell, label: 'Notifications', href: '/admin/notifications' },
-    { icon: LifeBuoy, label: 'Support', href: '/admin/support' },
-    { icon: ScrollText, label: 'Audit Log', href: '/admin/audit' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
-    { icon: Activity, label: 'System Check', href: '/admin/system' },
+    { icon: Database, label: 'API Keys', href: '/admin/integrations' },
   ]},
 ]
 
@@ -62,8 +61,8 @@ function Badge({ n }: { n: number }) {
   return (
     <span style={{
       background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 700,
-      fontFamily: 'Montserrat', borderRadius: 100, padding: '1px 6px',
-      minWidth: 18, textAlign: 'center',
+      fontFamily: 'Montserrat', borderRadius: 100, padding: '1px 7px',
+      minWidth: 18, textAlign: 'center', boxShadow: '0 0 10px rgba(239,68,68,0.45)',
     }}>{n > 99 ? '99+' : n}</span>
   )
 }
@@ -80,36 +79,30 @@ function SidebarContent({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{
-        padding: '18px 16px', borderBottom: '1px solid rgba(212,175,55,0.08)',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <LogoMark size={34} />
+      <div style={{ padding: '20px 18px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{
+          width: 42, height: 42, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'linear-gradient(145deg,rgba(212,175,55,0.16),rgba(212,175,55,0.03))',
+          border: '1px solid rgba(212,175,55,0.28)', flexShrink: 0,
+        }}><LogoMark size={26} /></div>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat', letterSpacing: 2 }}>ADMIN</div>
-          <div style={{ fontSize: 9, color: 'rgba(212,175,55,0.45)', fontFamily: 'Montserrat', letterSpacing: 3 }}>AL THARAA QUANTUM</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', fontFamily: 'Montserrat', letterSpacing: 2 }}>ADMIN</div>
+          <div style={{ fontSize: 9, color: 'rgba(212,175,55,0.65)', fontFamily: 'Montserrat', letterSpacing: 2.5, marginTop: 2 }}>AL THARAA QUANTUM</div>
         </div>
       </div>
 
-      <nav style={{ flex: 1, overflowY: 'auto', padding: '6px 0' }}>
+      <nav className="aq-nav" style={{ flex: 1, overflowY: 'auto', padding: '0 10px 8px' }}>
         {SECTIONS.map(section => (
-          <div key={section.title} style={{ marginBottom: 2 }}>
+          <div key={section.title} style={{ marginBottom: 4 }}>
             <div style={{
-              fontSize: 9, fontWeight: 700, color: 'rgba(212,175,55,0.35)',
-              fontFamily: 'Montserrat', letterSpacing: 2, padding: '12px 18px 4px',
+              fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.28)',
+              fontFamily: 'Montserrat', letterSpacing: 2.2, padding: '14px 10px 6px',
             }}>{section.title}</div>
             {section.items.map(item => {
               const active = isActive(pathname, item.href)
               return (
-                <Link key={item.href} to={item.href} onClick={onNavigate} style={{
-                  display: 'flex', alignItems: 'center', gap: 11,
-                  padding: '11px 18px', textDecoration: 'none',
-                  color: active ? '#D4AF37' : 'rgba(255,255,255,0.55)',
-                  background: active ? 'rgba(212,175,55,0.09)' : 'transparent',
-                  borderLeft: `3px solid ${active ? '#D4AF37' : 'transparent'}`,
-                  fontSize: 13, fontFamily: 'Montserrat', fontWeight: active ? 600 : 400,
-                }}>
-                  <item.icon size={16} />
+                <Link key={item.href} to={item.href} onClick={onNavigate} className={`aq-link${active ? ' on' : ''}`}>
+                  <span className="aq-ico"><item.icon size={15} /></span>
                   <span style={{ flex: 1 }}>{item.label}</span>
                   <Badge n={badges[item.href] || 0} />
                 </Link>
@@ -119,26 +112,27 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div style={{ padding: 14, borderTop: '1px solid rgba(212,175,55,0.08)' }}>
-        <div style={{ marginBottom: 10 }}>
+      <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <div style={{
-            fontSize: 12, fontWeight: 600, color: '#fff', fontFamily: 'Montserrat',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>{name}</div>
-          <div style={{ fontSize: 9, color: 'rgba(212,175,55,0.55)', fontFamily: 'Montserrat', letterSpacing: 1 }}>
-            {role.toUpperCase()}
+            width: 34, height: 34, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(135deg,#D4AF37,#9A7B12)', color: '#0B0B0B', fontWeight: 800, fontSize: 14, fontFamily: 'Montserrat',
+          }}>{(name[0] || 'A').toUpperCase()}</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#fff', fontFamily: 'Montserrat', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+            <div style={{ fontSize: 9, color: 'rgba(212,175,55,0.7)', fontFamily: 'Montserrat', letterSpacing: 1.5 }}>{role.toUpperCase().replace('_', ' ')}</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Link to="/dashboard" onClick={onNavigate} style={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)',
-            borderRadius: 8, padding: '9px', color: '#D4AF37', textDecoration: 'none',
-            fontSize: 11, fontFamily: 'Montserrat',
+            background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.18)',
+            borderRadius: 9, padding: '9px', color: '#D4AF37', textDecoration: 'none',
+            fontSize: 11, fontFamily: 'Montserrat', fontWeight: 600,
           }}><ExternalLink size={13} /> User view</Link>
           <button onClick={onSignOut} aria-label="Sign out" style={{
-            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
-            borderRadius: 8, padding: '9px 12px', color: '#ef4444', cursor: 'pointer', display: 'flex',
+            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)',
+            borderRadius: 9, padding: '9px 12px', color: '#ef4444', cursor: 'pointer', display: 'flex',
           }}><LogOut size={14} /></button>
         </div>
       </div>
@@ -157,6 +151,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     '/admin/deposits': stats?.pendingDeposits || 0,
     '/admin/withdrawals': stats?.pendingWithdrawals || 0,
   }
+  const pending = (stats?.pendingDeposits || 0) + (stats?.pendingWithdrawals || 0)
 
   useEffect(() => { setDrawer(false) }, [pathname])
   useEffect(() => {
@@ -169,7 +164,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     navigate('/login')
   }
 
-  const title = ALL_ITEMS.find(i => isActive(pathname, i.href) && (i.href !== '/admin' || pathname === '/admin'))?.label || 'Admin'
+  const current = ALL_ITEMS.find(i => isActive(pathname, i.href) && (i.href !== '/admin' || pathname === '/admin'))
+  const title = current?.label || 'Admin'
+  const group = SECTIONS.find(s => s.items.some(i => i === current))?.title || 'ADMIN'
   const sidebarProps = {
     pathname, badges,
     name: profile?.full_name || profile?.email || 'Admin',
@@ -179,9 +176,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const moreActive = !BOTTOM.some(h => isActive(pathname, h))
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0B0B0B' }}>
+    <div style={{ minHeight: '100vh', background: 'radial-gradient(1200px 500px at 70% -10%,rgba(212,175,55,0.06),transparent 60%),#0B0B0B' }}>
       <aside className="aq-sidebar" style={{
-        width: 232, background: '#0d0d0d', borderRight: '1px solid rgba(212,175,55,0.08)',
+        width: 248, background: 'linear-gradient(180deg,#101010,#0a0a0a)', borderRight: '1px solid rgba(255,255,255,0.06)',
         height: '100vh', position: 'fixed', left: 0, top: 0, zIndex: 100,
       }}>
         <SidebarContent {...sidebarProps} />
@@ -194,39 +191,55 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             backdropFilter: 'blur(3px)',
           }} />
           <div style={{
-            position: 'fixed', left: 0, top: 0, bottom: 0, width: 280, maxWidth: '85vw',
+            position: 'fixed', left: 0, top: 0, bottom: 0, width: 288, maxWidth: '86vw',
             background: '#0d0d0d', zIndex: 301, borderRight: '1px solid rgba(212,175,55,0.15)',
+            animation: 'aqSlide .22s ease-out',
           }}>
             <SidebarContent {...sidebarProps} onNavigate={() => setDrawer(false)} />
           </div>
         </>
       )}
 
-      <main className="aq-main" style={{ marginLeft: 232, minHeight: '100vh' }}>
+      <main className="aq-main" style={{ marginLeft: 248, minHeight: '100vh' }}>
         <header style={{
-          height: 56, background: 'rgba(11,11,11,0.96)', backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(212,175,55,0.08)', position: 'sticky', top: 0, zIndex: 50,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px',
+          height: 60, background: 'rgba(11,11,11,0.85)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky', top: 0, zIndex: 50,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
             <button className="aq-menu" onClick={() => setDrawer(true)} aria-label="Open menu" style={{
-              display: 'none', background: 'none', border: 'none', color: '#D4AF37',
-              cursor: 'pointer', padding: 4,
-            }}><Menu size={22} /></button>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', fontFamily: 'Montserrat' }}>{title}</div>
+              display: 'none', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 9, color: '#D4AF37',
+              cursor: 'pointer', padding: 6,
+            }}><Menu size={20} /></button>
+            <div style={{ minWidth: 0 }}>
+              <div className="aq-crumb" style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontFamily: 'Montserrat', letterSpacing: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                {group}<ChevronRight size={10} />
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', fontFamily: 'Montserrat', lineHeight: 1.2 }}>{title}</div>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-            <span className="aq-online" style={{ fontSize: 10, color: '#10b981', fontFamily: 'Montserrat', letterSpacing: 1 }}>ONLINE</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {pending > 0 && (
+              <Link to={stats?.pendingWithdrawals ? '/admin/withdrawals' : '/admin/deposits'} style={{
+                display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', padding: '6px 10px', borderRadius: 100,
+                background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b',
+                fontSize: 11, fontWeight: 700, fontFamily: 'Montserrat',
+              }}><Bell size={13} />{pending}<span className="aq-online"> pending</span></Link>
+            )}
+            <Link to="/" target="_blank" className="aq-online" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontFamily: 'Montserrat', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}><ExternalLink size={12} /> Site</Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 10px', borderRadius: 100, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <span className="aq-online" style={{ fontSize: 10, color: '#10b981', fontFamily: 'Montserrat', letterSpacing: 1, fontWeight: 700 }}>LIVE</span>
+            </div>
           </div>
         </header>
 
-        <div className="aq-content" style={{ padding: '24px 28px' }}>{children}</div>
+        <div key={pathname} className="aq-content aq-page" style={{ padding: '26px 30px', maxWidth: 1320, margin: '0 auto' }}>{children}</div>
       </main>
 
       <nav className="aq-bottom" style={{
         display: 'none', position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 200,
-        background: 'rgba(13,13,13,0.98)', backdropFilter: 'blur(14px)',
+        background: 'rgba(13,13,13,0.96)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         borderTop: '1px solid rgba(212,175,55,0.15)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
@@ -239,6 +252,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               gap: 3, padding: '9px 0', textDecoration: 'none', position: 'relative',
               color: active ? '#D4AF37' : 'rgba(255,255,255,0.45)',
             }}>
+              {active && <span style={{ position: 'absolute', top: 0, width: 28, height: 3, borderRadius: '0 0 4px 4px', background: '#D4AF37' }} />}
               <div style={{ position: 'relative' }}>
                 <item.icon size={20} />
                 {!!badges[href] && (
@@ -265,12 +279,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </nav>
 
       <style>{`
+        @keyframes aqSlide { from { transform: translateX(-24px); opacity: 0 } to { transform: none; opacity: 1 } }
+        @keyframes aqPage { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+        .aq-page { animation: aqPage .25s ease-out; }
+        .aq-nav::-webkit-scrollbar { width: 6px }
+        .aq-nav::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.18); border-radius: 3px }
+        .aq-link { display: flex; align-items: center; gap: 11px; padding: 8px 10px; margin: 1px 0; border-radius: 10px; text-decoration: none;
+          color: rgba(255,255,255,0.58); font-size: 13px; font-family: Montserrat; font-weight: 500; position: relative; transition: background .15s, color .15s; }
+        .aq-link .aq-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+          background: rgba(255,255,255,0.04); flex-shrink: 0; transition: background .15s, color .15s; }
+        @media (hover: hover) { .aq-link:hover { background: rgba(255,255,255,0.05); color: #fff } .aq-link:hover .aq-ico { background: rgba(212,175,55,0.12); color: #D4AF37 } }
+        .aq-link.on { background: linear-gradient(90deg,rgba(212,175,55,0.16),rgba(212,175,55,0.04)); color: #D4AF37; font-weight: 700; }
+        .aq-link.on .aq-ico { background: rgba(212,175,55,0.2); color: #D4AF37 }
+        .aq-link.on::before { content: ''; position: absolute; left: -10px; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: #D4AF37; box-shadow: 0 0 10px #D4AF37; }
         @media (max-width: 900px) {
           .aq-sidebar { display: none !important; }
           .aq-main { margin-left: 0 !important; }
           .aq-menu { display: flex !important; }
           .aq-bottom { display: flex !important; }
-          .aq-online { display: none; }
+          .aq-online, .aq-crumb { display: none !important; }
+          .aq-main > header { padding: 0 14px !important; }
           .aq-content { padding: 16px 14px 96px !important; }
 
           /* Wide tables scroll sideways instead of breaking the page */

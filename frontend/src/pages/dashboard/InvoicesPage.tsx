@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Printer } from 'lucide-react'
+import { LogoMark } from '../../components/Logo'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useSite } from '../../lib/useSite'
@@ -81,7 +82,7 @@ export function InvoiceDetail() {
       </div>
       <div className="inv-print" style={{ background: '#fff', color: '#111', borderRadius: 12, padding: 28, direction: 'ltr', fontFamily: 'Arial, sans-serif' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#9a7b12' }}>{co?.company_name || 'AL THARAA QUANTUM'}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><LogoMark size={38} flat="#9a7b12" /><div style={{ fontSize: 22, fontWeight: 800, color: '#9a7b12' }}>{co?.company_name || 'AL THARAA QUANTUM'}</div></div>
           <div style={{ fontSize: 20, fontWeight: 800 }}>INVOICE</div>
         </div>
         <div style={{ fontSize: 12, color: '#666', marginBottom: 18 }}>{co?.address}{co?.tax_id ? ` · Tax ID ${co.tax_id}` : ''}</div>

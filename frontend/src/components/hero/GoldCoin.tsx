@@ -1,196 +1,61 @@
+import { useId } from 'react'
+
+// Hero coin: the brand mark (ث orbit, three nodes, rising line) stamped on a gold coin that gently sways in 3D.
 export default function GoldCoin() {
+  const id = 'gc' + useId().replace(/[^a-zA-Z0-9]/g, '')
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-    }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', perspective: 1000 }}>
+      <div style={{ position: 'absolute', width: 380, height: 380, maxWidth: '90%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 68%)', animation: 'aqGlow 4s ease-in-out infinite' }} />
 
-      {/* Outer glow ring */}
-      <div style={{
-        position: 'absolute',
-        width: 320,
-        height: 320,
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 70%)',
-        animation: 'glowPulse 3s ease-in-out infinite',
-      }} />
-
-      {/* Orbit ring 1 */}
-      <div style={{
-        position: 'absolute',
-        width: 300,
-        height: 100,
-        borderRadius: '50%',
-        border: '1px solid rgba(212,175,55,0.2)',
-        animation: 'ringRotate 8s linear infinite',
-        top: '50%',
-        left: '50%',
-        marginTop: -50,
-        marginLeft: -150,
-      }} />
-
-      {/* Orbit ring 2 */}
-      <div style={{
-        position: 'absolute',
-        width: 260,
-        height: 80,
-        borderRadius: '50%',
-        border: '1px solid rgba(212,175,55,0.12)',
-        animation: 'ringRotate 12s linear infinite reverse',
-        top: '50%',
-        left: '50%',
-        marginTop: -40,
-        marginLeft: -130,
-      }} />
-
-      {/* 3D Coin wrapper — float animation */}
-      <div style={{
-        position: 'relative',
-        width: 180,
-        height: 180,
-        animation: 'floatUpDown 5s ease-in-out infinite',
-        perspective: '600px',
-        perspectiveOrigin: 'center center',
-      }}>
-        {/* Coin 3D scene */}
-        <div style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          transformStyle: 'preserve-3d',
-          animation: 'coinRotateY 6s linear infinite',
-        }}>
-
-          {/* Coin FACE (front) */}
-          <div style={{
-            position: 'absolute',
-            width: 180,
-            height: 180,
-            borderRadius: '50%',
-            backfaceVisibility: 'hidden',
-            background: 'conic-gradient(from 0deg, #8B6914, #D4AF37, #E8CC6A, #F5E27A, #D4AF37, #A8871C, #D4AF37, #E8CC6A, #8B6914)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: `
-              inset 0 4px 12px rgba(255,255,255,0.3),
-              inset 0 -4px 12px rgba(0,0,0,0.4),
-              0 0 40px rgba(212,175,55,0.5),
-              0 0 80px rgba(212,175,55,0.2)
-            `,
-            flexDirection: 'column',
-            gap: 4,
-          }}>
-            {/* Shimmer overlay */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmerMove 2.5s linear infinite',
-              overflow: 'hidden',
-            }} />
-
-            {/* Inner embossed ring */}
-            <div style={{
-              position: 'absolute',
-              width: 150,
-              height: 150,
-              borderRadius: '50%',
-              border: '3px solid rgba(255,255,255,0.25)',
-              boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.3)',
-            }} />
-
-            {/* AQ monogram */}
-            <div style={{
-              fontFamily: 'Montserrat',
-              fontWeight: 900,
-              fontSize: 36,
-              color: '#0B0B0B',
-              lineHeight: 1,
-              zIndex: 2,
-              textShadow: '0 1px 2px rgba(255,255,255,0.3)',
-            }}>AQ</div>
-            <div style={{
-              fontFamily: 'Montserrat',
-              fontSize: 8,
-              fontWeight: 700,
-              color: 'rgba(11,11,11,0.7)',
-              letterSpacing: '3px',
-              zIndex: 2,
-            }}>QUANTUM</div>
-          </div>
-
-          {/* Coin BACK */}
-          <div style={{
-            position: 'absolute',
-            width: 180,
-            height: 180,
-            borderRadius: '50%',
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            background: 'conic-gradient(from 180deg, #8B6914, #D4AF37, #E8CC6A, #D4AF37, #A8871C, #D4AF37, #8B6914)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: `
-              inset 0 4px 12px rgba(255,255,255,0.2),
-              inset 0 -4px 12px rgba(0,0,0,0.4),
-              0 0 40px rgba(212,175,55,0.3)
-            `,
-          }}>
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmerMove 2.5s linear infinite 1.25s',
-            }} />
-            <div style={{
-              fontFamily: 'Cairo',
-              fontWeight: 900,
-              fontSize: 22,
-              color: '#0B0B0B',
-              zIndex: 2,
-              textAlign: 'center',
-              lineHeight: 1.3,
-            }}>الثراء<br/>كوانتوم</div>
-          </div>
-
-          {/* Coin EDGE (thickness illusion top) */}
-          <div style={{
-            position: 'absolute',
-            width: 180,
-            height: 14,
-            top: 0,
-            left: 0,
-            background: 'linear-gradient(180deg, #E8CC6A, #A8871C)',
-            transform: 'rotateX(90deg) translateZ(-7px)',
-            borderRadius: '2px',
-          }} />
-        </div>
+      {/* three nodes orbiting, echoing the three dots of the mark */}
+      <div className="aq-orbit" style={{ position: 'absolute', width: 340, height: 340, maxWidth: '88%', aspectRatio: '1', borderRadius: '50%', border: '1px dashed rgba(212,175,55,0.22)', animation: 'aqOrbit 18s linear infinite' }}>
+        {[0, 120, 240].map(a => (
+          <span key={a} style={{ position: 'absolute', top: '50%', left: '50%', width: 11, height: 11, marginLeft: -5.5, marginTop: -5.5, borderRadius: '50%', background: 'linear-gradient(135deg,#F6DE8D,#D4AF37)', boxShadow: '0 0 14px rgba(212,175,55,0.8)', transform: `rotate(${a}deg) translateY(-170px)` }} />
+        ))}
       </div>
 
-      {/* Particle dots */}
-      {[...Array(8)].map((_, i) => (
-        <div key={i} style={{
-          position: 'absolute',
-          width: i % 3 === 0 ? 4 : 2,
-          height: i % 3 === 0 ? 4 : 2,
-          borderRadius: '50%',
-          background: '#D4AF37',
-          opacity: 0.4 + (i * 0.07),
-          top: `${15 + i * 10}%`,
-          left: `${8 + i * 11}%`,
-          animation: `glowPulse ${2 + i * 0.4}s ease-in-out infinite ${i * 0.3}s`,
-        }} />
-      ))}
+      <div style={{ width: 270, height: 270, maxWidth: '70%', aspectRatio: '1', transformStyle: 'preserve-3d', animation: 'aqSway 7s ease-in-out infinite', filter: 'drop-shadow(0 24px 40px rgba(0,0,0,0.6)) drop-shadow(0 0 30px rgba(212,175,55,0.25))' }}>
+        <svg viewBox="0 0 300 300" width="100%" height="100%" role="img" aria-label="الثراء كوانتوم">
+          <defs>
+            <linearGradient id={id + 'r'} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#FBE9A6" /><stop offset=".45" stopColor="#D4AF37" /><stop offset="1" stopColor="#7A5F0C" />
+            </linearGradient>
+            <radialGradient id={id + 'f'} cx=".35" cy=".3" r=".9">
+              <stop offset="0" stopColor="#F3D77A" /><stop offset=".55" stopColor="#CFA52C" /><stop offset="1" stopColor="#8E6D10" />
+            </radialGradient>
+            <linearGradient id={id + 's'} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".5" stopColor="#fff" stopOpacity=".5" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
+            <clipPath id={id + 'c'}><circle cx="150" cy="150" r="126" /></clipPath>
+          </defs>
+          <circle cx="150" cy="150" r="148" fill={`url(#${id}r)`} />
+          <circle cx="150" cy="150" r="138" fill="none" stroke="#6b520a" strokeOpacity=".55" strokeWidth="2" />
+          <circle cx="150" cy="150" r="132" fill="none" stroke="#FBE9A6" strokeOpacity=".5" strokeWidth="1.5" strokeDasharray="2 5" />
+          <circle cx="150" cy="150" r="126" fill={`url(#${id}f)`} />
+          <g transform="translate(36 38) scale(1.9)">
+            <g transform="translate(1.4 1.6)" stroke="#fff" strokeOpacity=".35" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M 28 54 A 34 34 0 1 0 92 54" strokeWidth="8" />
+              <polyline points="42,82 54,72 62,77 80,58" strokeWidth="5" /><polyline points="71,58 80,58 80,67" strokeWidth="5" />
+            </g>
+            <g stroke="#4a3806" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M 28 54 A 34 34 0 1 0 92 54" strokeWidth="8" />
+              <polyline points="42,82 54,72 62,77 80,58" strokeWidth="5" /><polyline points="71,58 80,58 80,67" strokeWidth="5" />
+              <circle cx="50" cy="36" r="6" fill="#4a3806" stroke="none" /><circle cx="70" cy="36" r="6" fill="#4a3806" stroke="none" /><circle cx="60" cy="20" r="6" fill="#4a3806" stroke="none" />
+            </g>
+          </g>
+          <g clipPath={`url(#${id}c)`}>
+            <rect x="-120" y="0" width="90" height="300" fill={`url(#${id}s)`} transform="skewX(-18)" style={{ animation: 'aqShine 5s ease-in-out infinite' }} />
+          </g>
+        </svg>
+      </div>
+
+      <style>{`
+        @keyframes aqSway { 0%,100% { transform: rotateY(-26deg) rotateX(7deg) } 50% { transform: rotateY(26deg) rotateX(-5deg) } }
+        @keyframes aqOrbit { to { transform: rotate(360deg) } }
+        @keyframes aqGlow { 0%,100% { opacity: .6; transform: scale(.96) } 50% { opacity: 1; transform: scale(1.04) } }
+        @keyframes aqShine { 0%,55% { transform: translateX(0) skewX(-18deg) } 100% { transform: translateX(520px) skewX(-18deg) } }
+        @media (max-width: 768px) { .aq-orbit { display: none } }
+      `}</style>
     </div>
   )
 }

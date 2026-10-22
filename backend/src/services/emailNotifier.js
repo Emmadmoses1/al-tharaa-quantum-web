@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase.js'
-import { sendMail, esc } from '../lib/mailer.js'
+import { sendMail, esc, emailLogo } from '../lib/mailer.js'
 
 // Emails every new notification row (skips users who turned email off in Settings).
 let cursor = new Date().toISOString()
@@ -19,6 +19,7 @@ export async function sendNotificationEmails() {
     if (!p?.email || p.notify_email === false) continue
     const subject = r.title_ar && r.title ? `${r.title_ar} | ${r.title}` : (r.title || r.title_ar || 'Al Tharaa Quantum')
     const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;background:#0B0B0B;color:#fff;padding:24px;border-radius:12px">
+      ${emailLogo()}
       <h2 style="color:#D4AF37;margin:0 0 12px">${esc(r.title_ar || r.title)}</h2>
       <p dir="rtl" style="line-height:1.8">${esc(r.message_ar || r.message)}</p>
       ${r.message && r.message_ar ? `<p style="line-height:1.7;color:#bbb">${esc(r.message)}</p>` : ''}

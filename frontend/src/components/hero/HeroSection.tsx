@@ -3,10 +3,10 @@ import { useAuth } from '../../context/AuthContext'
 import GoldCoin from './GoldCoin'
 
 const stats = [
-  { value: '+100,000', label: 'مستخدم' },
-  { value: '99.97%', label: 'وقت التشغيل' },
-  { value: '+40', label: 'دولة' },
-  { value: 'CBB', label: 'مرخّص' },
+  { value: '3', label: 'شبكات إيداع USDT' },
+  { value: '24/7', label: 'إيداع تلقائي' },
+  { value: 'AI', label: 'إشارات تداول ذكية' },
+  { value: '100%', label: 'سجل حسابات موثّق' },
 ]
 
 export default function HeroSection() {

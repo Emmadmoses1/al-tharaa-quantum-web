@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase.js'
 import { getSetting, saveSetting } from '../lib/settings.js'
-import { sendMail, esc } from '../lib/mailer.js'
+import { sendMail, esc, emailLogo } from '../lib/mailer.js'
 import { getPrice } from './prices.js'
 
 const STABLE = new Set(['USDT', 'USDC', 'USD'])
@@ -9,6 +9,7 @@ const n = (v, d = 8) => Number(v).toLocaleString('en-US', { maximumFractionDigit
 export function invoiceHtml(inv, co, email) {
   const row = (k, v) => `<tr><td style="padding:8px 0;color:#999;border-bottom:1px solid #222">${k}</td><td style="padding:8px 0;text-align:right;border-bottom:1px solid #222;word-break:break-all">${v}</td></tr>`
   return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;background:#0B0B0B;color:#fff;padding:28px;border-radius:12px">
+    ${emailLogo()}
     <div style="display:flex;justify-content:space-between"><h2 style="color:#D4AF37;margin:0">${esc(co.company_name)}</h2><b>INVOICE</b></div>
     <p style="color:#999;margin:4px 0 18px;font-size:13px">${esc(co.address)}${co.tax_id ? ` · Tax ID ${esc(co.tax_id)}` : ''}</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px">
