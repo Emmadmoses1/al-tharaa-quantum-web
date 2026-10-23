@@ -22,7 +22,7 @@ async function init() {
     pub = k.publicKey; priv = k.privateKey
   }
   const front = (process.env.FRONTEND_URL || '').trim()
-  lib.setVapidDetails(front.startsWith('https://') ? front : 'mailto:admin@altharaa.app', pub, priv)
+  lib.setVapidDetails(front.startsWith('https://') ? front : 'mailto:support@altharaaquantum.com', pub, priv)
   return { lib, pub }
 }
 

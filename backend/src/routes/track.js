@@ -44,8 +44,8 @@ router.post('/', async (req, res) => {
     if (error || /^\/(admin|api)/.test(value.path)) return res.status(204).end()
     let refHost = null
     try { if (value.ref) refHost = new URL(value.ref).hostname.replace(/^www\./, '').toLowerCase().slice(0, 100) } catch { /* ignore */ }
-    const own = (process.env.FRONTEND_URL || '').replace(/^https?:\/\//, '').replace(/\/.*$/, '')
-    if (refHost && own && refHost === own) refHost = null
+    const ownHosts = [(process.env.FRONTEND_URL || '').replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, ''), 'altharaaquantum.com']
+    if (refHost && ownHosts.includes(refHost)) refHost = null
     const { source } = classify(refHost, value.utm_source)
     await supabase.from('page_views').insert({
       sid: value.sid, path: value.path.split('?')[0], is_entry: value.entry, referrer_host: value.entry ? refHost : null,
