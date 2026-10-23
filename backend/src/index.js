@@ -45,6 +45,9 @@ import { runSignalEngine } from './services/signalEngine.js'
 import { monitorPositions } from './services/positionMonitor.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import pushRouter from './routes/push.js'
+import signupRouter from './routes/signup.js'
+import accountRouter from './routes/account.js'
+import adminUserActivityRouter from './routes/adminUserActivity.js'
 import { runEngagement } from './services/engagement.js'
 import { syncPendingPayments } from './services/nowpaymentsSync.js'
 
@@ -123,6 +126,9 @@ app.use('/api/admin/users', adminUsersRouter)
 app.use('/api/admin/strategies', adminStrategiesRouter)
 app.use('/api/admin/binary', adminBinaryRouter)
 app.use('/api/push', pushRouter)
+app.use('/api/signup', signupRouter)
+app.use('/api/account', accountRouter)
+app.use('/api/admin/user-activity', adminUserActivityRouter)
 app.use('/api/admin', adminRouter)
 
 // 404

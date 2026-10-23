@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import Avatar from '../Avatar'
 import { useAuth } from '../../context/AuthContext'
 import { useUnreadCount } from '../../hooks/useData'
 import { LogoMark } from '../Logo'
@@ -45,7 +46,7 @@ export default function DashboardSidebar() {
       </div>
 
       <div className="dq-user">
-        <div className="dq-avatar">{profile?.full_name?.trim().charAt(0) || 'م'}</div>
+        <Avatar url={profile?.avatar_url} name={profile?.full_name} size={40} radius={12} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', fontFamily: 'Cairo', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.full_name || 'المستخدم'}</div>
           <span className="dq-chip" style={{ color: verified ? '#10b981' : '#f59e0b', background: verified ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)' }}>{verified ? 'حساب موثّق' : 'قيد التحقق'}</span>

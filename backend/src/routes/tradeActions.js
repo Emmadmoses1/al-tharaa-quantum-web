@@ -32,6 +32,12 @@ router.post('/open', validate(openTradeSchema), async (req, res, next) => {
     const { data, error } = await supabase.rpc('open_trade', { p_user: req.user.id, p_signal: signal_id, p_amount: amount, p_price: price })
     if (error) return res.status(400).json({ success: false, error: { message: error.message, code: 'TRADE_REJECTED' } })
     await supabase.from('audit_logs').insert({ user_id: req.user.id, action: 'TRADE_OPENED', entity: 'trades', entity_id: data, metadata: { signal_id, amount, price } })
+    await supabase.from('notifications').insert({
+      user_id: req.user.id, type: 'trade',
+      title: `${sig.asset} position opened`, title_ar: `تم فتح صفقة ${sig.asset}`,
+      message: `Opened with ${amount} USDT at ${Number(price).toLocaleString('en-US')}.`,
+      message_ar: `فُتحت الصفقة بمبلغ ${amount} USDT عند سعر ${Number(price).toLocaleString('en-US')}.`,
+    })
     res.status(201).json({ success: true, data: { id: data, price } })
   } catch (err) { next(err) }
 })
@@ -43,6 +49,14 @@ router.post('/close/:id', async (req, res, next) => {
     const price = await getPrice(t.asset)
     const { data, error } = await supabase.rpc('close_trade', { p_trade: req.params.id, p_price: price, p_reason: 'manual', p_user: req.user.id })
     if (error) return res.status(400).json({ success: false, error: { message: error.message, code: 'CLOSE_REJECTED' } })
+    const pnl = Number(data?.pnl ?? 0)
+    const sign = pnl >= 0 ? '+' : ''
+    await supabase.from('notifications').insert({
+      user_id: req.user.id, type: 'trade',
+      title: `${t.asset} position closed`, title_ar: `تم إغلاق صفقة ${t.asset}`,
+      message: `Closed manually. Result: ${sign}${pnl.toFixed(2)} USDT.`,
+      message_ar: `أُغلقت الصفقة يدوياً. النتيجة: ${sign}${pnl.toFixed(2)} USDT.`,
+    })
     res.json({ success: true, data })
   } catch (err) { next(err) }
 })

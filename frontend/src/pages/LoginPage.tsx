@@ -53,6 +53,7 @@ export default function LoginPage() {
         ) {
           return setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
         }
+        if (/banned/i.test(signInError.message)) return setError('تم إيقاف هذا الحساب. تواصل مع الدعم لمراجعته.')
         return setError(signInError.message)
       }
 

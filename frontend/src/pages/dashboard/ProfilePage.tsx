@@ -8,6 +8,7 @@ import { api } from '../../lib/api'
 import { Skeleton } from '../../components/ui/Skeleton'
 import SecurityPanel from '../../components/SecurityPanel'
 import PushSettings from '../../components/PushSettings'
+import AvatarChange from '../../components/AvatarChange'
 import { PageStyles, PageHeader, Pill } from '../../components/PageKit'
 
 type Tab = 'profile' | 'security' | 'notifications'
@@ -69,9 +70,7 @@ export default function ProfilePage() {
       <PageHeader icon={<User size={22} color="#D4AF37" />} title="الملف الشخصي" sub="إدارة معلوماتك وأمان حسابك" />
 
       <div className="pk-panel" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 18, flexWrap: 'wrap' }}>
-        <div style={{ width: 56, height: 56, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#D4AF37,#8a6d1a)', color: '#0B0B0B', font: '800 22px Cairo,sans-serif' }}>
-          {(name[0] || '?').toUpperCase()}
-        </div>
+        <AvatarChange size={64} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', fontFamily: 'Cairo', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
           <div dir="ltr" style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: 'Montserrat', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.email || user?.email}</div>

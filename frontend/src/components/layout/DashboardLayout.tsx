@@ -4,6 +4,11 @@ import { Menu, Bell, LayoutDashboard, Briefcase, TrendingUp, ArrowDownCircle, Mo
 import DashboardSidebar from './DashboardSidebar'
 import ErrorBoundary from '../ui/ErrorBoundary'
 import PushPrompt from '../PushPrompt'
+import { InstallBanner } from '../InstallApp'
+import Avatar from '../Avatar'
+import SuspendedScreen from '../SuspendedScreen'
+import { api } from '../../lib/api'
+import { getDevice } from '../../lib/device'
 import { LogoMark } from '../Logo'
 import { useAuth } from '../../context/AuthContext'
 import { useUnreadCount } from '../../hooks/useData'
@@ -24,7 +29,7 @@ const TITLES: [string, string][] = [
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
-  const { profile } = useAuth()
+  const { profile, signOut } = useAuth()
   const { data: unread } = useUnreadCount()
   const [drawer, setDrawer] = useState(false)
 
@@ -34,10 +39,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return () => { document.body.style.overflow = '' }
   }, [drawer])
 
+  useEffect(() => {
+    if (!profile?.id) return
+    try { if (sessionStorage.getItem('aq_sess') === profile.id) return; sessionStorage.setItem('aq_sess', profile.id) } catch { /* ignore */ }
+    getDevice().then(device => api.post('/api/account/session', { device })).catch(() => {})
+  }, [profile?.id])
+
   const active = (h: string) => (h === '/dashboard' ? pathname === h : pathname.startsWith(h))
   const moreActive = !TABS.some(t => active(t.href))
   const title = (TITLES.find(([p]) => (p === '/dashboard' ? pathname === p : pathname.startsWith(p))) || ['', 'لوحة التحكم'])[1]
   const today = new Date().toLocaleDateString('ar', { weekday: 'long', day: 'numeric', month: 'long' })
+
+  if (profile?.account_status === 'suspended') return <SuspendedScreen onSignOut={signOut} />
 
   const bell = (
     <Link to="/dashboard/notifications" aria-label="الإشعارات" className="dq-bell">
@@ -68,7 +81,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {bell}
-            <Link to="/dashboard/profile" aria-label="الملف الشخصي" className="dq-me">{profile?.full_name?.trim().charAt(0) || 'م'}</Link>
+            <Link to="/dashboard/profile" aria-label="الملف الشخصي" className="dq-me"><Avatar url={profile?.avatar_url} name={profile?.full_name} size={40} radius={12} /></Link>
           </div>
         </header>
 
@@ -83,7 +96,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="dl-content" style={{ padding: '24px 32px 40px', maxWidth: 1280, margin: '0 auto' }}><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
+        <div className="dl-content" style={{ padding: '24px 32px 40px', maxWidth: 1280, margin: '0 auto' }}><InstallBanner /><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
       </main>
 
       <nav className="dl-bottom">

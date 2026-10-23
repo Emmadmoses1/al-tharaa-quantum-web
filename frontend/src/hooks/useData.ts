@@ -17,6 +17,10 @@ export interface Profile {
   preferred_language: string
   role: string
   kyc_status: string
+  avatar_url?: string | null
+  country?: string | null
+  account_status?: string
+  flagged?: boolean
   created_at: string
 }
 

@@ -8,6 +8,7 @@ import { useCurrencies } from '../../hooks/useData'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
 import PushSettings from '../../components/PushSettings'
+import { InstallCard } from '../../components/InstallApp'
 
 type Prefs = { full_name: string | null; phone: string | null; preferred_language: string; preferred_currency: string; notify_email: boolean }
 type Ref = { code: string; referred: number; earned_usdt: number; enabled: boolean; reward_usdt: number; min_deposit_usdt: number }
@@ -92,6 +93,7 @@ export default function SettingsPage() {
       </div>
 
       <PushSettings />
+      <InstallCard />
 
       {ref.data && (
         <div style={card}>

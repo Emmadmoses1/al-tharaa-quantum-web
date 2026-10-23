@@ -1,6 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
 
+const statusAt = new Map()
+async function accountState(id) {
+  const c = statusAt.get(id)
+  if (c && Date.now() - c.at < 30000) return c.s
+  const { data } = await sbSeen.from('profiles').select('account_status').eq('id', id).single()
+  const s = data?.account_status || 'active'
+  if (statusAt.size > 5000) statusAt.clear()
+  statusAt.set(id, { s, at: Date.now() })
+  return s
+}
+
 const supabasePublic = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY

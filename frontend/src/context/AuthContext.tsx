@@ -13,6 +13,8 @@ interface Profile {
   preferred_language: string
   role: string
   kyc_status: string
+  avatar_url?: string | null
+  account_status?: string
 }
 
 interface AuthContextType {
@@ -98,6 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    const h = () => { if (user) fetchProfile(user.id) }
+    window.addEventListener('aq:profile-refresh', h)
+    return () => window.removeEventListener('aq:profile-refresh', h)
+  }, [user])
 
   async function signOut() {
     await supabase.auth.signOut()
