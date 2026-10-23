@@ -219,3 +219,18 @@ button:not(:disabled):active { transform: scale(0.97); }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .glass-card:hover { transform: none; }
 }
+
+/* ── Phase 19 polish: one look for every dashboard page ── */
+.dl-content .glass-card { background: linear-gradient(180deg, rgba(34,34,34,0.72), rgba(21,21,21,0.74)); border-color: rgba(212,175,55,0.14); border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.035); }
+.dl-content input:not([type=checkbox]):not([type=radio]):not([type=range]), .dl-content select, .dl-content textarea { border-radius: 11px !important; transition: border-color .15s, box-shadow .15s; }
+.dl-content input:not([type=checkbox]):not([type=radio]):focus, .dl-content select:focus, .dl-content textarea:focus { border-color: #D4AF37 !important; box-shadow: 0 0 0 3px rgba(212,175,55,0.16) !important; outline: none; }
+.dl-content .btn-gold { border-radius: 11px; box-shadow: 0 6px 18px rgba(212,175,55,0.22); }
+.dl-content .btn-outline-gold { border-radius: 11px; }
+.dl-content table { border-collapse: separate; border-spacing: 0; }
+.dl-content th { font-family: Cairo; letter-spacing: .2px; }
+.dl-content tbody tr { transition: background .15s; }
+.dl-content tbody tr:hover { background: rgba(212,175,55,0.045); }
+.dl-content h1 { letter-spacing: -0.2px; }
+@keyframes dqIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.dl-content > div:not([style*="margin-bottom: 16px"]) { animation: dqIn .35s ease both; }
+@media (max-width: 768px) { .dl-content h1 { font-size: 22px !important; } .dl-content .glass-card { border-radius: 16px; } }

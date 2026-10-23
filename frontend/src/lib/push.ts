@@ -40,6 +40,22 @@ export async function resyncPush() {
   } catch { /* ignore */ }
 }
 
+export async function isPushOn(): Promise<boolean> {
+  try {
+    if (!pushSupported() || Notification.permission !== 'granted') return false
+    const reg = await navigator.serviceWorker.getRegistration()
+    return !!(reg && (await reg.pushManager.getSubscription()))
+  } catch { return false }
+}
+
+export async function disablePush() {
+  try {
+    const reg = await navigator.serviceWorker.getRegistration()
+    const sub = reg ? await reg.pushManager.getSubscription() : null
+    if (sub) { await api.post('/api/push/unsubscribe', { endpoint: sub.endpoint }); await sub.unsubscribe() }
+  } catch { /* ignore */ }
+}
+
 // Shows a notification from the open page (used when a payment is confirmed).
 export async function localNotify(title: string, body: string) {
   try {

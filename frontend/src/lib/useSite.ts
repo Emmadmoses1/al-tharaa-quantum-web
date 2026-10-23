@@ -8,7 +8,7 @@ export type SiteSettings = {
   investments: { early_redeem_enabled: boolean; early_redeem_penalty_percent: number }
   license_text?: string
   public?: { users: number | null }
-  payments?: { nowpayments: boolean; min_usd: number; max_usd: number }
+  payments?: { nowpayments: boolean; card?: boolean; min_usd: number; max_usd: number }
   invoice: { company_name: string; address: string; tax_id: string; footer: string }
 }
 

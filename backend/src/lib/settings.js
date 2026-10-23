@@ -7,7 +7,7 @@ export const DEFAULTS = {
   referral: { enabled: false, reward_usdt: 0, min_deposit_usdt: 20 },
   investments: { early_redeem_enabled: true, early_redeem_penalty_percent: 10 },
   invoice: { company_name: 'AL THARAA QUANTUM', address: '', tax_id: '', footer: 'Thank you for your deposit.', start_after: null },
-  payments: { nowpayments_enabled: false, sandbox: false, min_usd: 10, max_usd: 5000 },
+  payments: { nowpayments_enabled: false, card_enabled: false, sandbox: false, min_usd: 10, max_usd: 5000 },
   email: { enabled: true, from: '', notify_deposit: true },
 }
 

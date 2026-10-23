@@ -15,7 +15,7 @@ const SCHEMAS = {
   referral: Joi.object({ enabled: Joi.boolean(), reward_usdt: Joi.number().min(0).max(100), min_deposit_usdt: Joi.number().min(0).max(100000) }),
   investments: Joi.object({ early_redeem_enabled: Joi.boolean(), early_redeem_penalty_percent: Joi.number().min(0).max(90) }),
   invoice: Joi.object({ company_name: str(120), address: str(300), tax_id: str(60), footer: str(300) }),
-  payments: Joi.object({ nowpayments_enabled: Joi.boolean(), sandbox: Joi.boolean(), min_usd: Joi.number().min(1).max(100000), max_usd: Joi.number().min(1).max(1000000) }),
+  payments: Joi.object({ nowpayments_enabled: Joi.boolean(), card_enabled: Joi.boolean(), sandbox: Joi.boolean(), min_usd: Joi.number().min(1).max(100000), max_usd: Joi.number().min(1).max(1000000) }),
   email: Joi.object({ enabled: Joi.boolean(), from: str(120), notify_deposit: Joi.boolean() }),
 }
 const ROLES = ['admin', 'super_admin']

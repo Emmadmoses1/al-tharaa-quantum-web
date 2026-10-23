@@ -21,7 +21,7 @@ router.get('/', async (_req, res, next) => {
       bonus: { enabled: !!b.enabled, usd: Number(b.usd) },
       referral: { enabled: !!r.enabled && Number(r.reward_usdt) > 0, reward_usdt: Number(r.reward_usdt) },
       investments: { early_redeem_enabled: !!i.early_redeem_enabled, early_redeem_penalty_percent: Number(i.early_redeem_penalty_percent) },
-      payments: { nowpayments: !!p.nowpayments_enabled, min_usd: Number(p.min_usd), max_usd: Number(p.max_usd) },
+      payments: { nowpayments: !!p.nowpayments_enabled, card: !!p.card_enabled && !!p.nowpayments_enabled, min_usd: Number(p.min_usd), max_usd: Number(p.max_usd) },
       license_text: String(g.license_text || ''),
       public: { users },
       invoice: { company_name: v.company_name, address: v.address, tax_id: v.tax_id, footer: v.footer },

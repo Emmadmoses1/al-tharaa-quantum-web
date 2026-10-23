@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useCurrencies } from '../../hooks/useData'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
+import PushSettings from '../../components/PushSettings'
 
 type Prefs = { full_name: string | null; phone: string | null; preferred_language: string; preferred_currency: string; notify_email: boolean }
 type Ref = { code: string; referred: number; earned_usdt: number; enabled: boolean; reward_usdt: number; min_deposit_usdt: number }
@@ -89,6 +90,8 @@ export default function SettingsPage() {
         <button className="btn-outline-gold" onClick={changePw} style={{ padding: '11px' }}>تغيير</button>
         {pwMsg && <div style={{ fontSize: 13, color: pwMsg.startsWith('تم') ? '#10b981' : '#ef4444', fontFamily: 'Cairo' }}>{pwMsg}</div>}
       </div>
+
+      <PushSettings />
 
       {ref.data && (
         <div style={card}>

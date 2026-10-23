@@ -41,6 +41,7 @@ const SECTIONS: Section[] = [
   ] },
   { key: 'payments', title: 'Payments (NOWPayments)', desc: 'Automatic USDT deposits. Add the keys under API Keys, then switch on here. Webhook address is on the Payments page.', fields: [
     { k: 'nowpayments_enabled', label: 'Accept deposits through NOWPayments', kind: 'bool' },
+    { k: 'card_enabled', label: 'Accept bank cards (needs card payments enabled on your NOWPayments account)', kind: 'bool' },
     { k: 'sandbox', label: 'Sandbox mode (test payments only, no real money)', kind: 'bool' },
     { k: 'min_usd', label: 'Minimum deposit (USD)', kind: 'number' },
     { k: 'max_usd', label: 'Maximum deposit (USD)', kind: 'number' },

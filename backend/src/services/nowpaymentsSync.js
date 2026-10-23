@@ -6,7 +6,7 @@ import { npFetch, applyPayment } from '../routes/nowpayments.js'
 export async function syncPendingPayments() {
   const since = new Date(Date.now() - 8 * 86400000).toISOString()
   const { data } = await supabase.from('nowpayments_payments').select('np_payment_id')
-    .eq('credited', false).not('np_status', 'in', '(finished,failed,expired,refunded)').gte('created_at', since).limit(25)
+    .eq('credited', false).not('np_payment_id', 'is', null).not('np_status', 'in', '(finished,failed,expired,refunded)').gte('created_at', since).limit(25)
   if (!data || data.length === 0) return null
   let done = 0
   for (const r of data) {

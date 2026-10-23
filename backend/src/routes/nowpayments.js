@@ -42,7 +42,18 @@ const DEP_STATUS = { waiting: 'awaiting_payment', confirming: 'confirming', conf
 // Used by the webhook and by the admin "sync" button. Safe to run many times for the same payment.
 export async function applyPayment(p) {
   const paymentId = String(p.payment_id)
-  const { data: row } = await supabase.from('nowpayments_payments').select('*').eq('np_payment_id', paymentId).maybeSingle()
+  let { data: row } = await supabase.from('nowpayments_payments').select('*').eq('np_payment_id', paymentId).maybeSingle()
+  // card payments are created through an invoice, so the first webhook is matched by order_id (our deposit id)
+  if (!row && /^[0-9a-f-]{36}$/i.test(String(p.order_id || ''))) {
+    const r = await supabase.from('nowpayments_payments').select('*').eq('deposit_id', String(p.order_id)).maybeSingle()
+    row = r.data
+    if (row && !row.np_payment_id) {
+      const patch = { np_payment_id: paymentId, pay_address: p.pay_address || row.pay_address }
+      if (p.pay_amount != null) patch.pay_amount = Number(p.pay_amount)
+      await supabase.from('nowpayments_payments').update(patch).eq('id', row.id)
+      row = { ...row, ...patch }
+    } else if (row && row.np_payment_id !== paymentId) row = null
+  }
   if (!row) return { ignored: true }
   const status = String(p.payment_status || '')
   const paid = p.actually_paid != null ? Number(p.actually_paid) : null
@@ -161,7 +172,7 @@ router.get('/status/:depositId', async (req, res, next) => {
     if (!dep) return bad(res, 'Not found', 'NOT_FOUND', 404)
     let { data: np } = await supabase.from('nowpayments_payments').select('np_payment_id, np_status, actually_paid, pay_amount').eq('deposit_id', dep.id).maybeSingle()
     // Ask NOWPayments directly (at most every 8s), so the screen updates even without the webhook
-    if (np && !TERMINAL.includes(np.np_status) && Date.now() - (syncAt.get(dep.id) || 0) > 8000) {
+    if (np && np.np_payment_id && !TERMINAL.includes(np.np_status) && Date.now() - (syncAt.get(dep.id) || 0) > 8000) {
       syncAt.set(dep.id, Date.now())
       try {
         await applyPayment(await npFetch(`/payment/${encodeURIComponent(np.np_payment_id)}`))
@@ -179,12 +190,86 @@ router.get('/status/:depositId', async (req, res, next) => {
 router.get('/active', async (req, res, next) => {
   try {
     const { data: np } = await supabase.from('nowpayments_payments').select('deposit_id, pay_address, pay_amount, network, price_usd, np_status')
-      .eq('user_id', req.user.id).eq('credited', false).not('np_status', 'in', '(finished,failed,expired,refunded)').order('created_at', { ascending: false }).limit(1).maybeSingle()
+      .eq('user_id', req.user.id).eq('credited', false).is('np_invoice_id', null).not('np_status', 'in', '(finished,failed,expired,refunded)').order('created_at', { ascending: false }).limit(1).maybeSingle()
     if (!np) return res.json({ success: true, data: null })
     const { data: dep } = await supabase.from('deposits').select('expires_at, status').eq('id', np.deposit_id).maybeSingle()
     if (!dep || !['awaiting_payment', 'detected', 'confirming'].includes(dep.status) || new Date(dep.expires_at).getTime() < Date.now()) return res.json({ success: true, data: null })
     res.json({ success: true, data: { deposit_id: np.deposit_id, address: np.pay_address, pay_amount: np.pay_amount, network: np.network, expires_at: dep.expires_at, price_usd: np.price_usd } })
   } catch (err) { next(err) }
+})
+
+// ---- Card deposits: NOWPayments hosted checkout (card details are entered on the partner's page, never here)
+const CARD_CUR = ['usd', 'eur', 'gbp', 'ngn']
+const cardRate = new Map()
+function cardLimit(userId, max, windowMs) {
+  const r = cardRate.get(userId) || { n: 0, at: Date.now() }
+  if (Date.now() - r.at > windowMs) { r.n = 0; r.at = Date.now() }
+  r.n++; cardRate.set(userId, r)
+  return r.n <= max
+}
+async function estimateUsdt(amount, cur) {
+  const e = await npFetch(`/estimate?amount=${encodeURIComponent(amount)}&currency_from=${encodeURIComponent(cur)}&currency_to=usdttrc20`)
+  const v = Number(e.estimated_amount)
+  if (!(v > 0)) throw Object.assign(new Error('Could not get a rate for this currency right now.'), { status: 502 })
+  return v
+}
+
+router.get('/card/estimate', async (req, res, next) => {
+  try {
+    const cfg = await getSetting('payments')
+    if (!cfg.card_enabled) return bad(res, 'Card deposits are not enabled yet.', 'DISABLED')
+    const cur = String(req.query.currency || '').toLowerCase()
+    const amount = Number(req.query.amount)
+    if (!CARD_CUR.includes(cur) || !(amount > 0) || amount > 10000000) return bad(res, 'Invalid amount or currency')
+    if (!cardLimit('e' + req.user.id, 40, 60000)) return bad(res, 'Too many requests. Wait a moment.', 'RATE_LIMITED', 429)
+    const usdt = await estimateUsdt(amount, cur)
+    res.json({ success: true, data: { usdt, min_usd: Number(cfg.min_usd), max_usd: Number(cfg.max_usd) } })
+  } catch (err) {
+    if (err.status) return bad(res, err.message, 'NOWPAYMENTS_ERROR', err.status)
+    next(err)
+  }
+})
+
+router.post('/card/create', async (req, res, next) => {
+  try {
+    const { value, error } = Joi.object({
+      amount: Joi.number().positive().max(10000000).required(),
+      currency: Joi.string().lowercase().valid(...CARD_CUR).required(),
+      purpose: Joi.string().valid('trading', 'investment').required(),
+    }).validate(req.body)
+    if (error) return bad(res, error.message)
+    const cfg = await getSetting('payments')
+    if (!cfg.card_enabled) return bad(res, 'Card deposits are not enabled yet.', 'DISABLED')
+    if (!cardLimit('c' + req.user.id, 10, 3600000)) return bad(res, 'Too many deposit requests. Try again later.', 'RATE_LIMITED', 429)
+    const usdt = await estimateUsdt(value.amount, value.currency)
+    if (usdt < Number(cfg.min_usd) || usdt > Number(cfg.max_usd)) return bad(res, `Amount must be worth between ${cfg.min_usd} and ${cfg.max_usd} USDT.`, 'AMOUNT_RANGE')
+
+    const depositId = uuidv4()
+    const front = (process.env.FRONTEND_URL || '').replace(/\/$/, '')
+    const base = process.env.API_PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || ''
+    const inv = await npFetch('/invoice', { method: 'POST', body: JSON.stringify({
+      price_amount: value.amount, price_currency: value.currency, pay_currency: 'usdttrc20', order_id: depositId,
+      order_description: `Card deposit ${value.purpose}`,
+      ...(base ? { ipn_callback_url: `${base}/api/nowpayments/ipn` } : {}),
+      ...(front ? { success_url: `${front}/dashboard/deposit?card=success`, cancel_url: `${front}/dashboard/deposit?card=cancel` } : {}),
+    }) })
+    if (!inv.invoice_url) throw Object.assign(new Error('The card payment page could not be created.'), { status: 502 })
+    const { error: de } = await supabase.from('deposits').insert({
+      id: depositId, user_id: req.user.id, asset: 'USDT', network: 'TRC20', purpose: value.purpose,
+      wallet_address: 'card-checkout', minimum_deposit: 0, required_confirmations: 1,
+      requested_amount: usdt, status: 'awaiting_payment', expires_at: new Date(Date.now() + 3 * 86400000).toISOString(),
+    })
+    if (de) throw de
+    await supabase.from('nowpayments_payments').insert({
+      user_id: req.user.id, deposit_id: depositId, np_payment_id: null, np_invoice_id: String(inv.id), pay_currency: 'usdttrc20',
+      network: 'TRC20', pay_address: null, price_usd: usdt, pay_amount: usdt, np_status: 'waiting',
+    })
+    await supabase.from('audit_logs').insert({ user_id: req.user.id, action: 'NOWPAYMENTS_CARD_CREATED', entity: 'deposits', entity_id: depositId, metadata: { amount: value.amount, currency: value.currency, est_usdt: usdt, purpose: value.purpose } })
+    res.status(201).json({ success: true, data: { deposit_id: depositId, invoice_url: inv.invoice_url, usdt } })
+  } catch (err) {
+    if (err.status) return bad(res, err.message, 'NOWPAYMENTS_ERROR', err.status)
+    next(err)
+  }
 })
 
 export default router
