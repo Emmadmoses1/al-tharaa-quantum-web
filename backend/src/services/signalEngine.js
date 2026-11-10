@@ -47,7 +47,17 @@ export function analyze(candles) {
   }
 }
 
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+// Retry once: a single 429 or timeout from a price feed must not cost a whole signal cycle.
+async function candlesWithRetry(asset, tf) {
+  try { return await getCandles(asset, tf) } catch { await sleep(2500); return getCandles(asset, tf) }
+}
+
 export async function runSignalEngine({ force = false } = {}) {
+  // Never leave an expired signal visible, even when the engine is paused or the feeds are down.
+  await supabase.from('ai_signals').update({ is_active: false }).eq('is_active', true).lt('expires_at', new Date().toISOString())
+
   const { data: st } = await supabase.from('ai_engine_state').select('*').eq('id', 1).single()
   if (!force && st && st.enabled === false) return null
 
@@ -60,21 +70,26 @@ export async function runSignalEngine({ force = false } = {}) {
     for (const s of strategies) {
       for (const asset of (s.supported_assets || []).filter(x => ASSETS.includes(x))) {
         try {
-          const a = analyze(await getCandles(asset, s.timeframe || '1h'))
-          await supabase.from('ai_signals').update({ is_active: false }).eq('strategy_id', s.id).eq('asset', asset).eq('is_active', true)
+          const candles = await candlesWithRetry(asset, s.timeframe || '1h')
+          if (!candles || candles.length < 60) throw new Error('not enough candle data')
+          const a = analyze(candles)
+          if (![a.entry_low, a.stop_loss, a.tp1, a.confidence].every(Number.isFinite)) throw new Error('invalid indicator output')
           const ttl = TTL_MIN[s.timeframe] || 120
-          await supabase.from('ai_signals').insert({
+          // Publish the new signal first, then retire the old one, so users never see a gap.
+          const { data: row, error: ie } = await supabase.from('ai_signals').insert({
             strategy_id: s.id, asset, signal: a.signal, entry_zone_low: a.entry_low, entry_zone_high: a.entry_high,
             stop_loss: a.stop_loss, take_profit_1: a.tp1, take_profit_2: a.tp2, risk_level: a.risk,
             confidence_percent: a.confidence, timeframe: s.timeframe, analysis_summary: a.summary,
             is_active: true, expires_at: new Date(Date.now() + ttl * 60000).toISOString(),
-          })
+          }).select('id').single()
+          if (ie) throw ie
+          await supabase.from('ai_signals').update({ is_active: false }).eq('strategy_id', s.id).eq('asset', asset).eq('is_active', true).neq('id', row.id)
           await supabase.from('ai_decisions').insert({
             strategy_id: s.id, asset, signal: a.signal, indicators: a.indicators,
             decision: 'signal_published', model_version: 'rules-ema-rsi-atr-v1',
           })
           created++
-        } catch (e) { errors.push(`${asset}: ${e.message}`) }
+        } catch (e) { errors.push(`${asset}: ${e.message}`); console.error(`[signals] ${asset}: ${e.message}`) }
       }
     }
     result = { created, errors }

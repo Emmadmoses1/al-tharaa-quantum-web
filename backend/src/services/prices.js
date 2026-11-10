@@ -80,6 +80,6 @@ export async function getCandles(asset, interval, limit = 200) {
       if (rows.length) { candleCache.set(key, { rows, at: Date.now() }); return rows }
     } catch (e) { last = e.message }
   }
-  if (hit) return hit.rows
+  if (hit && Date.now() - hit.at < 30 * 60000) return hit.rows // never build signals on data older than 30 min
   throw new Error(`candles unavailable (${last})`)
 }
