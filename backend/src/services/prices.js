@@ -37,22 +37,63 @@ async function fromSources(asset) {
   throw new Error(`price feeds unavailable (${last})`)
 }
 
-export async function getPrice(asset) {
-  if (!PAIR[asset]) throw new Error(`Unsupported asset ${asset}`)
-  const c = cache.get(asset)
-  if (c && Date.now() - c.at < FRESH_MS) return c.p
+function refresh(asset) {
   if (!inflight.has(asset)) {
     inflight.set(asset, fromSources(asset)
       .then(p => { cache.set(asset, { p, at: Date.now() }); return p })
       .finally(() => inflight.delete(asset)))
   }
+  return inflight.get(asset)
+}
+
+const UNAVAILABLE = 'Market price is temporarily unavailable. Please try again in a moment.'
+
+export async function getPrice(asset) {
+  if (!PAIR[asset]) throw new Error(`Unsupported asset ${asset}`)
+  const c = cache.get(asset)
+  if (c && Date.now() - c.at < FRESH_MS) return c.p
   try {
-    return await inflight.get(asset)
+    return await refresh(asset)
   } catch (e) {
     if (c && Date.now() - c.at < STALE_MS) return c.p
     console.error(`[prices] ${asset}: ${e.message}`)
-    throw new Error('Market price is temporarily unavailable. Please try again in a moment.')
+    throw new Error(UNAVAILABLE)
   }
+}
+
+// For anything that fixes a price for money (opening a trade, settling an order, closing at stop-loss): never a stale value.
+export async function getPriceFresh(asset, maxAgeMs = 5000) {
+  if (!PAIR[asset]) throw new Error(`Unsupported asset ${asset}`)
+  const c = cache.get(asset)
+  if (c && Date.now() - c.at < maxAgeMs) return c.p
+  try {
+    return await refresh(asset)
+  } catch (e) {
+    console.error(`[prices] fresh ${asset}: ${e.message}`)
+    throw new Error(UNAVAILABLE)
+  }
+}
+
+// Price at a past moment (1-minute candle, interpolated inside the minute). Used to settle orders that were overdue.
+export async function getPriceAt(asset, tsMs) {
+  if (!PAIR[asset]) throw new Error(`Unsupported asset ${asset}`)
+  const start = Math.floor(tsMs / 60000) * 60000
+  const frac = (tsMs - start) / 60000
+  const mix = (o, c) => Number(o) + (Number(c) - Number(o)) * frac
+  const q = `symbol=${PAIR[asset]}&interval=1m&startTime=${start}&limit=1`
+  for (const host of ['data-api.binance.vision', 'api.binance.com', 'api.binance.us']) {
+    try {
+      const rows = await fetchJson(`https://${host}/api/v3/klines?${q}`, {}, 5000)
+      if (rows?.length && Number(rows[0][0]) === start) { const p = mix(rows[0][1], rows[0][4]); if (Number.isFinite(p) && p > 0) return p }
+    } catch { /* next source */ }
+  }
+  try {
+    const d = await fetchJson(`https://api.kraken.com/0/public/OHLC?pair=${KR[asset]}&interval=1&since=${Math.floor(start / 1000) - 1}`, {}, 5000)
+    const arr = Object.entries(d.result).find(([k]) => k !== 'last')[1]
+    const r = arr.find(x => Number(x[0]) * 1000 === start)
+    if (r) { const p = mix(r[1], r[4]); if (Number.isFinite(p) && p > 0) return p }
+  } catch { /* fall through */ }
+  throw new Error('historical price unavailable')
 }
 
 // ---- candles: cached for a minute, several sources ----

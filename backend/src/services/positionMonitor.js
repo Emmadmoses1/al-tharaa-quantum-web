@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase.js'
-import { getPrice } from './prices.js'
+import { getPriceFresh } from './prices.js'
 
 const WHY = { stop_loss: ['عند وقف الخسارة', 'at stop-loss'], take_profit: ['عند الهدف', 'at take-profit'] }
 
@@ -8,7 +8,7 @@ export async function monitorPositions() {
   if (!open || open.length === 0) return null
   const prices = {}
   for (const asset of new Set(open.map(t => t.asset))) {
-    try { prices[asset] = await getPrice(asset) } catch (e) { console.error(`[positions] price ${asset}: ${e.message}`) }
+    try { prices[asset] = await getPriceFresh(asset, 10000) } catch (e) { console.error(`[positions] price ${asset}: ${e.message}`) }
   }
   let closed = 0
   for (const t of open) {

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { requireAuth } from '../middleware/authGuard.js'
 import { validate, openTradeSchema } from '../middleware/validate.js'
-import { getPrice } from '../services/prices.js'
+import { getPrice, getPriceFresh } from '../services/prices.js'
 
 const router = Router()
 router.use(requireAuth)
@@ -27,7 +27,7 @@ const err = (res, status, message, code) => res.status(status).json({ success: f
 
 // Price with one retry, so a momentary feed hiccup does not fail the user's trade.
 async function priceOrNull(asset) {
-  try { return await getPrice(asset) } catch { await new Promise(r => setTimeout(r, 1200)); try { return await getPrice(asset) } catch { return null } }
+  try { return await getPriceFresh(asset, 15000) } catch { await new Promise(r => setTimeout(r, 1200)); try { return await getPriceFresh(asset, 15000) } catch { return null } }
 }
 
 router.post('/open', validate(openTradeSchema), async (req, res, next) => {

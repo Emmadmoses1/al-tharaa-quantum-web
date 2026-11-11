@@ -3,7 +3,7 @@ import { Router } from 'express'
 import Joi from 'joi'
 import { supabase } from '../lib/supabase.js'
 import { requireAuth } from '../middleware/authGuard.js'
-import { getPrice } from '../services/prices.js'
+import { getPrice, getPriceFresh } from '../services/prices.js'
 
 const router = Router()
 router.use(requireAuth)
@@ -67,7 +67,9 @@ router.post('/place', async (req, res, next) => {
     })
     const { value, error: ve } = schema.validate(req.body)
     if (ve) return res.status(400).json({ success: false, error: { message: ve.message, code: 'BAD_REQUEST' } })
-    const price = await getPrice(value.asset)
+    let price = null
+    try { price = await getPriceFresh(value.asset, 3000) } catch { await new Promise(r => setTimeout(r, 800)); try { price = await getPriceFresh(value.asset, 3000) } catch { /* handled below */ } }
+    if (!price) return res.status(503).json({ success: false, error: { message: 'Market price is temporarily unavailable. Please try again in a moment.', code: 'PRICE_UNAVAILABLE' } })
     const { data, error } = await supabase.rpc('place_binary_order', {
       p_user: req.user.id, p_asset: value.asset, p_direction: value.direction,
       p_amount: value.amount, p_seconds: value.seconds, p_price: price,
