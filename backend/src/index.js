@@ -40,6 +40,7 @@ import reservesRouter from './routes/adminReserves.js'
 import marketsRouter from './routes/markets.js'
 import aiStatusRouter from './routes/aiStatus.js'
 import { startLoop } from './services/loop.js'
+import { runAdminAlerts } from './services/adminAlerts.js'
 import { scanDeposits } from './services/depositWatcher.js'
 import { runSignalEngine } from './services/signalEngine.js'
 import { monitorPositions } from './services/positionMonitor.js'
@@ -153,6 +154,7 @@ app.listen(PORT, () => {
   startLoop('prune-views', async () => { await sbPrune.rpc('prune_page_views') }, 6 * 3600 * 1000)
   startLoop('deliver', sendNotificationEmails, 10000)
   startLoop('engagement', runEngagement, 60000)
+  if (process.env.ADMIN_ALERTS !== 'off') startLoop('alerts', runAdminAlerts, 5 * 60000)
   startLoop('np-sync', syncPendingPayments, 60000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })
