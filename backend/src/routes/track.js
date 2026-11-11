@@ -34,7 +34,7 @@ const schema = Joi.object({
 router.post('/', async (req, res) => {
   try {
     const ua = String(req.headers['user-agent'] || '')
-    const ip = String(req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim()
+    const ip = String(req.ip || '').replace(/^::ffff:/, '')
     const h = hits.get(ip) || { n: 0, at: Date.now() }
     if (Date.now() - h.at > 60000) { h.n = 0; h.at = Date.now() }
     h.n++; hits.set(ip, h)

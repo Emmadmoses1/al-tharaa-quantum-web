@@ -33,7 +33,7 @@ router.post('/start', async (req, res, next) => {
     if (limited(clientIp(req) || 'x', 10, 3600000)) return fail(res, 429, 'Too many attempts. Try again later.', 'RATE_LIMITED')
     const { email, full_name } = value
 
-    const { data: exists } = await supabase.from('profiles').select('id').ilike('email', email).limit(1)
+    const { data: exists } = await supabase.from('profiles').select('id').ilike('email', email.replace(/[\\%_]/g, m => '\\' + m)).limit(1)
     if (exists && exists.length) return fail(res, 409, 'This email is already registered', 'EMAIL_EXISTS')
 
     const { data: prev } = await supabase.from('signup_otps').select('last_sent_at, send_count').eq('email', email).maybeSingle()

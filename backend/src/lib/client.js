@@ -1,15 +1,21 @@
-// Who is calling: real IP and country (Cloudflare header first, then a cached IP lookup).
+// Who is calling: the real IP and country.
+// Client-supplied headers (X-Forwarded-For, CF-*) can be forged, so by default only req.ip is trusted
+// (Express already resolves it through the one Render proxy hop via `trust proxy`).
+// If the API is ever put behind Cloudflare, set BEHIND_CLOUDFLARE=1 and `trust proxy` accordingly.
+const CF = process.env.BEHIND_CLOUDFLARE === '1'
+
 export function clientIp(req) {
-  const h = req.headers
-  const raw = h['cf-connecting-ip'] || String(h['x-forwarded-for'] || '').split(',')[0] || req.ip || ''
+  const raw = (CF && req.headers['cf-connecting-ip']) || req.ip || ''
   return String(raw).trim().replace(/^::ffff:/, '').slice(0, 64) || null
 }
 
 const geo = new Map() // ip -> { c, at }
 
 export async function clientCountry(req) {
-  const hdr = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || '').toUpperCase()
-  if (/^[A-Z]{2}$/.test(hdr) && hdr !== 'XX' && hdr !== 'T1') return hdr
+  if (CF) {
+    const hdr = String(req.headers['cf-ipcountry'] || '').toUpperCase()
+    if (/^[A-Z]{2}$/.test(hdr) && hdr !== 'XX' && hdr !== 'T1') return hdr
+  }
   const ip = clientIp(req)
   if (!ip || /^(10\.|127\.|192\.168\.|::1)/.test(ip)) return null
   const hit = geo.get(ip)
