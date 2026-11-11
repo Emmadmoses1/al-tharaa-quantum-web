@@ -6,6 +6,7 @@ import { getDevice } from '../lib/device'
 import { uploadAvatar } from '../lib/avatar'
 import { useAuth } from '../context/AuthContext'
 import AvatarPicker from '../components/AvatarPicker'
+import FaceCapture from '../components/FaceCapture'
 import { Eye, EyeOff, AlertCircle, CheckCircle, MailCheck, ShieldAlert } from 'lucide-react'
 
 const field: React.CSSProperties = {
@@ -29,7 +30,7 @@ function arError(m: string): string {
 export default function RegisterPage() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
-  const [step, setStep] = useState<'form' | 'code' | 'done' | 'suspended'>('form')
+  const [step, setStep] = useState<'form' | 'code' | 'face' | 'done' | 'suspended'>('form')
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '' })
   const [photo, setPhoto] = useState<Blob | null>(null)
   const [code, setCode] = useState('')
@@ -84,12 +85,24 @@ export default function RegisterPage() {
       const { data, error: se } = await supabase.auth.signInWithPassword({ email, password: form.password })
       if (se || !data.user) throw new Error(se?.message || 'فشل تسجيل الدخول')
       if (photo) { try { await uploadAvatar(data.user.id, photo) } catch (err) { console.warn('avatar upload failed', err) } }
-      setStep('done')
+      setStep('face')
     } catch (err) { setError(arError(err instanceof Error ? err.message : 'حدث خطأ')) }
     setBusy(false)
   }
 
   const center: React.CSSProperties = { minHeight: '100vh', background: '#0B0B0B', display: 'flex', alignItems: 'center', justifyContent: 'center', direction: 'rtl', padding: 24 }
+
+  if (step === 'face') {
+    return (
+      <div style={center}>
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', textAlign: 'center', margin: '0 0 6px' }}>التحقق من الوجه</h1>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo', textAlign: 'center', margin: '0 0 18px' }}>مطلوب لتفعيل السحب من حسابك</p>
+          {user ? <FaceCapture userId={user.id} onDone={() => setStep('done')} onSkip={() => setStep('done')} /> : <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontFamily: 'Cairo' }}>جارٍ التحميل...</div>}
+        </div>
+      </div>
+    )
+  }
 
   if (step === 'done') {
     return (

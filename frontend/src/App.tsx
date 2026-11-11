@@ -27,6 +27,7 @@ import ProfilePage from './pages/dashboard/ProfilePage'
 import NotificationsPage from './pages/dashboard/NotificationsPage'
 import WithdrawPage from './pages/dashboard/WithdrawPage'
 import SettingsPage from './pages/dashboard/SettingsPage'
+import FacePage from './pages/dashboard/FacePage'
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -121,6 +122,7 @@ export default function App() {
         <Route path="/dashboard/transactions" element={<UserPage><TransactionsPage /></UserPage>} />
         <Route path="/dashboard/notifications" element={<UserPage><NotificationsPage /></UserPage>} />
         <Route path="/dashboard/profile" element={<UserPage><ProfilePage /></UserPage>} />
+        <Route path="/dashboard/verify-face" element={<UserPage><FacePage /></UserPage>} />
         <Route path="/dashboard/settings" element={<UserPage><SettingsPage /></UserPage>} />
         <Route path="/dashboard/support" element={<UserPage><SupportPage /></UserPage>} />
         <Route path="/dashboard/markets" element={<UserPage><MarketsDash /></UserPage>} />

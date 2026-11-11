@@ -47,6 +47,11 @@ router.post('/', validate(withdrawalSchema), async (req, res, next) => {
     if (gen.maintenance) return bad(res, gen.maintenance_message || 'The platform is under maintenance. Withdrawals are paused.', 'MAINTENANCE')
     const userId = req.user.id
     const address = destination_address.trim()
+    // New accounts must have an approved face verification before they can withdraw.
+    const { data: fp } = await supabase.from('profiles').select('face_required, face_status').eq('id', userId).single()
+    if (fp?.face_required && fp.face_status !== 'approved') {
+      return res.status(403).json({ success: false, error: { message: 'Face verification is required before withdrawing. Open "Verify your face" in your account. التحقق من الوجه مطلوب قبل السحب.', code: 'FACE_REQUIRED' } })
+    }
 
     if (!NETWORKS[asset]?.includes(network)) return bad(res, `${asset} is not available on ${network}.`, 'INVALID_NETWORK')
     if (withdrawal_type === 'trading' && asset !== 'USDT') return bad(res, 'The trading wallet holds USDT only.', 'TRADING_USDT_ONLY')

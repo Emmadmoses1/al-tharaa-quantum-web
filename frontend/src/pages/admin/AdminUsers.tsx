@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, UserCheck, Flag, ShieldAlert, Smartphone, Link2 } from 'lucide-react'
+import { Search, UserCheck, Flag, ShieldAlert, Smartphone, Link2, Camera } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAdminUsers, useAdminUpdateUserRole } from '../../hooks/useData'
 import { useAuth } from '../../context/AuthContext'
@@ -16,7 +16,8 @@ const KYC: Record<string, string> = { pending: '#9ca3af', submitted: '#f59e0b', 
 type Extra = { avatar_url?: string | null; country?: string | null; account_status?: string; flagged?: boolean }
 type Detail = {
   profile: { id: string; email: string; full_name: string | null; phone: string | null; role: string; kyc_status: string; avatar_url: string | null; country: string | null; signup_ip: string | null
-    account_status: string; suspended_reason: string | null; flagged: boolean; flag_reason: string | null; created_at: string; last_seen_at: string | null }
+    account_status: string; suspended_reason: string | null; flagged: boolean; flag_reason: string | null; created_at: string; last_seen_at: string | null
+    face_status: string; face_url: string | null; face_challenge: string | null; face_reject_reason: string | null; face_required: boolean }
   devices: { device_id: string; ip: string | null; first_seen: string; last_seen: string }[]
   linked: { id: string; email: string; full_name: string | null; account_status: string }[]
   timeline: { kind: string; title: string; detail: string; at: string }[]
@@ -39,6 +40,18 @@ function UserDetail({ id, canModerate, onClose }: { id: string; canModerate: boo
       await api.post(`/api/admin/user-activity/${id}/${kind}`, { reason })
       await q.refetch()
       qc.invalidateQueries({ queryKey: ['admin-users'] })
+    } catch (e) { setErr(e instanceof Error ? e.message : 'Failed') }
+    setBusy(false)
+  }
+
+  async function review(decision: 'approve' | 'reject') {
+    const reason = decision === 'reject' ? window.prompt('Reason for rejecting the selfie?', 'The photo is not clear, or the requested gesture is missing.') : ''
+    if (decision === 'reject' && reason === null) return
+    setBusy(true); setErr('')
+    try {
+      await api.post(`/api/admin/user-activity/${id}/face`, { decision, reason })
+      await q.refetch()
+      qc.invalidateQueries({ queryKey: ['admin-face-queue'] })
     } catch (e) { setErr(e instanceof Error ? e.message : 'Failed') }
     setBusy(false)
   }
@@ -83,7 +96,25 @@ function UserDetail({ id, canModerate, onClose }: { id: string; canModerate: boo
         {row('Role', p.role)}
         {row('Joined', new Date(p.created_at).toLocaleString('en-GB'))}
         {row('Last seen', p.last_seen_at ? new Date(p.last_seen_at).toLocaleString('en-GB') : null)}
+        {row('Face check', p.face_required ? p.face_status : `${p.face_status} (not required)`)}
       </div>
+
+      {p.face_status !== 'none' && (
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#D4AF37', fontFamily: 'Montserrat', marginBottom: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Camera size={14} />Face verification <Pill text={p.face_status} color={p.face_status === 'approved' ? '#10b981' : p.face_status === 'rejected' ? '#ef4444' : '#f59e0b'} />
+          </div>
+          {p.face_url && <a href={p.face_url} target="_blank" rel="noreferrer"><img src={p.face_url} alt="Selfie" style={{ width: '100%', maxWidth: 300, borderRadius: 12, display: 'block', border: '1px solid rgba(212,175,55,0.25)', transform: 'scaleX(-1)' }} /></a>}
+          {p.face_challenge && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontFamily: 'Cairo', marginTop: 8 }}>Requested gesture: {p.face_challenge}</div>}
+          {p.face_status === 'rejected' && p.face_reject_reason && <div style={{ fontSize: 12, color: '#ef4444', fontFamily: 'Montserrat', marginTop: 6 }}>Rejected: {p.face_reject_reason}</div>}
+          {canModerate && p.face_status === 'pending' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
+              <button type="button" disabled={busy} onClick={() => review('approve')} className="btn-gold" style={{ padding: 11, opacity: busy ? 0.6 : 1 }}>Approve</button>
+              <button type="button" disabled={busy} onClick={() => review('reject')} style={{ padding: 11, borderRadius: 10, border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.1)', color: '#ef4444', fontWeight: 700, fontFamily: 'Montserrat', cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>Reject</button>
+            </div>
+          )}
+        </div>
+      )}
 
       {linked.length > 0 && (
         <div>
@@ -133,6 +164,7 @@ export default function AdminUsers() {
   const [open, setOpen] = useState<string | null>(null)
   const { data: users, isLoading, isError, refetch } = useAdminUsers(search || undefined, role === 'all' ? undefined : role)
   const updateRole = useAdminUpdateUserRole()
+  const faceQueue = useQuery({ queryKey: ['admin-face-queue'], refetchInterval: 60000, queryFn: () => api.get<{ id: string; email: string; full_name: string | null; face_submitted_at: string }[]>('/api/admin/user-activity/face-queue') })
 
   return (
     <div>
@@ -140,6 +172,15 @@ export default function AdminUsers() {
       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Montserrat', marginBottom: 14 }}>
         {users ? `${users.length} users` : 'Loading…'}{!isSuper && ' · Only a super admin can change roles'} · Tap a user to see activity
       </p>
+
+      {(faceQueue.data?.length ?? 0) > 0 && (
+        <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 12, background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.25)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b', fontFamily: 'Montserrat', marginBottom: 8, display: 'flex', gap: 6, alignItems: 'center' }}><Camera size={14} />Face reviews waiting ({faceQueue.data?.length})</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {faceQueue.data?.map(f => <button key={f.id} type="button" onClick={() => setOpen(f.id)} style={{ background: 'rgba(20,20,20,0.9)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 999, color: '#fff', fontFamily: 'Montserrat', fontSize: 12, padding: '6px 12px', cursor: 'pointer' }}>{f.full_name || f.email}</button>)}
+          </div>
+        </div>
+      )}
 
       <div style={{ position: 'relative', marginBottom: 12 }}>
         <Search size={15} color="rgba(255,255,255,0.3)" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)' }} />

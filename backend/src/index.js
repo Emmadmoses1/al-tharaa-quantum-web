@@ -48,6 +48,9 @@ import { monitorPositions } from './services/positionMonitor.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import pushRouter from './routes/push.js'
 import signupRouter from './routes/signup.js'
+import marketRouter from './routes/market.js'
+import alertsRouter from './routes/alerts.js'
+import { checkAlerts } from './services/alertChecker.js'
 import passwordRouter from './routes/password.js'
 import accountRouter from './routes/account.js'
 import adminUserActivityRouter from './routes/adminUserActivity.js'
@@ -131,6 +134,8 @@ app.use('/api/admin/strategies', adminStrategiesRouter)
 app.use('/api/admin/binary', adminBinaryRouter)
 app.use('/api/push', pushRouter)
 app.use('/api/signup', signupRouter)
+app.use('/api/public/market', marketRouter)
+app.use('/api/alerts', alertsRouter)
 app.use('/api/password', passwordRouter)
 app.use('/api/account', accountRouter)
 app.use('/api/admin/user-activity', adminUserActivityRouter)
@@ -156,6 +161,7 @@ app.listen(PORT, () => {
   startLoop('prune-views', async () => { await sbPrune.rpc('prune_page_views') }, 6 * 3600 * 1000)
   startLoop('deliver', sendNotificationEmails, 10000)
   startLoop('engagement', runEngagement, 60000)
+  startLoop('price-alerts', checkAlerts, 30000)
   if (process.env.ADMIN_ALERTS !== 'off') startLoop('alerts', runAdminAlerts, 5 * 60000)
   startLoop('np-sync', syncPendingPayments, 60000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)

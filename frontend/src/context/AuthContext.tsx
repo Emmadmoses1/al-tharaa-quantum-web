@@ -15,6 +15,9 @@ interface Profile {
   kyc_status: string
   avatar_url?: string | null
   account_status?: string
+  face_status?: string
+  face_required?: boolean
+  face_reject_reason?: string | null
 }
 
 interface AuthContextType {

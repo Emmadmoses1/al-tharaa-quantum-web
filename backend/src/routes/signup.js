@@ -108,7 +108,7 @@ router.post('/verify', async (req, res, next) => {
       const { data: ps } = await supabase.from('profiles').select('id, email, role').in('id', [...new Set(onDevice.map(d => d.user_id))])
       others = (ps || []).filter(p => p.role === 'user')
     }
-    let update = { full_name, country, signup_ip: ip }
+    let update = { full_name, country, signup_ip: ip, face_required: true }
     let suspended = false
     if (others.length) {
       suspended = true

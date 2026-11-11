@@ -5,6 +5,8 @@ import DashboardSidebar from './DashboardSidebar'
 import ErrorBoundary from '../ui/ErrorBoundary'
 import PushPrompt from '../PushPrompt'
 import { InstallBanner } from '../InstallApp'
+import MarketTicker from '../MarketTicker'
+import FaceBanner from '../FaceBanner'
 import Avatar from '../Avatar'
 import SuspendedScreen from '../SuspendedScreen'
 import { api } from '../../lib/api'
@@ -96,7 +98,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="dl-content" style={{ padding: '24px 32px 40px', maxWidth: 1280, margin: '0 auto' }}><InstallBanner /><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
+        <div className="dl-content" style={{ padding: '24px 32px 40px', maxWidth: 1280, margin: '0 auto' }}><MarketTicker /><FaceBanner /><InstallBanner /><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
       </main>
 
       <nav className="dl-bottom">

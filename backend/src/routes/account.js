@@ -53,4 +53,24 @@ router.post('/avatar', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// The browser uploads a live selfie to the private bucket, then tells the server which file. It waits for admin review.
+router.post('/face', async (req, res, next) => {
+  try {
+    const path = String(req.body?.path || '')
+    const challenge = String(req.body?.challenge || '').slice(0, 120)
+    if (!new RegExp(`^${req.user.id}/[A-Za-z0-9._-]{1,80}$`).test(path)) return res.status(400).json({ success: false, error: { message: 'Bad path', code: 'BAD_REQUEST' } })
+    const name = path.split('/')[1]
+    const { data: files } = await supabase.storage.from('face-verifications').list(req.user.id, { search: name, limit: 5 })
+    if (!files || !files.some(f => f.name === name)) return res.status(400).json({ success: false, error: { message: 'Photo not found. Please try again.', code: 'BAD_REQUEST' } })
+    const { data: me } = await supabase.from('profiles').select('face_status').eq('id', req.user.id).single()
+    if (me?.face_status === 'approved') return res.json({ success: true, data: { face_status: 'approved' } })
+    const { error } = await supabase.from('profiles').update({
+      face_status: 'pending', face_path: path, face_challenge: challenge, face_submitted_at: new Date().toISOString(), face_reject_reason: null,
+    }).eq('id', req.user.id)
+    if (error) throw error
+    await logEvent(supabase, req.user.id, 'face_submitted', req, {})
+    res.json({ success: true, data: { face_status: 'pending' } })
+  } catch (err) { next(err) }
+})
+
 export default router
