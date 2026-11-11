@@ -10,14 +10,33 @@ async function getAuthHeaders(): Promise<HeadersInit> {
   }
 }
 
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const headers = await getAuthHeaders()
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers })
-  const data = await res.json()
-  if (!res.ok || !data.success) {
-    throw new Error(data?.error?.message || 'Request failed')
+  const attempts = (options.method || 'GET').toUpperCase() === 'GET' ? 3 : 1 // only safe, repeatable requests are retried
+  let lastErr: Error = new Error('Request failed')
+  for (let i = 0; i < attempts; i++) {
+    const headers = await getAuthHeaders()
+    const ctl = new AbortController()
+    const timer = setTimeout(() => ctl.abort(), 70000) // a sleeping server can take about a minute to wake
+    try {
+      const res = await fetch(`${API_URL}${path}`, { ...options, headers, signal: ctl.signal })
+      let data: { success?: boolean; data?: unknown; error?: { message?: string } } | null = null
+      try { data = await res.json() } catch { data = null }
+      if (res.ok && data?.success) return data.data as T
+      if ([502, 503, 504].includes(res.status) && !data?.error && i < attempts - 1) { await sleep(1500 * (i + 1)); continue }
+      throw new Error(data?.error?.message || (res.status >= 500 ? 'Server is busy. Please try again.' : 'Request failed'))
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error('Request failed')
+      const aborted = err.name === 'AbortError'
+      lastErr = aborted ? new Error('The request took too long. Please try again.') : err
+      if ((aborted || /failed to fetch|network|load failed/i.test(err.message)) && i < attempts - 1) { await sleep(1200 * (i + 1)); continue }
+      throw lastErr
+    } finally {
+      clearTimeout(timer)
+    }
   }
-  return data.data as T
+  throw lastErr
 }
 
 export const api = {

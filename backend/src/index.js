@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+const compression = await import('compression').then(m => m.default).catch(() => null)
 import 'dotenv/config'
 
 import healthRouter from './routes/health.js'
@@ -88,6 +89,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 })
+if (compression) app.use(compression())
 app.use(globalLimiter)
 
 // Body parsing
