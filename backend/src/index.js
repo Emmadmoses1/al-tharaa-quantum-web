@@ -46,6 +46,7 @@ import { monitorPositions } from './services/positionMonitor.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import pushRouter from './routes/push.js'
 import signupRouter from './routes/signup.js'
+import passwordRouter from './routes/password.js'
 import accountRouter from './routes/account.js'
 import adminUserActivityRouter from './routes/adminUserActivity.js'
 import { runEngagement } from './services/engagement.js'
@@ -127,6 +128,7 @@ app.use('/api/admin/strategies', adminStrategiesRouter)
 app.use('/api/admin/binary', adminBinaryRouter)
 app.use('/api/push', pushRouter)
 app.use('/api/signup', signupRouter)
+app.use('/api/password', passwordRouter)
 app.use('/api/account', accountRouter)
 app.use('/api/admin/user-activity', adminUserActivityRouter)
 app.use('/api/admin', adminRouter)
