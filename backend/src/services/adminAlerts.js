@@ -32,6 +32,10 @@ async function collect() {
   const ids = new Set((fl || []).map(p => p.id))
   if (seenFlagged === null) seenFlagged = ids
   else for (const p of fl || []) if (!seenFlagged.has(p.id)) { seenFlagged.add(p.id); out.push({ key: `flag-${p.id}`, text: `User flagged: ${p.email} — ${p.flag_reason || 'no reason recorded'}` }) }
+  // 4. Selfies waiting for review for more than 24 hours
+  const { count: waiting } = await supabase.from('profiles').select('id', { count: 'exact', head: true })
+    .eq('face_status', 'pending').lt('face_submitted_at', new Date(now - 24 * 3600 * 1000).toISOString())
+  if (waiting) out.push({ key: 'face-waiting', text: `${waiting} face verification(s) have been waiting more than 24 hours. Review them in Admin > Users.` })
   return out
 }
 

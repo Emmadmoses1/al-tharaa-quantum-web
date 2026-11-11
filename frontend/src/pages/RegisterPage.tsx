@@ -182,7 +182,7 @@ export default function RegisterPage() {
                 <label htmlFor="rg-conf" style={label}>تأكيد كلمة المرور</label>
                 <input id="rg-conf" type="password" value={form.confirm} onChange={e => setF('confirm', e.target.value)} placeholder="••••••••" dir="ltr" disabled={busy} style={{ ...field, fontFamily: 'Montserrat' }} />
               </div>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo', lineHeight: 1.7, marginBottom: 18 }}>بالتسجيل أنت توافق على شروط الخدمة. الاستثمار ينطوي على مخاطر. يُسمح بحساب واحد لكل جهاز.</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo', lineHeight: 1.7, marginBottom: 18 }}>بالتسجيل أنت توافق على <Link to="/terms" target="_blank" style={{ color: '#D4AF37' }}>شروط الخدمة</Link> و<Link to="/privacy" target="_blank" style={{ color: '#D4AF37' }}>سياسة الخصوصية</Link>. الاستثمار ينطوي على مخاطر، راجع <Link to="/risk" target="_blank" style={{ color: '#D4AF37' }}>إفصاح المخاطر</Link>. يُسمح بحساب واحد لكل جهاز.</p>
               {submitBtn('إرسال رمز التحقق', 'جارٍ الإرسال...')}
             </form>
           )}

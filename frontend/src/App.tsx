@@ -56,6 +56,7 @@ import AdminSupport from './pages/admin/AdminSupport'
 import AdminAudit from './pages/admin/AdminAudit'
 import SupportPage from './pages/dashboard/SupportPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import LegalPage from './pages/LegalPage'
 import { AboutPage, SecurityPage, FaqPage, ContactPage, RiskPage, PrivacyPage, TermsPage } from './pages/public/PublicPages'
 import AiTradingPage from './pages/public/AiTradingPage'
 import OpportunitiesPublic from './pages/public/OpportunitiesPublic'
@@ -99,6 +100,9 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/terms" element={<LegalPage kind="terms" />} />
+        <Route path="/privacy" element={<LegalPage kind="privacy" />} />
+        <Route path="/risk" element={<LegalPage kind="risk" />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/ai-trading" element={<AiTradingPage />} />
         <Route path="/opportunities" element={<OpportunitiesPublic />} />
