@@ -1,100 +1,58 @@
-import { useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { LifeBuoy, CheckCircle2 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../context/AuthContext'
+import { useCallback, useEffect, useState } from 'react'
+import { api } from '../../lib/api'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const ST: Record<string, { t: string; c: string }> = {
-  open: { t: 'مفتوحة', c: '#f59e0b' },
-  in_progress: { t: 'قيد المعالجة', c: '#6366f1' },
-  resolved: { t: 'تم الحل', c: '#10b981' },
-  closed: { t: 'مغلقة', c: '#6b7280' },
-}
-const field = { width: '100%', background: 'rgba(11,11,11,0.6)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, padding: '13px 14px', color: '#fff', fontSize: 16, fontFamily: 'Cairo', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 12 }
+type T = { id: number; subject: string; message: string; status: 'open' | 'answered' | 'closed'; admin_reply: string | null; replied_at: string | null; created_at: string }
+const ST: Record<T['status'], [string, string]> = { open: ['قيد المراجعة', '#f59e0b'], answered: ['تم الرد', '#10b981'], closed: ['مغلقة', '#6b7280'] }
 
 export default function SupportPage() {
-  const { user } = useAuth()
-  const qc = useQueryClient()
+  const [list, setList] = useState<T[]>([])
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
-  const [ok, setOk] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const load = useCallback(() => { api.get<T[]>('/api/support').then(setList).catch(() => {}) }, [])
+  useEffect(() => { load() }, [load])
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['my-tickets', user?.id],
-    enabled: !!user?.id,
-    queryFn: async () => {
-      const { data, error } = await supabase.from('support_tickets').select('*')
-        .eq('user_id', user!.id).order('created_at', { ascending: false }).limit(50)
-      if (error) throw error
-      return (data || []) as any[]
-    },
-  })
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    setErr(null); setOk(false)
-    if (subject.trim().length < 3) return setErr('اكتب عنواناً واضحاً')
-    if (message.trim().length < 10) return setErr('اشرح مشكلتك بتفصيل أكثر')
+  async function send() {
+    setMsg(null)
+    if (subject.trim().length < 3) return setMsg({ ok: false, text: 'اكتب عنواناً واضحاً (3 أحرف على الأقل).' })
+    if (message.trim().length < 10) return setMsg({ ok: false, text: 'اشرح مشكلتك بتفصيل أكثر (10 أحرف على الأقل).' })
     setBusy(true)
-    const { error } = await supabase.from('support_tickets').insert({
-      user_id: user!.id, subject: subject.trim(), message: message.trim(),
-    })
+    try {
+      await api.post('/api/support', { subject: subject.trim(), message: message.trim() })
+      setSubject(''); setMessage(''); setMsg({ ok: true, text: 'وصلتنا رسالتك. سنرد عليك قريباً.' }); load()
+    } catch (e) { setMsg({ ok: false, text: e instanceof Error ? e.message : 'تعذر الإرسال' }) }
     setBusy(false)
-    if (error) return setErr(error.message)
-    setSubject(''); setMessage(''); setOk(true)
-    qc.invalidateQueries({ queryKey: ['my-tickets'] })
   }
-
+  const field: React.CSSProperties = { width: '100%', boxSizing: 'border-box', background: 'rgba(11,11,11,0.6)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 10, padding: '12px 14px', color: '#fff', fontFamily: 'Cairo', fontSize: 14, outline: 'none' }
   return (
-    <div style={{ direction: 'rtl', maxWidth: 760, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'Cairo', color: '#fff', marginBottom: 6 }}>الدعم</h1>
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo', marginBottom: 20 }}>
-        أرسل مشكلتك أو سؤالك وسيرد عليك فريقنا هنا وفي الإشعارات.
-      </p>
-
-      <form onSubmit={submit} className="glass-card" style={{ padding: 20, marginBottom: 24 }}>
+    <div style={{ direction: 'rtl', maxWidth: 680 }}>
+      <h1 style={{ color: '#fff', fontFamily: 'Cairo', fontSize: 22, fontWeight: 800, margin: '0 0 6px' }}>تواصل مع الدعم</h1>
+      <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Cairo', fontSize: 13, lineHeight: 1.8, margin: '0 0 16px' }}>اكتب مشكلتك أو سؤالك وسنرد عليك هنا وعلى بريدك الإلكتروني. لا ترسل كلمة المرور أبداً.</p>
+      <div className="dq-card" style={{ padding: 16, display: 'grid', gap: 10, marginBottom: 20 }}>
         <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="العنوان" maxLength={120} style={field} />
-        <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="اشرح بالتفصيل (لا ترسل كلمة المرور أبداً)" rows={4} maxLength={2000} style={{ ...field, resize: 'vertical' }} />
-        {err && <div style={{ fontSize: 13, color: '#ef4444', fontFamily: 'Cairo', marginBottom: 10 }}>{err}</div>}
-        {ok && <div style={{ fontSize: 13, color: '#10b981', fontFamily: 'Cairo', marginBottom: 10 }}>تم إرسال تذكرتك.</div>}
-        <button type="submit" disabled={busy} className="btn-gold" style={{ width: '100%', minHeight: 48, fontSize: 15, opacity: busy ? 0.6 : 1 }}>
-          {busy ? 'جارٍ الإرسال…' : 'إرسال'}
-        </button>
-      </form>
-
-      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', fontFamily: 'Cairo', marginBottom: 10 }}>تذاكري</div>
-      {isLoading ? (
-        <div style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>جارٍ التحميل…</div>
-      ) : !data || data.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo', fontSize: 14 }}>
-          <LifeBuoy size={30} color="rgba(212,175,55,0.25)" style={{ marginBottom: 8 }} /><div>لا توجد تذاكر بعد</div>
-        </div>
-      ) : data.map(t => {
-        const s = ST[t.status] || ST.open
-        return (
-          <div key={t.id} className="glass-card" style={{ padding: 16, marginBottom: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', fontFamily: 'Cairo' }}>{t.subject}</div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: s.c, background: `${s.c}1a`, borderRadius: 6, padding: '3px 9px', fontFamily: 'Cairo', whiteSpace: 'nowrap', alignSelf: 'flex-start' }}>{s.t}</span>
+        <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="اشرح مشكلتك أو سؤالك" maxLength={2000} rows={5} style={{ ...field, resize: 'vertical' }} />
+        {msg ? <div style={{ color: msg.ok ? '#10b981' : '#ef4444', fontFamily: 'Cairo', fontSize: 13 }}>{msg.text}</div> : null}
+        <button type="button" className="btn-gold" disabled={busy} onClick={send} style={{ padding: 13, opacity: busy ? 0.6 : 1 }}>{busy ? 'جارٍ الإرسال…' : 'إرسال'}</button>
+      </div>
+      {list.length > 0 ? <div style={{ color: '#D4AF37', fontFamily: 'Cairo', fontWeight: 700, fontSize: 14, marginBottom: 8 }}>رسائلك</div> : null}
+      <div style={{ display: 'grid', gap: 10 }}>
+        {list.map(t => (
+          <div key={t.id} className="dq-card" style={{ padding: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+              <b style={{ color: '#fff', fontFamily: 'Cairo', fontSize: 14 }}>{t.subject}</b>
+              <span style={{ color: ST[t.status][1], fontFamily: 'Cairo', fontSize: 12, fontWeight: 700 }}>{ST[t.status][0]}</span>
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontFamily: 'Cairo', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{t.message}</div>
-            {t.admin_response && (
-              <div style={{ marginTop: 12, padding: '12px 14px', background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: '#10b981', fontFamily: 'Cairo', marginBottom: 6 }}>
-                  <CheckCircle2 size={14} /> رد الدعم
-                </div>
-                <div style={{ fontSize: 13, color: '#fff', fontFamily: 'Cairo', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{t.admin_response}</div>
+            <div style={{ color: 'rgba(255,255,255,0.65)', fontFamily: 'Cairo', fontSize: 13, lineHeight: 1.8, margin: '6px 0', whiteSpace: 'pre-wrap' }}>{t.message}</div>
+            {t.admin_reply ? (
+              <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 10, padding: 10, marginTop: 6 }}>
+                <div style={{ color: '#D4AF37', fontFamily: 'Cairo', fontSize: 12, fontWeight: 700, marginBottom: 4 }}>رد الدعم</div>
+                <div style={{ color: '#fff', fontFamily: 'Cairo', fontSize: 13, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{t.admin_reply}</div>
               </div>
-            )}
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontFamily: 'Montserrat', marginTop: 10 }} dir="ltr">
-              {new Date(t.created_at).toLocaleString('en-GB')}
-            </div>
+            ) : null}
           </div>
-        )
-      })}
+        ))}
+      </div>
     </div>
   )
 }

@@ -40,6 +40,9 @@ async function collect() {
   const soon = new Date(now + 30 * 86400000).toISOString().slice(0, 10)
   const { data: exp } = await supabase.from('legal_documents').select('title_ar, expires_at').eq('is_public', true).not('expires_at', 'is', null).lte('expires_at', soon)
   if (exp && exp.length) out.push({ key: 'legal-expiring', text: `${exp.length} public legal document(s) expire within 30 days or have expired: ${exp.map(d => d.title_ar + ' (' + d.expires_at + ')').join(', ')}. Update them in Admin > Legal Documents.` })
+  // 6. Support tickets unanswered for more than 24 hours
+  const { count: sw } = await supabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('status', 'open').lt('created_at', new Date(now - 24 * 3600000).toISOString())
+  if (sw) out.push({ key: 'support-waiting', text: `${sw} support ticket(s) have been waiting more than 24 hours. Reply in Admin > Support.` })
   return out
 }
 

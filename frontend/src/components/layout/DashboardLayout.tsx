@@ -27,7 +27,7 @@ const TITLES: [string, string][] = [
   ['/dashboard/investments', 'الفرص والاستثمارات'], ['/dashboard/trading', 'التداول الذكي'], ['/dashboard/trade', 'غرفة التداول'],
   ['/dashboard/signals', 'إشارات الذكاء الاصطناعي'], ['/dashboard/deposit', 'إيداع'], ['/dashboard/withdraw', 'سحب'],
   ['/dashboard/transactions', 'المعاملات'], ['/dashboard/invoices', 'الفواتير'], ['/dashboard/notifications', 'الإشعارات'],
-  ['/dashboard/profile', 'الملف الشخصي'], ['/dashboard/settings', 'الإعدادات'], ['/dashboard', 'لوحة التحكم'],
+  ['/dashboard/profile', 'الملف الشخصي'], ['/dashboard/settings', 'الإعدادات'], ['/dashboard/support', 'الدعم'], ['/dashboard', 'لوحة التحكم'],
 ]
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

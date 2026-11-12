@@ -69,6 +69,7 @@ export default function HelpPage() {
             <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>{rtl ? 'تواصل معنا عبر حسابك بعد تسجيل الدخول.' : 'Contact us from your account after signing in.'}</span>
           )}
           <div style={{ marginTop: 12, display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 13 }}>
+            <Link to="/dashboard/support" style={{ color: '#D4AF37', textDecoration: 'none', fontWeight: 700 }}>{rtl ? 'راسل الدعم' : 'Message support'}</Link>
             <Link to="/documents" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{rtl ? 'التراخيص والوثائق' : 'Licences & documents'}</Link>
             <Link to="/risk" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{rtl ? 'إفصاح المخاطر' : 'Risk disclosure'}</Link>
             <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{rtl ? 'الخصوصية' : 'Privacy'}</Link>
