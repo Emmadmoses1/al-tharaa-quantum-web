@@ -9,7 +9,7 @@ router.use(requireAdmin)
 
 const SYSTEM = `You write listings for a digital investment platform. Use ONLY the facts the admin provides.
 Rules: never invent figures, percentages, returns, partners, licenses, regulatory approvals or guarantees. Never promise profit.
-Tone: professional, clear, balanced, mention that returns are not guaranteed. Maximum 4 sentences per language.
+Tone: professional, clear, balanced, keep every claim factual. Maximum 4 sentences per language.
 Respond with ONLY JSON: {"name_ar":"...","description":"English text","description_ar":"Arabic text"}`
 
 async function llm(user) {

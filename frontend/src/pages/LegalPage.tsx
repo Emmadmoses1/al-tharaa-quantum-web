@@ -15,7 +15,7 @@ const DOCS: Record<Kind, { ar: Doc; en: Doc }> = {
       'حساب واحد: يُسمح بحساب واحد لكل شخص ولكل جهاز. قد يُوقَف أي حساب إضافي يُكتشف دون إشعار مسبق.',
       'صحة البيانات والتحقق: تلتزم بتقديم بيانات صحيحة. قد نطلب تأكيد بريدك الإلكتروني وصورة حية لوجهك، وقد نقيّد السحب إلى حين اكتمال التحقق.',
       'الإيداع والسحب: تتم المعاملات بالأصول الرقمية المدعومة وعلى الشبكات المعروضة. أنت مسؤول عن صحة عنوان السحب، فتحويلات البلوكتشين لا يمكن استردادها. قد تُطبَّق رسوم تُعرض لك قبل التأكيد.',
-      'الإشارات والتداول: الإشارات مولّدة بقواعد تحليل فني آلية، وهي معلومات إرشادية وليست نصيحة مالية ولا ضماناً لأي ربح.',
+      'الإشارات والتداول: الإشارات مولّدة بقواعد تحليل فني آلية، وهي معلومات إرشادية وليست نصيحة مالية.',
       'المخاطر: راجع صفحة إفصاح المخاطر. أنت وحدك المسؤول عن قراراتك.',
       'السلوك المحظور: الاحتيال، التلاعب، استغلال الثغرات، إنشاء حسابات متعددة، غسل الأموال، أو أي نشاط مخالف للقانون.',
       'تعليق الحساب: يحق لنا تعليق أو تقييد الحساب عند الاشتباه بمخالفة الشروط أو لحماية المنصة والمستخدمين، ويمكنك التواصل مع الدعم لمراجعة القرار.',
@@ -28,7 +28,7 @@ const DOCS: Record<Kind, { ar: Doc; en: Doc }> = {
       'One account: one account per person and per device is allowed. Any additional account we detect may be suspended without notice.',
       'Accurate information and verification: you must provide true information. We may ask you to confirm your email and a live photo of your face, and we may restrict withdrawals until verification is complete.',
       'Deposits and withdrawals: transactions use the supported digital assets on the networks shown. You are responsible for the correctness of your withdrawal address, because blockchain transfers cannot be reversed. Fees may apply and are shown before you confirm.',
-      'Signals and trading: signals are produced by automated technical-analysis rules. They are informational, not financial advice, and not a guarantee of any profit.',
+      'Signals and trading: signals are produced by automated technical-analysis rules. They are informational and not financial advice.',
       'Risk: see the Risk Disclosure page. You alone are responsible for your decisions.',
       'Prohibited conduct: fraud, manipulation, exploiting bugs, creating multiple accounts, money laundering, or any unlawful activity.',
       'Suspension: we may suspend or restrict an account if we suspect a breach of these terms or to protect the platform and its users. You can contact support to have the decision reviewed.',
@@ -87,6 +87,7 @@ const NAV: { kind: Kind; ar: string; en: string; to: string }[] = [
   { kind: 'privacy', ar: 'الخصوصية', en: 'Privacy', to: '/privacy' },
   { kind: 'risk', ar: 'إفصاح المخاطر', en: 'Risk', to: '/risk' },
 ]
+const DOCS_LINK = { ar: 'التراخيص والوثائق', en: 'Licences & documents', to: '/documents' }
 
 export default function LegalPage({ kind }: { kind: Kind }) {
   const [lang, setLang] = useState<'ar' | 'en'>('ar')
@@ -109,6 +110,8 @@ export default function LegalPage({ kind }: { kind: Kind }) {
           {NAV.map(n => (
             <Link key={n.kind} to={n.to} style={{ textDecoration: 'none', fontFamily: font, fontSize: 13, fontWeight: 600, padding: '7px 14px', borderRadius: 999, border: `1px solid ${n.kind === kind ? '#D4AF37' : 'rgba(212,175,55,0.2)'}`, background: n.kind === kind ? 'rgba(212,175,55,0.12)' : 'transparent', color: n.kind === kind ? '#D4AF37' : 'rgba(255,255,255,0.55)' }}>{rtl ? n.ar : n.en}</Link>
           ))}
+          <Link to="/help" style={{ textDecoration: 'none', fontFamily: font, fontSize: 13, fontWeight: 600, padding: '7px 14px', borderRadius: 999, border: '1px solid rgba(212,175,55,0.2)', color: 'rgba(255,255,255,0.55)' }}>{rtl ? 'المساعدة' : 'Help'}</Link>
+          <Link to={DOCS_LINK.to} style={{ textDecoration: 'none', fontFamily: font, fontSize: 13, fontWeight: 600, padding: '7px 14px', borderRadius: 999, border: '1px solid rgba(212,175,55,0.2)', color: 'rgba(255,255,255,0.55)' }}>{rtl ? DOCS_LINK.ar : DOCS_LINK.en}</Link>
         </div>
 
         <h1 style={{ fontSize: 28, fontWeight: 800, color: '#fff', fontFamily: font, margin: '0 0 6px' }}>{doc.title}</h1>

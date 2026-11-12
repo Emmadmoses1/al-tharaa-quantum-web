@@ -52,6 +52,8 @@ import marketRouter from './routes/market.js'
 import alertsRouter from './routes/alerts.js'
 import { checkAlerts } from './services/alertChecker.js'
 import passwordRouter from './routes/password.js'
+import publicLegalRouter from './routes/publicLegal.js'
+import adminLegalRouter from './routes/adminLegal.js'
 import accountRouter from './routes/account.js'
 import adminUserActivityRouter from './routes/adminUserActivity.js'
 import { runEngagement } from './services/engagement.js'
@@ -137,6 +139,8 @@ app.use('/api/signup', signupRouter)
 app.use('/api/public/market', marketRouter)
 app.use('/api/alerts', alertsRouter)
 app.use('/api/password', passwordRouter)
+app.use('/api/public/legal', publicLegalRouter)
+app.use('/api/admin/legal', adminLegalRouter)
 app.use('/api/account', accountRouter)
 app.use('/api/admin/user-activity', adminUserActivityRouter)
 app.use('/api/admin', adminRouter)

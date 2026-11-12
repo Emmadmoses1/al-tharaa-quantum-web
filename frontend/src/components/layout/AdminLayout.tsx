@@ -6,7 +6,7 @@ import { LogoMark } from '../Logo'
 import {
   LayoutDashboard, Users, ArrowDownCircle, ArrowUpCircle, TrendingUp,
   Briefcase, Bot, Wallet, BarChart2, Settings, Shield, Bell, Receipt,
-  LogOut, Menu, Activity, Globe, Database, MoreHorizontal, ExternalLink, ChevronRight,
+  FileText, LogOut, Menu, Activity, Globe, Database, MoreHorizontal, ExternalLink, ChevronRight,
 } from 'lucide-react'
 
 type NavItem = { icon: typeof Users; label: string; href: string }
@@ -44,6 +44,7 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
     { icon: Wallet, label: 'Deposit Wallets', href: '/admin/wallets' },
     { icon: Globe, label: 'Currencies', href: '/admin/currencies' },
     { icon: Bell, label: 'Notifications', href: '/admin/notifications' },
+    { icon: FileText, label: 'Legal Documents', href: '/admin/legal' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
     { icon: Database, label: 'API Keys', href: '/admin/integrations' },
   ]},

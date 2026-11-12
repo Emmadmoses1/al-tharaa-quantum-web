@@ -68,6 +68,9 @@ import AdminIntegrations from './pages/admin/AdminIntegrations'
 import SiteNotice from './components/SiteNotice'
 import WelcomeBonus from './components/WelcomeBonus'
 import InstallButton from './components/InstallButton'
+import AdminLegal from './pages/admin/AdminLegal'
+import DocumentsPage from './pages/DocumentsPage'
+import HelpPage from './pages/HelpPage'
 
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
@@ -103,6 +106,8 @@ export default function App() {
         <Route path="/terms" element={<LegalPage kind="terms" />} />
         <Route path="/privacy" element={<LegalPage kind="privacy" />} />
         <Route path="/risk" element={<LegalPage kind="risk" />} />
+        <Route path="/documents" element={<DocumentsPage />} />
+        <Route path="/help" element={<HelpPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/ai-trading" element={<AiTradingPage />} />
         <Route path="/opportunities" element={<OpportunitiesPublic />} />
@@ -152,6 +157,7 @@ export default function App() {
         <Route path="/admin/notifications" element={<AdminPage><AdminNotifications /></AdminPage>} />
         <Route path="/admin/statistics" element={<AdminPage><AdminStatistics /></AdminPage>} />
         <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+        <Route path="/admin/legal" element={<AdminPage><AdminLegal /></AdminPage>} />
         <Route path="/admin/trades" element={<AdminPage><AdminTrades /></AdminPage>} />
         <Route path="/admin/binary" element={<AdminPage><AdminBinary /></AdminPage>} />
         <Route path="/admin/system" element={<AdminPage><AdminSystem /></AdminPage>} />

@@ -214,7 +214,7 @@ export default function SignalsPage() {
             <div style={{ fontSize: 11, color: amt > balance ? '#ef4444' : 'rgba(255,255,255,0.45)', marginBottom: 12 }}>المتاح: {num(balance, 2)} USDT</div>
             <div className="pk-note" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', color: 'rgba(245,158,11,0.9)', marginBottom: 12 }}>
               <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: 3 }} />
-              <span>الإشارات ليست مضمونة وقد تخسر جزءاً أو كل المبلغ المستثمر. لا تتداول بمبلغ لا تتحمل خسارته.</span>
+              <span>التداول ينطوي على مخاطر. لا تتداول بمبلغ لا تتحمل خسارته.</span>
             </div>
             {err && <div className="pk-note" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#ef4444', marginBottom: 12 }}>{err}</div>}
             <button type="button" onClick={openTrade} disabled={!amountOk || busy} className="btn-gold" style={{ width: '100%', fontSize: 14, opacity: !amountOk || busy ? 0.5 : 1 }}>

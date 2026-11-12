@@ -31,7 +31,7 @@ export default function ProductsSection() {
             فرص <span className="gold-text">مفتوحة الآن</span>
           </h2>
           <p style={{ marginTop: 12, fontSize: 15, color: 'rgba(255,255,255,0.55)', maxWidth: 560, lineHeight: 1.8, fontFamily: 'Cairo' }}>
-            هذه الفرص تُعرض مباشرة من النظام. العوائد المذكورة متوقعة وغير مضمونة، ويجب قراءة تفاصيل كل فرصة قبل الاستثمار.
+            هذه الفرص تُعرض مباشرة من النظام. العوائد المذكورة متوقعة، ويجب قراءة تفاصيل كل فرصة قبل الاستثمار.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export default function ProductsSection() {
                       </div>
                       {o.projected_return_min ? (
                         <div style={{ textAlign: 'left' }}>
-                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>عائد متوقع (غير مضمون)</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>عائد متوقع</div>
                           <div dir="ltr" style={{ fontSize: 15, fontWeight: 800, color: '#10b981', fontFamily: 'Montserrat' }}>{o.projected_return_min}–{o.projected_return_max}%</div>
                         </div>
                       ) : null}

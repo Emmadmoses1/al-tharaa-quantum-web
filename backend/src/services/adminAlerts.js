@@ -36,6 +36,10 @@ async function collect() {
   const { count: waiting } = await supabase.from('profiles').select('id', { count: 'exact', head: true })
     .eq('face_status', 'pending').lt('face_submitted_at', new Date(now - 24 * 3600 * 1000).toISOString())
   if (waiting) out.push({ key: 'face-waiting', text: `${waiting} face verification(s) have been waiting more than 24 hours. Review them in Admin > Users.` })
+  // 5. Public legal documents expiring within 30 days (or already expired)
+  const soon = new Date(now + 30 * 86400000).toISOString().slice(0, 10)
+  const { data: exp } = await supabase.from('legal_documents').select('title_ar, expires_at').eq('is_public', true).not('expires_at', 'is', null).lte('expires_at', soon)
+  if (exp && exp.length) out.push({ key: 'legal-expiring', text: `${exp.length} public legal document(s) expire within 30 days or have expired: ${exp.map(d => d.title_ar + ' (' + d.expires_at + ')').join(', ')}. Update them in Admin > Legal Documents.` })
   return out
 }
 

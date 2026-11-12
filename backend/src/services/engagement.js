@@ -30,8 +30,8 @@ async function announce() {
     const { data: claim } = await supabase.from('investment_opportunities').update({ announced_at: new Date().toISOString() }).eq('id', o.id).is('announced_at', null).select('id')
     if (!claim || claim.length === 0) continue
     const users = await everyone()
-    const ret = o.projected_return_min ? ` · عائد متوقع ${o.projected_return_min}–${o.projected_return_max}% (غير مضمون)` : ''
-    const retEn = o.projected_return_min ? ` · Projected return ${o.projected_return_min}–${o.projected_return_max}% (not guaranteed)` : ''
+    const ret = o.projected_return_min ? ` · عائد متوقع ${o.projected_return_min}–${o.projected_return_max}%` : ''
+    const retEn = o.projected_return_min ? ` · Projected return ${o.projected_return_min}–${o.projected_return_max}%` : ''
     await insertMany(users.map(id => ({
       user_id: id, type: 'opportunity', title: 'New investment opportunity', title_ar: 'فرصة استثمارية جديدة',
       message: `${o.name} is now open. Minimum ${o.currency} ${Number(o.minimum_investment).toLocaleString()}${retEn}.`,

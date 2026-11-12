@@ -128,7 +128,7 @@ export default function Footer() {
           © {new Date().getFullYear()} الثراء كوانتوم. جميع الحقوق محفوظة.{lic ? ` ${lic}` : ''}
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: 'Cairo' }}>
-          الاستثمار ينطوي على مخاطر. النتائج السابقة لا تضمن الأداء المستقبلي.
+          <Link to="/documents" style={{ color: '#D4AF37', textDecoration: 'none' }}>التراخيص والوثائق القانونية</Link>{' · '}<Link to="/risk" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>إفصاح المخاطر</Link>
         </div>
       </div>
 

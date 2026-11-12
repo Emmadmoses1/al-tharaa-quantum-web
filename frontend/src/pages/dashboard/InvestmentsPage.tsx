@@ -531,7 +531,7 @@ export default function InvestmentsPage() {
           }}>
             <AlertTriangle size={15} color="#f59e0b" style={{ flexShrink: 0, marginTop: 1 }} />
             <span style={{ fontSize: 12, color: 'rgba(245,158,11,0.8)', fontFamily: 'Cairo', lineHeight: 1.7 }}>
-              الاستثمار ينطوي على مخاطر. العوائد المتوقعة سيناريوهات توضيحية فقط وليست مضمونة.
+              العوائد المتوقعة تقديرية وتعتمد على أداء السوق. راجع إفصاح المخاطر قبل الاستثمار.
             </span>
           </div>
 
