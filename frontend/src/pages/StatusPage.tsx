@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { Skeleton } from '../components/ui/Skeleton'
+import { useSeo } from '../lib/useSeo'
 
 type St = 'operational' | 'degraded' | 'down' | 'paused'
 type Data = { overall: St; parts: { key: string; status: St }[]; checked_at: string }
@@ -21,6 +22,7 @@ const LABEL: Record<St, { ar: string; en: string; c: string }> = {
 }
 
 export default function StatusPage() {
+  useSeo('حالة المنصة', 'الحالة الحية لقاعدة البيانات وأسعار السوق وإشارات الذكاء الاصطناعي وتسوية الصفقات.', '/status')
   const [lang, setLang] = useState<'ar' | 'en'>('ar')
   const q = useQuery({ queryKey: ['public-status'], refetchInterval: 30000, staleTime: 15000, queryFn: () => api.get<Data>('/api/public/status') })
   const rtl = lang === 'ar'

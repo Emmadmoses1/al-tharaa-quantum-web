@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown, Mail } from 'lucide-react'
 import { useSite } from '../lib/useSite'
+import { useSeo } from '../lib/useSeo'
 
 type QA = { q: string; a: string }
 const FAQ: Record<'ar' | 'en', QA[]> = {
@@ -28,6 +29,7 @@ const FAQ: Record<'ar' | 'en', QA[]> = {
 }
 
 export default function HelpPage() {
+  useSeo('المساعدة والأسئلة الشائعة', 'إجابات عن التسجيل والتحقق والإيداع والسحب وكلمة المرور في منصة الثراء كوانتوم.', '/help')
   const [lang, setLang] = useState<'ar' | 'en'>('ar')
   const [open, setOpen] = useState<number | null>(0)
   const { data: site } = useSite()

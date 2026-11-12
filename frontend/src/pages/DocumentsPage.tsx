@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom'
 import { FileText, ExternalLink } from 'lucide-react'
 import { useLegal, DOC_TYPES } from '../lib/useLegal'
 import { Skeleton } from '../components/ui/Skeleton'
+import { useSeo } from '../lib/useSeo'
 
 // Public page: licences, registrations and certificates exactly as the admin uploaded them. Nothing here is hardcoded.
 export default function DocumentsPage() {
+  useSeo('التراخيص والوثائق القانونية', 'الوثائق والتراخيص الرسمية لمنصة الثراء كوانتوم كما رفعتها الإدارة.', '/documents')
   const [lang, setLang] = useState<'ar' | 'en'>('ar')
   const { data, isLoading, isError } = useLegal()
   const rtl = lang === 'ar'

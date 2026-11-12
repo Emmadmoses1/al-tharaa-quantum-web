@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSite } from '../lib/useSite'
+import { useSeo } from '../lib/useSeo'
 
 type Kind = 'terms' | 'privacy' | 'risk'
 type Doc = { title: string; items: string[] }
@@ -87,12 +88,18 @@ const NAV: { kind: Kind; ar: string; en: string; to: string }[] = [
   { kind: 'privacy', ar: 'الخصوصية', en: 'Privacy', to: '/privacy' },
   { kind: 'risk', ar: 'إفصاح المخاطر', en: 'Risk', to: '/risk' },
 ]
+const SEO: Record<Kind, { t: string; d: string }> = {
+  terms: { t: 'شروط الخدمة', d: 'شروط استخدام منصة الثراء كوانتوم وحقوق والتزامات المستخدم.' },
+  privacy: { t: 'سياسة الخصوصية', d: 'كيف تجمع منصة الثراء كوانتوم بياناتك وتحميها ومدة الاحتفاظ بها.' },
+  risk: { t: 'إفصاح المخاطر', d: 'تنبيه حول المخاطر المرتبطة بالتداول والاستثمار قبل البدء.' },
+}
 const DOCS_LINK = { ar: 'التراخيص والوثائق', en: 'Licences & documents', to: '/documents' }
 
 export default function LegalPage({ kind }: { kind: Kind }) {
   const [lang, setLang] = useState<'ar' | 'en'>('ar')
   const { data: site } = useSite()
   const doc = DOCS[kind][lang]
+  useSeo(SEO[kind].t, SEO[kind].d, '/' + kind)
   const rtl = lang === 'ar'
   const font = rtl ? 'Cairo' : 'Montserrat'
   return (
