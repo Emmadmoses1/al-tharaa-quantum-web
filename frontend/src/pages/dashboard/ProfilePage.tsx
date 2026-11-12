@@ -7,6 +7,7 @@ import { useSite } from '../../lib/useSite'
 import { api } from '../../lib/api'
 import { Skeleton } from '../../components/ui/Skeleton'
 import SecurityPanel from '../../components/SecurityPanel'
+import ActivityPanel from '../../components/ActivityPanel'
 import PushSettings from '../../components/PushSettings'
 import AvatarChange from '../../components/AvatarChange'
 import { PageStyles, PageHeader, Pill } from '../../components/PageKit'
@@ -133,7 +134,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {tab === 'security' && <SecurityPanel />}
+      {tab === 'security' && <><SecurityPanel /><ActivityPanel /></>}
 
       {tab === 'notifications' && (
         <div style={{ display: 'grid', gap: 14 }}>

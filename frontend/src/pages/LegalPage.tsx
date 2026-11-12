@@ -40,7 +40,7 @@ const DOCS: Record<Kind, { ar: Doc; en: Doc }> = {
     ar: { title: 'سياسة الخصوصية', items: [
       'ما نجمعه: الاسم والبريد الإلكتروني وكلمة المرور (مشفّرة)، صورتك الشخصية، صورة التحقق من الوجه، عنوان IP والدولة، معرّف الجهاز، وسجل نشاط حسابك (دخول، إيداعات، سحوبات، صفقات).',
       'لماذا نجمعه: لتشغيل حسابك، وحماية الأموال، ومنع الاحتيال والحسابات المتعددة، والالتزام بالقوانين، وإرسال رسائل الخدمة والإشعارات.',
-      'صورة التحقق: تُحفظ في مخزن خاص، ولا يطّلع عليها إلا فريق المراجعة المخوَّل لغرض التحقق من الهوية ومنع الاحتيال. لا تُستخدم لأي غرض تسويقي.',
+      'صورة التحقق: تُحفظ في مخزن خاص، ولا يطّلع عليها إلا فريق المراجعة المخوَّل لغرض التحقق من الهوية ومنع الاحتيال. لا تُستخدم لأي غرض تسويقي، وتُحذف من المخزن بعد 30 يوماً من اعتمادها (و7 أيام من رفضها).',
       'المشاركة: لا نبيع بياناتك. نستعين بمزوّدي خدمة لاستضافة البيانات وإرسال البريد ومعالجة المدفوعات، ويعالجونها لحسابنا فقط. وقد نفصح عن بيانات عند وجود إلزام قانوني.',
       'التخزين على جهازك: نحفظ معرّف الجهاز وجلسة الدخول وتفضيلات بسيطة على جهازك لتشغيل الموقع وحمايته.',
       'الاحتفاظ: نحتفظ بالبيانات ما دام حسابك قائماً، ولمدة يتطلبها القانون أو تقتضيها سجلات المعاملات والأمان.',
@@ -50,7 +50,7 @@ const DOCS: Record<Kind, { ar: Doc; en: Doc }> = {
     en: { title: 'Privacy Policy', items: [
       'What we collect: name, email, password (stored hashed), your profile photo, your face-verification photo, IP address and country, a device identifier, and your account activity (logins, deposits, withdrawals, trades).',
       'Why: to run your account, protect funds, prevent fraud and duplicate accounts, comply with the law, and send service messages and notifications.',
-      'Face-verification photo: kept in private storage and seen only by authorised review staff, to confirm identity and prevent fraud. It is never used for marketing.',
+      'Face-verification photo: kept in private storage and seen only by authorised review staff, to confirm identity and prevent fraud. It is never used for marketing, and it is deleted from storage 30 days after approval (7 days after rejection).',
       'Sharing: we do not sell your data. We use service providers for hosting, email and payments, who process it only on our behalf. We may disclose data when legally required.',
       'Storage on your device: we keep a device identifier, your login session and simple preferences on your device to run and protect the site.',
       'Retention: we keep data while your account exists, and for as long as the law or transaction and security records require.',

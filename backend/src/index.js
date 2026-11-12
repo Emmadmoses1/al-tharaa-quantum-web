@@ -53,6 +53,8 @@ import alertsRouter from './routes/alerts.js'
 import { checkAlerts } from './services/alertChecker.js'
 import passwordRouter from './routes/password.js'
 import publicLegalRouter from './routes/publicLegal.js'
+import accountActivityRouter from './routes/accountActivity.js'
+import { runFaceRetention } from './services/faceRetention.js'
 import adminLegalRouter from './routes/adminLegal.js'
 import accountRouter from './routes/account.js'
 import adminUserActivityRouter from './routes/adminUserActivity.js'
@@ -142,6 +144,7 @@ app.use('/api/password', passwordRouter)
 app.use('/api/public/legal', publicLegalRouter)
 app.use('/api/admin/legal', adminLegalRouter)
 app.use('/api/account', accountRouter)
+app.use('/api/account-activity', accountActivityRouter)
 app.use('/api/admin/user-activity', adminUserActivityRouter)
 app.use('/api/admin', adminRouter)
 
@@ -167,6 +170,7 @@ app.listen(PORT, () => {
   startLoop('engagement', runEngagement, 60000)
   startLoop('price-alerts', checkAlerts, 30000)
   if (process.env.ADMIN_ALERTS !== 'off') startLoop('alerts', runAdminAlerts, 5 * 60000)
+  startLoop('face-retention', runFaceRetention, 6 * 3600000)
   startLoop('np-sync', syncPendingPayments, 60000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })
