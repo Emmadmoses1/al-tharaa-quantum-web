@@ -71,6 +71,7 @@ import InstallButton from './components/InstallButton'
 import AdminLegal from './pages/admin/AdminLegal'
 import DocumentsPage from './pages/DocumentsPage'
 import HelpPage from './pages/HelpPage'
+import StatusPage from './pages/StatusPage'
 
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
@@ -108,6 +109,7 @@ export default function App() {
         <Route path="/risk" element={<LegalPage kind="risk" />} />
         <Route path="/documents" element={<DocumentsPage />} />
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/status" element={<StatusPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/ai-trading" element={<AiTradingPage />} />
         <Route path="/opportunities" element={<OpportunitiesPublic />} />
