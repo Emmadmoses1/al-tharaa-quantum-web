@@ -3,6 +3,7 @@ import Joi from 'joi'
 import { supabase } from '../lib/supabase.js'
 import { requireAuth } from '../middleware/authGuard.js'
 import { clientIp, clientCountry, logEvent } from '../lib/client.js'
+import { newLoginAlert } from '../lib/securityAlerts.js'
 
 const router = Router()
 router.use(requireAuth)
@@ -35,6 +36,7 @@ router.post('/session', async (req, res, next) => {
       await supabase.from('device_accounts').upsert({ device_id: id, fp: fp || null, user_id: uid, ip, last_seen: new Date().toISOString() }, { onConflict: 'device_id,user_id' })
     }
     if (Object.keys(patch).length) await supabase.from('profiles').update(patch).eq('id', uid)
+    await newLoginAlert(supabase, uid, req, country).catch(e => console.error('[security] alert failed:', e.message))
     await logEvent(supabase, uid, 'login', req, { country })
     res.json({ success: true, data: { account_status: me?.account_status || 'active' } })
   } catch (err) { next(err) }
