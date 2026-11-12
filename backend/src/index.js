@@ -6,6 +6,7 @@ const compression = await import('compression').then(m => m.default).catch(() =>
 import 'dotenv/config'
 
 import healthRouter from './routes/health.js'
+import adminReadinessRouter from './routes/adminReadiness.js'
 import publicStatusRouter from './routes/publicStatus.js'
 import statisticsRouter from './routes/statistics.js'
 import depositsRouter from './routes/deposits.js'
@@ -120,6 +121,7 @@ app.use('/api/binary', binaryRouter)
 app.use('/api/public/settings', publicSettingsRouter)
 app.use('/api/admin/integrations', adminIntegrationsRouter)
 app.use('/api/admin/settings', adminSettingsRouter)
+app.use('/api/admin/readiness', adminReadinessRouter)
 app.use('/api/admin/ai', aiRouter)
 app.use('/api/admin/opportunity-images', opportunityImagesRouter)
 app.use('/api/bonus', bonusRouter)

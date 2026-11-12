@@ -72,6 +72,7 @@ import AdminLegal from './pages/admin/AdminLegal'
 import DocumentsPage from './pages/DocumentsPage'
 import HelpPage from './pages/HelpPage'
 import StatusPage from './pages/StatusPage'
+import AdminReadiness from './pages/admin/AdminReadiness'
 
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
@@ -159,6 +160,7 @@ export default function App() {
         <Route path="/admin/notifications" element={<AdminPage><AdminNotifications /></AdminPage>} />
         <Route path="/admin/statistics" element={<AdminPage><AdminStatistics /></AdminPage>} />
         <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+        <Route path="/admin/readiness" element={<AdminPage><AdminReadiness /></AdminPage>} />
         <Route path="/admin/legal" element={<AdminPage><AdminLegal /></AdminPage>} />
         <Route path="/admin/trades" element={<AdminPage><AdminTrades /></AdminPage>} />
         <Route path="/admin/binary" element={<AdminPage><AdminBinary /></AdminPage>} />
