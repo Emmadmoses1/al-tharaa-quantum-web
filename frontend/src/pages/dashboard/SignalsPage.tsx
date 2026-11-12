@@ -74,7 +74,11 @@ export default function SignalsPage() {
     try {
       await api.post('/api/trade/open', { signal_id: sel.id, amount: Number(amount) })
       setSel(null); setOk('تم فتح الصفقة. ستُغلق تلقائياً عند وقف الخسارة أو الهدف الأول.'); refresh()
-    } catch (e) { setErr(e instanceof Error ? e.message : 'فشل فتح الصفقة') }
+    } catch (e) {
+      const c = (e as { code?: string }).code
+      if (c === 'SIGNAL_EXPIRED' || c === 'SIGNAL_STALE' || c === 'PRICE_MOVED') qc.invalidateQueries({ queryKey: ['signals-live'] })
+      setErr(e instanceof Error ? e.message : 'فشل فتح الصفقة')
+    }
     setBusy(false)
   }
 
