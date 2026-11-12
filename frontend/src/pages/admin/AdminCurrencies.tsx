@@ -11,7 +11,6 @@ const INITIAL_CURRENCIES = [
   { code: 'QAR', name: 'Qatari Riyal', nameAr: 'ريال قطري', symbol: 'QR', decimals: 2, active: true, isDefault: false },
   { code: 'KWD', name: 'Kuwaiti Dinar', nameAr: 'دينار كويتي', symbol: 'KD', decimals: 3, active: true, isDefault: false },
   { code: 'OMR', name: 'Omani Rial', nameAr: 'ريال عماني', symbol: 'OMR', decimals: 3, active: true, isDefault: false },
-  { code: 'NGN', name: 'Nigerian Naira', nameAr: 'نيرة نيجيرية', symbol: '₦', decimals: 2, active: true, isDefault: false },
 ]
 
 const EXCHANGE_RATES: Record<string, number> = {
@@ -23,7 +22,6 @@ const EXCHANGE_RATES: Record<string, number> = {
   'BHD/QAR': 9.6620,
   'BHD/KWD': 0.8120,
   'BHD/OMR': 1.0210,
-  'BHD/NGN': 4380.00,
 }
 
 export default function AdminCurrencies() {

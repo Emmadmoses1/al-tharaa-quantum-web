@@ -31,13 +31,15 @@ export default function RegisterPage() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState<'form' | 'code' | 'face' | 'done' | 'suspended'>('form')
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '' })
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '', currency: 'USD' })
   const [photo, setPhoto] = useState<Blob | null>(null)
   const [code, setCode] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [wait, setWait] = useState(0)
+  const [currencies, setCurrencies] = useState<{ code: string; name: string }[]>([])
+  useEffect(() => { api.get<{ code: string; name: string }[]>('/api/public/currencies').then(setCurrencies).catch(() => undefined) }, [])
   const timer = useRef<number | null>(null)
 
   const email = form.email.trim().toLowerCase()
@@ -80,7 +82,7 @@ export default function RegisterPage() {
     setBusy(true)
     try {
       const device = await getDevice()
-      const r = await api.post<{ suspended: boolean }>('/api/signup/verify', { email, code, password: form.password, full_name: form.fullName.trim(), device })
+      const r = await api.post<{ suspended: boolean }>('/api/signup/verify', { email, code, password: form.password, full_name: form.fullName.trim(), device, currency: form.currency })
       if (r.suspended) { setStep('suspended'); setBusy(false); return }
       const { data, error: se } = await supabase.auth.signInWithPassword({ email, password: form.password })
       if (se || !data.user) throw new Error(se?.message || 'فشل تسجيل الدخول')
@@ -181,6 +183,13 @@ export default function RegisterPage() {
               <div style={{ marginBottom: 18 }}>
                 <label htmlFor="rg-conf" style={label}>تأكيد كلمة المرور</label>
                 <input id="rg-conf" type="password" value={form.confirm} onChange={e => setF('confirm', e.target.value)} placeholder="••••••••" dir="ltr" disabled={busy} style={{ ...field, fontFamily: 'Montserrat' }} />
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="rg-cur" style={label}>عملتك المفضلة</label>
+                <select id="rg-cur" value={form.currency} onChange={e => setF('currency', e.target.value)} disabled={busy} style={field}>
+                  {(currencies.length ? currencies : [{ code: 'USD', name: 'دولار أمريكي' }]).map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
+                </select>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'Cairo', marginTop: 6, lineHeight: 1.7 }}>نعرض لك المبالغ بالعملات الرقمية وما يعادلها بعملتك، بسعر الصرف وقت تسجيلك.</div>
               </div>
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'Cairo', lineHeight: 1.7, marginBottom: 18 }}>بالتسجيل أنت توافق على <Link to="/terms" target="_blank" style={{ color: '#D4AF37' }}>شروط الخدمة</Link> و<Link to="/privacy" target="_blank" style={{ color: '#D4AF37' }}>سياسة الخصوصية</Link>. الاستثمار ينطوي على مخاطر، راجع <Link to="/risk" target="_blank" style={{ color: '#D4AF37' }}>إفصاح المخاطر</Link>. يُسمح بحساب واحد لكل جهاز.</p>
               {submitBtn('إرسال رمز التحقق', 'جارٍ الإرسال...')}

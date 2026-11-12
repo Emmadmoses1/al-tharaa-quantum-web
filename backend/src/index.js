@@ -6,6 +6,9 @@ const compression = await import('compression').then(m => m.default).catch(() =>
 import 'dotenv/config'
 
 import healthRouter from './routes/health.js'
+import currencyRouter from './routes/currency.js'
+import publicCurrencyRouter from './routes/publicCurrency.js'
+import { refreshRates } from './lib/fx.js'
 import supportRouter from './routes/support.js'
 import adminSupportRouter from './routes/adminSupport.js'
 import myStatsRouter from './routes/myStats.js'
@@ -153,6 +156,8 @@ app.use('/api/public/status', publicStatusRouter)
 app.use('/api/public/legal', publicLegalRouter)
 app.use('/api/admin/legal', adminLegalRouter)
 app.use('/api/account', accountRouter)
+app.use('/api/currency', currencyRouter)
+app.use('/api/public/currencies', publicCurrencyRouter)
 app.use('/api/support', supportRouter)
 app.use('/api/admin/support', adminSupportRouter)
 app.use('/api/my-stats', myStatsRouter)
@@ -184,5 +189,6 @@ app.listen(PORT, () => {
   if (process.env.ADMIN_ALERTS !== 'off') startLoop('alerts', runAdminAlerts, 5 * 60000)
   startLoop('face-retention', runFaceRetention, 6 * 3600000)
   startLoop('np-sync', syncPendingPayments, 60000)
+  startLoop('fx-rates', refreshRates, 6 * 3600000)
   console.log(`AL THARAA QUANTUM API on port ${PORT} (${process.env.NODE_ENV || 'dev'})`)
 })

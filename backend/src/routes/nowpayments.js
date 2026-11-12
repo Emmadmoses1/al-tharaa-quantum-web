@@ -199,7 +199,7 @@ router.get('/active', async (req, res, next) => {
 })
 
 // ---- Card deposits: NOWPayments hosted checkout (card details are entered on the partner's page, never here)
-const CARD_CUR = ['usd', 'eur', 'gbp', 'ngn']
+const CARD_CUR = ['usd', 'eur', 'gbp']
 const cardRate = new Map()
 function cardLimit(userId, max, windowMs) {
   const r = cardRate.get(userId) || { n: 0, at: Date.now() }

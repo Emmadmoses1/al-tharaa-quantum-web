@@ -8,6 +8,7 @@ import { useWalletBalances } from '../../hooks/useWallet'
 import { LogoMark } from '../../components/Logo'
 import { CardSkeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
+import { LocalAmt, LocalRateNote } from '../../components/LocalAmt'
 
 const fmt = (n: number, asset: string) =>
   `${asset} ${n.toLocaleString('en-US', {
@@ -73,7 +74,7 @@ export default function DashboardHome() {
       </div>
       {wallet.isLoading ? <div style={{ height: 26, width: 120, borderRadius: 6, background: 'rgba(255,255,255,0.07)' }} /> : rows.length === 0
         ? <div dir="ltr" style={{ fontSize: 24, fontWeight: 800, fontFamily: 'Montserrat', color: 'rgba(255,255,255,0.35)', textAlign: 'right' }}>0.00</div>
-        : rows.map(b => <div key={b.asset} dir="ltr" style={{ fontSize: 'clamp(18px,5vw,26px)', fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', textAlign: 'right', lineHeight: 1.35 }}>{fmt(b.balance, b.asset)}</div>)}
+        : rows.map(b => <div key={b.asset}><div dir="ltr" style={{ fontSize: 'clamp(18px,5vw,26px)', fontWeight: 800, fontFamily: 'Montserrat', color: '#fff', textAlign: 'right', lineHeight: 1.35 }}>{fmt(b.balance, b.asset)}</div>{['USDT', 'USDC'].includes(b.asset) ? <LocalAmt usdt={b.balance} /> : null}</div>)}
     </div>
   )
 
@@ -95,6 +96,7 @@ export default function DashboardHome() {
           {walletTile('محفظة الاستثمار', invBal, '#D4AF37')}
           {walletTile('محفظة التداول', tradeBal, '#10b981')}
         </div>
+        <LocalRateNote />
         <div style={{ position: 'relative', display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
           <Link to="/dashboard/deposit" className="dq-btn gold"><ArrowDownCircle size={16} />إيداع</Link>
           <Link to="/dashboard/withdraw" className="dq-btn"><ArrowUpCircle size={16} />سحب</Link>

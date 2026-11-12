@@ -62,7 +62,7 @@ export default function ProfilePage() {
   const name = profile?.full_name || user?.email || ''
   const list = currencies || [
     { code: 'USD', name: 'US Dollar' }, { code: 'EUR', name: 'Euro' }, { code: 'SAR', name: 'Saudi Riyal' },
-    { code: 'AED', name: 'UAE Dirham' }, { code: 'BHD', name: 'Bahraini Dinar' }, { code: 'NGN', name: 'Nigerian Naira' },
+    { code: 'AED', name: 'UAE Dirham' }, { code: 'BHD', name: 'Bahraini Dinar' },
   ]
 
   return (

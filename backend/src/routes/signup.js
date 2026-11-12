@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import { supabase } from '../lib/supabase.js'
 import { sendMail, esc } from '../lib/mailer.js'
 import { clientIp, clientCountry, logEvent } from '../lib/client.js'
+import { validCurrency, lockRate } from '../lib/fx.js'
 
 const router = Router()
 const PEPPER = process.env.OTP_PEPPER || process.env.SUPABASE_SERVICE_ROLE_KEY || 'aq'
@@ -70,6 +71,7 @@ const verifySchema = Joi.object({
   code: Joi.string().pattern(/^\d{6}$/).required(),
   password: Joi.string().min(8).max(72).required(),
   full_name: Joi.string().trim().min(2).max(120).required(),
+  currency: Joi.string().trim().length(3).uppercase().allow('', null),
   device: Joi.object({ id: Joi.string().trim().min(8).max(80).required(), fp: Joi.string().trim().max(80).allow('', null) }).required(),
 })
 
@@ -79,7 +81,7 @@ router.post('/verify', async (req, res, next) => {
     if (error) return fail(res, 400, error.message, 'BAD_REQUEST')
     const ip = clientIp(req)
     if (limited('v' + (ip || 'x'), 30, 3600000)) return fail(res, 429, 'Too many attempts. Try again later.', 'RATE_LIMITED')
-    const { email, code, password, full_name, device } = value
+    const { email, code, password, full_name, device, currency } = value
 
     const { data: otp } = await supabase.from('signup_otps').select('*').eq('email', email).maybeSingle()
     if (!otp || new Date(otp.expires_at).getTime() < Date.now()) return fail(res, 400, 'The code has expired. Request a new one.', 'CODE_EXPIRED')
@@ -108,7 +110,8 @@ router.post('/verify', async (req, res, next) => {
       const { data: ps } = await supabase.from('profiles').select('id, email, role').in('id', [...new Set(onDevice.map(d => d.user_id))])
       others = (ps || []).filter(p => p.role === 'user')
     }
-    let update = { full_name, country, signup_ip: ip, face_required: true }
+    const cur = await validCurrency(currency)
+    let update = { full_name, country, signup_ip: ip, face_required: true, ...(cur ? { preferred_currency: cur } : {}) }
     let suspended = false
     if (others.length) {
       suspended = true
@@ -122,6 +125,7 @@ router.post('/verify', async (req, res, next) => {
       if (soft?.length) update = { ...update, flagged: true, flag_reason: 'Same browser fingerprint and IP as another account' }
     }
     await supabase.from('profiles').update(update).eq('id', uid)
+    if (cur) await lockRate(uid, cur).catch(e => console.error('[fx] lock failed:', e.message))
     await supabase.from('device_accounts').upsert({ device_id: device.id, fp, user_id: uid, ip, last_seen: new Date().toISOString() }, { onConflict: 'device_id,user_id' })
     await logEvent(supabase, uid, suspended ? 'signup_suspended' : 'signup', req, { country, device: device.id.slice(0, 8) })
 

@@ -10,7 +10,7 @@ type Made = { deposit_id: string; invoice_url: string; usdt: number }
 type St = { status: string; np_status: string | null; paid: number | null }
 
 const CUR = [
-  { c: 'usd', s: '$', n: 'دولار' }, { c: 'eur', s: '€', n: 'يورو' }, { c: 'gbp', s: '£', n: 'جنيه' }, { c: 'ngn', s: '₦', n: 'نايرا' },
+  { c: 'usd', s: '$', n: 'دولار' }, { c: 'eur', s: '€', n: 'يورو' }, { c: 'gbp', s: '£', n: 'جنيه' },
 ]
 const KEY = 'aq_card_dep'
 const card: React.CSSProperties = { background: 'rgba(20,20,20,0.85)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 16, padding: 20, display: 'grid', gap: 14 }
