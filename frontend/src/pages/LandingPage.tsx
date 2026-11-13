@@ -5,6 +5,7 @@ import ProductsSection from '../components/sections/ProductsSection'
 import SecuritySection from '../components/sections/SecuritySection'
 import CtaSection from '../components/sections/CtaSection'
 import Footer from '../components/layout/Footer'
+import PayoutProof from '../components/PayoutProof'
 
 export default function LandingPage() {
   return (
@@ -19,6 +20,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <ProductsSection />
       <SecuritySection />
+      <PayoutProof />
       <CtaSection />
       <Footer />
     </div>
