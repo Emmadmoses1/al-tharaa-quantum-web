@@ -6,6 +6,7 @@ import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { useWalletBalances } from '../../hooks/useWallet'
 import { Skeleton } from '../../components/ui/Skeleton'
+import { LocalAmt } from '../../components/LocalAmt'
 import { PageStyles, PageHeader, Steps, Pill, Empty } from '../../components/PageKit'
 
 type Wd = {
@@ -174,6 +175,7 @@ export default function WithdrawPage() {
                 <div style={{ marginTop: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 10, fontSize: 12, fontFamily: 'Cairo', color: 'rgba(255,255,255,0.6)', lineHeight: 2 }}>
                   <div>الرسوم (0.1%): <b className="pk-mono">{num(fee)} {asset}</b></div>
                   <div>ستستلم: <b className="pk-mono" style={{ color: '#D4AF37' }}>{num(amt - fee)} {asset}</b></div>
+                  {asset && ['USDT', 'USDC'].includes(asset) && <LocalAmt usdt={amt - fee} />}
                 </div>
               )}
             </>

@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase'
 import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { Skeleton } from '../../components/ui/Skeleton'
+import { LocalAmt } from '../../components/LocalAmt'
 
 type Dep = {
   id: string; asset: string; network: string; purpose: string; wallet_address: string
@@ -245,6 +246,7 @@ export default function DepositPage() {
               <div style={{ fontSize: 11, marginTop: 7, fontFamily: 'Cairo', color: amount && !amountOk ? '#ef4444' : 'rgba(255,255,255,0.35)' }}>
                 <span>{minQ.isLoading ? '...' : min > 0 ? `الحد الأدنى ${min} ${asset}` : 'أدخل المبلغ بالضبط كما ستحوله'}</span>
               </div>
+              {asset && ['USDT', 'USDC'].includes(asset) && amt > 0 && <LocalAmt usdt={amt} />}
             </div>
           )}
 

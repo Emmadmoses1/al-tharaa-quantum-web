@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowDownCircle, ArrowUpCircle, TrendingUp, Receipt, Search, History } from 'lucide-react'
 import { useLedger, useDeposits } from '../../hooks/useData'
 import { Skeleton } from '../../components/ui/Skeleton'
+import { LocalAmt } from '../../components/LocalAmt'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { PageStyles, PageHeader, Pill, Empty } from '../../components/PageKit'
 
@@ -145,6 +146,7 @@ export default function TransactionsPage() {
                 <span className="pk-mono" style={{ fontSize: 14, fontWeight: 800, color: c }}>
                   {dep ? (item.amount > 0 ? `+${item.amount.toFixed(4)}` : '—') : formatAmount(item.amount, item.entryType)} {item.asset}
                 </span>
+                {['USDT', 'USDC'].includes(item.asset) && item.amount !== 0 ? <LocalAmt usdt={Math.abs(item.amount)} /> : null}
                 {ds ? <Pill color={ds.c}>{ds.t}</Pill> : <Pill color={c}>{ENTRY_LABELS[item.entryType] || item.entryType}</Pill>}
               </div>
             </div>
