@@ -19,6 +19,7 @@ import publicStatusRouter from './routes/publicStatus.js'
 import statisticsRouter from './routes/statistics.js'
 import depositsRouter from './routes/deposits.js'
 import withdrawalsRouter from './routes/withdrawals.js'
+import addressBookRouter from './routes/addressBook.js'
 import investmentsRouter from './routes/investments.js'
 import tradingRouter from './routes/trading.js'
 import profileRouter from './routes/profile.js'
@@ -120,6 +121,7 @@ app.use('/api/health', healthRouter)
 app.use('/api/statistics', statisticsRouter)
 app.use('/api/deposits', depositsRouter)
 app.use('/api/withdrawals', withdrawalsRouter)
+app.use('/api/address-book', addressBookRouter)
 app.use('/api/investments', investmentsRouter)
 app.use('/api/trading', tradingRouter)
 app.use('/api/profile', profileRouter)

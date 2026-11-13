@@ -6,6 +6,7 @@ import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { useWalletBalances } from '../../hooks/useWallet'
 import { Skeleton } from '../../components/ui/Skeleton'
+import AddressBook from '../../components/AddressBook'
 import { LocalAmt } from '../../components/LocalAmt'
 import { PageStyles, PageHeader, Steps, Pill, Empty } from '../../components/PageKit'
 
@@ -161,6 +162,7 @@ export default function WithdrawPage() {
               <div style={{ fontSize: 11, margin: '6px 0 16px', fontFamily: 'Cairo', minHeight: 16, color: addr && !addrOk ? '#ef4444' : '#10b981' }}>
                 {addr && !addrOk ? `العنوان غير صالح لشبكة ${network}` : addr ? 'صيغة العنوان صحيحة' : ''}
               </div>
+              <AddressBook network={network} address={addr} addrOk={addrOk} onPick={setAddress} />
 
               <label htmlFor="wd-amt" className="pk-lbl">المبلغ ({asset})</label>
               <div style={{ display: 'flex', gap: 8 }}>
