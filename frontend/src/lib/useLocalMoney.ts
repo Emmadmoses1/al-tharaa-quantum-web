@@ -16,3 +16,21 @@ export function useLocalMoney() {
     return `${v.toLocaleString('en-US', { minimumFractionDigits: data.decimals, maximumFractionDigits: data.decimals })} ${data.currency}`
   }
 }
+
+// An amount in any platform currency (for example BHD), shown as crypto (USDT) and in the user's own currency.
+export function useInvestMoney() {
+  const me = useLocalCurrency()
+  const rates = useQuery({ queryKey: ['fx-rates'], staleTime: 30 * 60000, retry: 0, queryFn: () => api.get<Record<string, number>>('/api/currency/rates') })
+  return (amount: number, cur: string): { usdt: number; local: string | null } | null => {
+    const r = rates.data?.[String(cur || '').toUpperCase()]
+    if (!r || !(amount > 0) || !Number.isFinite(amount)) return null
+    const usdt = amount / r
+    const m = me.data
+    let local: string | null = null
+    if (m && m.currency !== 'USD' && m.rate) {
+      const v = m.currency === String(cur).toUpperCase() ? amount : usdt * m.rate
+      local = `${v.toLocaleString('en-US', { minimumFractionDigits: m.decimals, maximumFractionDigits: m.decimals })} ${m.currency}`
+    }
+    return { usdt, local }
+  }
+}

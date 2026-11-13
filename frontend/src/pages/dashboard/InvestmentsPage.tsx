@@ -10,6 +10,7 @@ import {
 } from '../../hooks/useData'
 import { CardSkeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
+import { InvAmt } from '../../components/LocalAmt'
 import InvestAction from '../../components/InvestAction'
 import GalleryCover from '../../components/GalleryCover'
 
@@ -141,6 +142,7 @@ function OpportunityCard({
             <div style={{ fontSize: 14, fontWeight: 800, color: '#D4AF37', fontFamily: 'Montserrat', marginTop: 2 }}>
               {opp.currency} {Number(opp.minimum_investment).toLocaleString()}
             </div>
+            <InvAmt amount={Number(opp.minimum_investment)} cur={opp.currency} />
           </div>
           {opp.projected_return_min ? (
             <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.16)', borderRadius: 10, padding: '9px 11px' }}>
@@ -400,6 +402,7 @@ export default function InvestmentsPage() {
               onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.5)'}
               onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.2)'}
             />
+            <InvAmt amount={amount || Number(selectedOpp.minimum_investment)} cur={selectedOpp.currency} />
           </div>
 
           {amount >= Number(selectedOpp.minimum_investment) && (

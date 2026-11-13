@@ -4,6 +4,7 @@ import { useAdminOpportunities, useAdminCreateOpportunity, useAdminUpdateOpportu
 import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
 import OpportunityMedia from '../../components/OpportunityMedia'
+import { InvAmt } from '../../components/LocalAmt'
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   draft: { bg: 'rgba(107,114,128,0.1)', text: '#9ca3af' },
@@ -226,10 +227,12 @@ export default function AdminOpportunities() {
                 <div>
                   <label style={labelStyle}>MINIMUM (USDT) *</label>
                   <input type="number" value={form.minimum_investment} onChange={e => setF('minimum_investment', e.target.value)} style={inputStyle} placeholder="500" />
+                  <InvAmt amount={Number(form.minimum_investment)} cur={form.currency || 'BHD'} />
                 </div>
                 <div>
                   <label style={labelStyle}>TARGET (USDT) *</label>
                   <input type="number" value={form.target_amount} onChange={e => setF('target_amount', e.target.value)} style={inputStyle} placeholder="100000" />
+                  <InvAmt amount={Number(form.target_amount)} cur={form.currency || 'BHD'} />
                 </div>
                 <div>
                   <label style={labelStyle}>DURATION (DAYS)</label>
