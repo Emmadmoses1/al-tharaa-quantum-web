@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
-  TrendingUp, Wallet, Bot, Briefcase, ArrowDownCircle, ArrowUpCircle, AlertTriangle, RefreshCw, ArrowLeft, Layers, Clock,
+  TrendingUp, Wallet, Bot, Briefcase, ArrowDownCircle, ArrowUpCircle, RefreshCw, ArrowLeft, Layers, Clock,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useInvestmentPortfolio, useTradingPortfolio, useDeposits, useOpportunities } from '../../hooks/useData'
@@ -105,11 +105,6 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {profile && profile.kyc_status !== 'approved' && (
-        <Link to="/dashboard/profile" className="dq-alert" style={{ background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)', color: '#f59e0b' }}>
-          <AlertTriangle size={18} style={{ flexShrink: 0 }} /><span>التحقق من الهوية مطلوب لتفعيل الإيداع والسحب — اضغط للإكمال</span>
-        </Link>
-      )}
       {pending.length > 0 && (
         <Link to="/dashboard/deposit" className="dq-alert" style={{ background: 'rgba(99,102,241,0.08)', borderColor: 'rgba(99,102,241,0.25)', color: '#818cf8', justifyContent: 'space-between' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Clock size={18} />لديك {pending.length} إيداع قيد المراجعة — سيظهر الرصيد بعد التأكيد</span>

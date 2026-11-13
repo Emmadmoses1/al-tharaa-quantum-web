@@ -48,6 +48,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     getDevice().then(device => api.post('/api/account/session', { device })).catch(() => {})
   }, [profile?.id])
 
+  // Warm up the main pages in the background so tab switches feel instant (skipped on data-saver).
+  useEffect(() => {
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
+    if (nav.connection?.saveData) return
+    const run = () => {
+      for (const load of [
+        () => import('../../pages/dashboard/TradingPage'), () => import('../../pages/dashboard/InvestmentsPage'),
+        () => import('../../pages/dashboard/DepositPage'), () => import('../../pages/dashboard/WithdrawPage'),
+        () => import('../../pages/dashboard/TransactionsPage'),
+      ]) load().catch(() => undefined)
+    }
+    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number }
+    if (w.requestIdleCallback) w.requestIdleCallback(run)
+    else window.setTimeout(run, 2500)
+  }, [])
+
   const active = (h: string) => (h === '/dashboard' ? pathname === h : pathname.startsWith(h))
   const moreActive = !TABS.some(t => active(t.href))
   const title = (TITLES.find(([p]) => (p === '/dashboard' ? pathname === p : pathname.startsWith(p))) || ['', 'لوحة التحكم'])[1]

@@ -33,7 +33,7 @@ export default function DashboardSidebar() {
   const { pathname } = useLocation()
   const { profile, signOut } = useAuth()
   const { data: unread } = useUnreadCount()
-  const verified = profile?.kyc_status === 'approved'
+  const chip = profile?.face_status === 'approved' ? ['حساب موثّق', '#10b981'] : profile?.face_required ? ['التحقق مطلوب', '#f59e0b'] : ['حساب نشط', '#10b981']
 
   return (
     <aside className="dq-aside">
@@ -49,7 +49,7 @@ export default function DashboardSidebar() {
         <Avatar url={profile?.avatar_url} name={profile?.full_name} size={40} radius={12} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', fontFamily: 'Cairo', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.full_name || 'المستخدم'}</div>
-          <span className="dq-chip" style={{ color: verified ? '#10b981' : '#f59e0b', background: verified ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)' }}>{verified ? 'حساب موثّق' : 'قيد التحقق'}</span>
+          <span className="dq-chip" style={{ color: chip[1], background: `${chip[1]}1f` }}>{chip[0]}</span>
         </div>
       </div>
 
