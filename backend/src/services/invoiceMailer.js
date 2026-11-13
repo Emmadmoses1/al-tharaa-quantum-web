@@ -6,20 +6,22 @@ import { getPrice } from './prices.js'
 const STABLE = new Set(['USDT', 'USDC', 'USD'])
 const n = (v, d = 8) => Number(v).toLocaleString('en-US', { maximumFractionDigits: d })
 
-export function invoiceHtml(inv, co, email) {
-  const row = (k, v) => `<tr><td style="padding:8px 0;color:#999;border-bottom:1px solid #222">${k}</td><td style="padding:8px 0;text-align:right;border-bottom:1px solid #222;word-break:break-all">${v}</td></tr>`
-  return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;background:#0B0B0B;color:#fff;padding:28px;border-radius:12px">
+export function invoiceHtml(inv, co, email) { // invoice-v2
+  const row = (en, ar, v) => `<tr><td style="padding:10px 0;color:#999;border-bottom:1px solid #222;font-size:13px">${en}<br><span style="color:#777;font-size:12px" dir="rtl">${ar}</span></td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #222;word-break:break-all;font-size:14px">${v}</td></tr>`
+  return `<div style="font-family:Arial,sans-serif;max-width:580px;margin:auto;background:#0B0B0B;color:#fff;padding:28px;border-radius:12px;border-top:5px solid #D4AF37">
     ${emailLogo()}
-    <div style="display:flex;justify-content:space-between"><h2 style="color:#D4AF37;margin:0">${esc(co.company_name)}</h2><b>INVOICE</b></div>
-    <p style="color:#999;margin:4px 0 18px;font-size:13px">${esc(co.address)}${co.tax_id ? ` · Tax ID ${esc(co.tax_id)}` : ''}</p>
-    <table style="width:100%;border-collapse:collapse;font-size:14px">
-      ${row('Invoice no.', esc(inv.number))}${row('Date', new Date(inv.issued_at).toUTCString())}${row('Billed to', esc(email))}
-      ${row('Description', `Deposit to ${esc(inv.purpose)} wallet`)}${row('Asset / network', `${esc(inv.asset)} (${esc(inv.network)})`)}
-      ${row('Amount received', `<b>${n(inv.amount)} ${esc(inv.asset)}</b>`)}
-      ${row('Rate at confirmation', `1 ${esc(inv.asset)} = ${n(inv.rate, 4)} USD`)}${row('Value', `<b>${n(inv.usd_value, 2)} USD</b>`)}
-      ${row('Transaction', esc(inv.txid || 'Confirmed by administrator'))}${row('Status', 'PAID / CREDITED')}
+    <table style="width:100%"><tr><td><h2 style="color:#D4AF37;margin:0">${esc(co.company_name)}</h2><div style="color:#999;font-size:12px;margin-top:3px">${esc(co.address)}${co.tax_id ? ` · Tax ID ${esc(co.tax_id)}` : ''}</div></td>
+    <td style="text-align:right"><b style="font-size:18px;letter-spacing:1px">INVOICE</b><br><span style="color:#999;font-size:13px" dir="rtl">فاتورة إيداع</span></td></tr></table>
+    <div style="margin:16px 0 6px"><span style="display:inline-block;border:2px solid #22c55e;color:#22c55e;border-radius:6px;padding:3px 12px;font-size:12px;font-weight:bold;letter-spacing:1px">PAID / CREDITED</span></div>
+    <table style="width:100%;border-collapse:collapse">
+      ${row('Invoice no.', 'رقم الفاتورة', esc(inv.number))}${row('Date', 'التاريخ', new Date(inv.issued_at).toUTCString())}${row('Billed to', 'صادرة إلى', esc(email))}
+      ${row('Description', 'الوصف', `Deposit to ${esc(inv.purpose)} wallet`)}${row('Asset / network', 'العملة / الشبكة', `${esc(inv.asset)} (${esc(inv.network)})`)}
+      ${row('Rate at confirmation', 'السعر وقت التأكيد', `1 ${esc(inv.asset)} = ${n(inv.rate, 4)} USD`)}
+      ${row('Transaction', 'رقم المعاملة', esc(inv.txid || 'Confirmed by administrator'))}
+      ${row('Amount received', 'المبلغ المستلم', `<b style="color:#D4AF37;font-size:16px">${n(inv.amount)} ${esc(inv.asset)}</b>`)}
+      ${row('Value', 'القيمة', `<b>${n(inv.usd_value, 2)} USD</b>`)}
     </table>
-    <p style="color:#777;font-size:12px;margin-top:20px">${esc(co.footer)}</p></div>`
+    <p style="color:#777;font-size:12px;margin-top:20px;line-height:1.7">${esc(co.footer)}<br>This is a computer-generated document and does not require a signature. · وثيقة صادرة إلكترونياً ولا تحتاج إلى توقيع.<br>You can view and print all your invoices in your dashboard under Invoices.</p></div>`
 }
 
 export async function processInvoices() {

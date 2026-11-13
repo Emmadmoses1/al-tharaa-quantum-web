@@ -17,7 +17,7 @@ export default function AdminWallets() {
   const [form, setForm] = useState({
     asset: 'USDT', network: 'TRC20',
     address: '', label: '',
-    minimum: '10', confirmations: '1',
+    minimum: '1', confirmations: '1',
   })
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -40,7 +40,7 @@ export default function AdminWallets() {
         required_confirmations: Number(form.confirmations),
       })
       setShowAdd(false)
-      setForm({ asset: 'USDT', network: 'TRC20', address: '', label: '', minimum: '10', confirmations: '1' })
+      setForm({ asset: 'USDT', network: 'TRC20', address: '', label: '', minimum: '1', confirmations: '1' })
     } catch (err: unknown) {
       setFormError(err instanceof Error ? err.message : 'Failed to save wallet')
     }

@@ -25,7 +25,7 @@ const ADDRESS: Record<string, RegExp> = {
   BEP20: /^0x[0-9a-fA-F]{40}$/,
   Bitcoin: /^(bc1[a-z0-9]{25,87}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/,
 }
-const MIN: Record<string, number> = { USDT: 10, USDC: 10, BTC: 0.0005, ETH: 0.005 }
+const MIN: Record<string, number> = { USDT: 1, USDC: 1, BTC: 0.00002, ETH: 0.0005 }
 const STATUS: Record<string, { c: string; t: string }> = {
   pending: { c: '#f59e0b', t: 'قيد المراجعة' },
   approved: { c: '#6366f1', t: 'تمت الموافقة' },

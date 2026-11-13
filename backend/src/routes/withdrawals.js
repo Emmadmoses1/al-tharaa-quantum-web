@@ -20,7 +20,7 @@ const ADDRESS = {
   BEP20: /^0x[0-9a-fA-F]{40}$/,
   Bitcoin: /^(bc1[a-z0-9]{25,87}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/,
 }
-const MIN = { USDT: 10, USDC: 10, BTC: 0.0005, ETH: 0.005 }
+const MIN = { USDT: 1, USDC: 1, BTC: 0.00002, ETH: 0.0005 }
 const bad = (res, message, code) => res.status(400).json({ success: false, error: { message, code } })
 
 router.get('/turnover', async (req, res, next) => {

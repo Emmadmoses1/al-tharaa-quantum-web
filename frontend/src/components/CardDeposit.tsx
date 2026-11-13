@@ -81,7 +81,7 @@ export default function CardDeposit() {
     return () => { if (timer.current) window.clearTimeout(timer.current) }
   }, [track, qc])
 
-  const min = est?.min_usd ?? site?.payments?.min_usd ?? 10
+  const min = est?.min_usd ?? site?.payments?.min_usd ?? 1
   const max = est?.max_usd ?? site?.payments?.max_usd ?? 5000
   const outOfRange = !!est && (est.usdt < min || est.usdt > max)
 

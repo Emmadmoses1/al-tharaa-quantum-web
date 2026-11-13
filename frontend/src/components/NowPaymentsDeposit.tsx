@@ -52,7 +52,7 @@ export default function NowPaymentsDeposit() {
   const timer = useRef<number | null>(null)
   const notified = useRef(false)
 
-  const min = site?.payments?.min_usd ?? 10
+  const min = site?.payments?.min_usd ?? 1
   const max = site?.payments?.max_usd ?? 5000
 
   // continue a payment that is still waiting (page reloaded or reopened)
