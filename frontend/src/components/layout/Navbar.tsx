@@ -83,10 +83,8 @@ export default function Navbar() {
               }}>
                 تسجيل الدخول
               </Link>
-              <Link to="/register">
-                <button className="btn-gold" style={{ fontSize: 13, padding: '9px 20px' }}>
-                  ابدأ الآن
-                </button>
+              <Link to="/register" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', fontSize: 13, padding: '9px 20px' }}>
+                ابدأ الآن
               </Link>
             </>
           )
@@ -130,23 +128,11 @@ export default function Navbar() {
             paddingTop: 18, display: 'flex', flexDirection: 'column', gap: 12,
           }}>
             {user ? (
-              <Link to="/dashboard" style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
-                <button className="btn-gold" style={{ width: '100%', fontSize: 15, padding: '12px' }}>
-                  لوحة التحكم
-                </button>
-              </Link>
+              <Link to="/dashboard" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', width: '100%', fontSize: 15, padding: '12px' }} onClick={() => setMenuOpen(false)}>لوحة التحكم</Link>
             ) : (
               <>
-                <Link to="/login" style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
-                  <button className="btn-outline-gold" style={{ width: '100%', fontSize: 15, padding: '12px' }}>
-                    تسجيل الدخول
-                  </button>
-                </Link>
-                <Link to="/register" style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
-                  <button className="btn-gold" style={{ width: '100%', fontSize: 15, padding: '12px' }}>
-                    إنشاء حساب
-                  </button>
-                </Link>
+                <Link to="/login" className="btn-outline-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', width: '100%', fontSize: 15, padding: '12px' }} onClick={() => setMenuOpen(false)}>تسجيل الدخول</Link>
+                <Link to="/register" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', width: '100%', fontSize: 15, padding: '12px' }} onClick={() => setMenuOpen(false)}>إنشاء حساب</Link>
               </>
             )}
           </div>

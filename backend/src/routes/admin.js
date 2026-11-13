@@ -83,9 +83,9 @@ router.post('/balances/adjust', validate(adjustSchema), async (req, res, next) =
     })
     if (error) return res.status(400).json({ success: false, error: { message: error.message, code: 'ADJUST_REJECTED' } })
     await supabase.from('notifications').insert({
-      user_id, type: 'balance', title: 'Balance updated', title_ar: 'تم تعديل رصيدك',
-      message: `${amount > 0 ? '+' : ''}${amount} ${asset} (${ledger_type}). ${reason}`,
-      message_ar: `${amount > 0 ? '+' : ''}${amount} ${asset} (${ledger_type === 'trading' ? 'التداول' : 'الاستثمار'}). ${reason}`,
+      user_id, type: 'balance', title: 'Wallet balance updated', title_ar: 'تحديث على رصيد محفظتك',
+      message: `${Math.abs(amount)} ${asset} was ${amount > 0 ? 'added to' : 'deducted from'} your ${ledger_type} wallet. Reason: ${reason}`,
+      message_ar: `${amount > 0 ? 'أُضيف' : 'خُصم'} ${Math.abs(amount)} ${asset} ${amount > 0 ? 'إلى' : 'من'} محفظة ${ledger_type === 'trading' ? 'التداول' : 'الاستثمار'}. السبب: ${reason}`,
     })
     res.json({ success: true, data })
   } catch (err) { next(err) }

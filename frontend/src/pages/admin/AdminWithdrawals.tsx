@@ -34,6 +34,18 @@ export default function AdminWithdrawals() {
     })
     setBusy(false)
     if (error) return setErr(error.message)
+    try {
+      const amt = Number(sel.net_amount ?? sel.amount), cur = String(sel.asset || '')
+      const hash = txid.trim(), why = note.trim()
+      const M: Record<string, string[]> = {
+        approve: ['Withdrawal approved', 'تمت الموافقة على سحبك', `Your withdrawal of ${amt} ${cur} was approved and will be sent shortly.`, `تمت الموافقة على سحب ${amt} ${cur}، وسيُرسل قريباً.`],
+        processing: ['Withdrawal in progress', 'سحبك قيد التنفيذ', `Your withdrawal of ${amt} ${cur} is being sent now.`, `جارٍ إرسال سحب ${amt} ${cur} الآن.`],
+        complete: ['Withdrawal sent', 'تم إرسال سحبك', `${amt} ${cur} was sent to your wallet.${hash ? ` Transaction: ${hash}` : ''} Your receipt is under Invoices.`, `تم إرسال ${amt} ${cur} إلى محفظتك.${hash ? ` رقم المعاملة: ${hash}` : ''} إيصالك متاح في صفحة الفواتير.`],
+        reject: ['Withdrawal not completed', 'تعذّر تنفيذ طلب السحب', `Your withdrawal request could not be completed.${why ? ` Reason: ${why}` : ''} Contact support if you need help.`, `تعذّر تنفيذ طلب السحب.${why ? ` السبب: ${why}.` : ''} تواصل مع الدعم إن احتجت مساعدة.`],
+      }
+      const m = M[action]
+      if (m && sel.user_id) await supabase.from('notifications').insert({ user_id: sel.user_id, type: 'withdrawal', title: m[0], title_ar: m[1], message: m[2], message_ar: m[3] })
+    } catch { /* the review itself succeeded; the notice is best-effort */ }
     qc.invalidateQueries({ queryKey: ['admin-withdrawals'] })
     qc.invalidateQueries({ queryKey: ['admin-stats'] })
     setSel(null)

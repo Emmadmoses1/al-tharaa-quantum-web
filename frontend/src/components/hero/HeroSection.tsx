@@ -83,29 +83,13 @@ export default function HeroSection() {
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
             {user ? (
               <>
-                <Link to="/dashboard/investments" style={{ textDecoration: 'none' }}>
-                  <button className="btn-gold" style={{ fontSize: 15 }}>
-                    ابدأ الاستثمار
-                  </button>
-                </Link>
-                <Link to="/dashboard/trade" style={{ textDecoration: 'none' }}>
-                  <button className="btn-outline-gold" style={{ fontSize: 15 }}>
-                    استكشف التداول الذكي
-                  </button>
-                </Link>
+                <Link to="/dashboard/investments" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15 }}>ابدأ الاستثمار</Link>
+                <Link to="/dashboard/trade" className="btn-outline-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15 }}>استكشف التداول الذكي</Link>
               </>
             ) : (
               <>
-                <Link to="/register" style={{ textDecoration: 'none' }}>
-                  <button className="btn-gold" style={{ fontSize: 15 }}>
-                    ابدأ الاستثمار
-                  </button>
-                </Link>
-                <Link to="/register" style={{ textDecoration: 'none' }}>
-                  <button className="btn-outline-gold" style={{ fontSize: 15 }}>
-                    استكشف التداول الذكي
-                  </button>
-                </Link>
+                <Link to="/register" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15 }}>ابدأ الاستثمار</Link>
+                <Link to="/register" className="btn-outline-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15 }}>استكشف التداول الذكي</Link>
               </>
             )}
           </div>

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Twitter, Linkedin, Instagram } from 'lucide-react'
 import { useSite } from '../../lib/useSite'
 
 import { LogoMark } from '../Logo'
@@ -57,33 +56,6 @@ export default function Footer() {
           }}>
             منصة التمويل الرقمي بالذكاء الاصطناعي.{lic ? ` ${lic}` : ''}
           </p>
-          <div style={{ display: 'flex', gap: 12 }}>
-            {[Twitter, Linkedin, Instagram].map((Icon, i) => (
-              <div key={i} style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: 'rgba(44,44,44,0.6)',
-                border: '1px solid rgba(212,175,55,0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.4)'
-                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.15)'
-                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(44,44,44,0.6)'
-                }}
-              >
-                <Icon size={16} color="rgba(212,175,55,0.7)" />
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Link columns */}

@@ -47,29 +47,13 @@ export default function CtaSection() {
         }}>
           {user ? (
             <>
-              <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-                <button className="btn-gold" style={{ fontSize: 15, padding: '13px 32px' }}>
-                  لوحة التحكم
-                </button>
-              </Link>
-              <Link to="/dashboard/investments" style={{ textDecoration: 'none' }}>
-                <button className="btn-outline-gold" style={{ fontSize: 15, padding: '13px 32px' }}>
-                  استكشف الاستثمارات
-                </button>
-              </Link>
+              <Link to="/dashboard" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15, padding: '13px 32px' }}>لوحة التحكم</Link>
+              <Link to="/dashboard/investments" className="btn-outline-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15, padding: '13px 32px' }}>استكشف الاستثمارات</Link>
             </>
           ) : (
             <>
-              <Link to="/register" style={{ textDecoration: 'none' }}>
-                <button className="btn-gold" style={{ fontSize: 15, padding: '13px 32px' }}>
-                  إنشاء حساب مجاني
-                </button>
-              </Link>
-              <Link to="/login" style={{ textDecoration: 'none' }}>
-                <button className="btn-outline-gold" style={{ fontSize: 15, padding: '13px 32px' }}>
-                  تسجيل الدخول
-                </button>
-              </Link>
+              <Link to="/register" className="btn-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15, padding: '13px 32px' }}>إنشاء حساب مجاني</Link>
+              <Link to="/login" className="btn-outline-gold" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center', fontSize: 15, padding: '13px 32px' }}>تسجيل الدخول</Link>
             </>
           )}
         </div>

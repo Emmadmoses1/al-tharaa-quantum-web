@@ -1,4 +1,5 @@
-import { Bell, ArrowDownCircle, TrendingUp, Bot, AlertTriangle, Shield, CheckCheck, Check } from 'lucide-react'
+import { Bell, ArrowDownCircle, ArrowUpCircle, TrendingUp, Bot, AlertTriangle, Shield, CheckCheck, Gift, Wallet, LifeBuoy } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useNotifications, useMarkNotificationRead, useMarkAllRead } from '../../hooks/useData'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
@@ -8,9 +9,19 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   deposit: <ArrowDownCircle size={16} color="#10b981" />,
   investment: <TrendingUp size={16} color="#D4AF37" />,
   trading: <Bot size={16} color="#6366f1" />,
+  trade: <Bot size={16} color="#6366f1" />,
+  withdrawal: <ArrowUpCircle size={16} color="#D4AF37" />,
+  bonus: <Gift size={16} color="#D4AF37" />,
+  balance: <Wallet size={16} color="#10b981" />,
+  support: <LifeBuoy size={16} color="#6366f1" />,
   security: <Shield size={16} color="#ef4444" />,
   alert: <AlertTriangle size={16} color="#f59e0b" />,
   system: <Bell size={16} color="rgba(255,255,255,0.4)" />,
+}
+
+const DEST: Record<string, string> = {
+  deposit: '/dashboard/transactions', withdrawal: '/dashboard/transactions', balance: '/dashboard/transactions', bonus: '/dashboard',
+  trade: '/dashboard/trading', trading: '/dashboard/trading', investment: '/dashboard/investments', support: '/dashboard/support',
 }
 
 function timeAgo(dateStr: string) {
@@ -27,12 +38,13 @@ function timeAgo(dateStr: string) {
 export default function NotificationsPage() {
   const [filter, setFilter] = useState('all')
   const { data: notifications, isLoading, isError, refetch } = useNotifications()
+  const navigate = useNavigate()
   const markRead = useMarkNotificationRead()
   const markAll = useMarkAllRead()
 
   const filtered = filter === 'all'
     ? (notifications || [])
-    : (notifications || []).filter(n => n.type === filter)
+    : (notifications || []).filter(n => (filter === 'trade' ? ['trade', 'trading'].includes(n.type) : n.type === filter))
 
   const unreadCount = (notifications || []).filter(n => !n.is_read).length
 
@@ -84,8 +96,9 @@ export default function NotificationsPage() {
         {[
           { key: 'all', label: 'الكل' },
           { key: 'deposit', label: 'إيداعات' },
+          { key: 'withdrawal', label: 'سحوبات' },
           { key: 'investment', label: 'استثمارات' },
-          { key: 'trading', label: 'تداول' },
+          { key: 'trade', label: 'تداول' },
           { key: 'security', label: 'أمان' },
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)} style={{
@@ -142,14 +155,14 @@ export default function NotificationsPage() {
           filtered.map((notif, i) => (
             <div
               key={notif.id}
-              onClick={() => !notif.is_read && markRead.mutate(notif.id)}
+              onClick={() => { if (!notif.is_read) markRead.mutate(notif.id); const to = DEST[notif.type]; if (to) navigate(to) }}
               style={{
                 display: 'flex', alignItems: 'flex-start', gap: 14,
                 padding: '16px 20px',
                 borderBottom: i < filtered.length - 1
                   ? '1px solid rgba(212,175,55,0.06)' : 'none',
                 background: notif.is_read ? 'transparent' : 'rgba(212,175,55,0.04)',
-                cursor: notif.is_read ? 'default' : 'pointer',
+                cursor: DEST[notif.type] || !notif.is_read ? 'pointer' : 'default',
                 transition: 'background 0.2s',
               }}
               onMouseEnter={e => {
