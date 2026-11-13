@@ -86,6 +86,9 @@ function ago(d: string) {
 type Row_ = Record<string, unknown>
 type Traffic = { views: number; sessions: number; live: number; sources: { source: string; sessions: number }[] }
 type Pay = { rows: { needs_review: boolean }[] }
+type Flow = { usd: number; count: number }
+type Money = { dep24: Flow; dep30: Flow; wd24: Flow; wd30: Flow }
+const usd0 = (v: number) => `$${Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 })}`
 
 export default function AdminDashboard() {
   const { data: stats, isLoading } = useAdminStats()
@@ -95,6 +98,8 @@ export default function AdminDashboard() {
   const traffic = useQuery({ queryKey: ['admin-analytics', 1], staleTime: 30000, refetchInterval: 60000, retry: false, queryFn: () => api.get<Traffic>('/api/admin/analytics?days=1') })
   const pays = useQuery({ queryKey: ['admin-payments'], staleTime: 30000, refetchInterval: 60000, retry: false, queryFn: () => api.get<Pay>('/api/admin/nowpayments') })
 
+  const money = useQuery({ queryKey: ['admin-money'], staleTime: 60000, refetchInterval: 120000, retry: false, queryFn: () => api.get<Money>('/api/admin/money') })
+  const m = money.data
   const activeWallets = ((wallets || []) as Row_[]).filter(w => w.status === 'active').length
   const pendingDep = stats?.pendingDeposits || 0
   const pendingWd = stats?.pendingWithdrawals || 0
@@ -164,6 +169,16 @@ export default function AdminDashboard() {
         <MetricCard label="Online now" value={t ? t.live : '–'} icon={<Radio size={18} />} color="#10b981" href="/admin/traffic" loading={traffic.isLoading} />
         <MetricCard label="Payments to review" value={pays.data ? review : '–'} icon={<ShieldAlert size={18} />} color={review ? '#ef4444' : '#9ca3af'} href="/admin/payments" loading={pays.isLoading} />
       </div>
+
+      {/* Money in / out (hidden for roles without finance access) */}
+      {!money.isError && (
+        <div className="ad-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+          <MetricCard label="Deposits · 24h" value={m ? usd0(m.dep24.usd) : '–'} icon={<ArrowDownCircle size={18} />} color="#10b981" href="/admin/deposits" loading={money.isLoading} sub={m ? `${m.dep24.count} invoiced` : undefined} />
+          <MetricCard label="Deposits · 30 days" value={m ? usd0(m.dep30.usd) : '–'} icon={<ArrowDownCircle size={18} />} color="#10b981" href="/admin/deposits" loading={money.isLoading} sub={m ? `${m.dep30.count} invoiced` : undefined} />
+          <MetricCard label="Paid out · 24h" value={m ? usd0(m.wd24.usd) : '–'} icon={<ArrowUpCircle size={18} />} color="#D4AF37" href="/admin/withdrawals" loading={money.isLoading} sub={m ? `${m.wd24.count} withdrawals` : undefined} />
+          <MetricCard label="Paid out · 30 days" value={m ? usd0(m.wd30.usd) : '–'} icon={<ArrowUpCircle size={18} />} color="#D4AF37" href="/admin/withdrawals" loading={money.isLoading} sub={m ? `${m.wd30.count} withdrawals` : undefined} />
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="ad-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 18 }}>

@@ -234,3 +234,13 @@ button:not(:disabled):active { transform: scale(0.97); }
 @keyframes dqIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .dl-content > div:not([style*="margin-bottom: 16px"]) { animation: dqIn .35s ease both; }
 @media (max-width: 768px) { .dl-content h1 { font-size: 22px !important; } .dl-content .glass-card { border-radius: 16px; } }
+
+/* ---- polish: focus, selection, scrollbars, touch feedback ---- */
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid rgba(212, 175, 55, 0.7); outline-offset: 2px; border-radius: 6px; }
+::selection { background: rgba(212, 175, 55, 0.3); color: #fff; }
+* { scrollbar-width: thin; scrollbar-color: rgba(212, 175, 55, 0.28) transparent; }
+button:active:not(:disabled), a.dq-btn:active { transform: scale(0.98); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

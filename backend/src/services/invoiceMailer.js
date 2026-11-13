@@ -24,9 +24,33 @@ export function invoiceHtml(inv, co, email) { // invoice-v2
     <p style="color:#777;font-size:12px;margin-top:20px;line-height:1.7">${esc(co.footer)}<br>This is a computer-generated document and does not require a signature. · وثيقة صادرة إلكترونياً ولا تحتاج إلى توقيع.<br>You can view and print all your invoices in your dashboard under Invoices.</p></div>`
 }
 
+// One-time: invoices for deposits that were confirmed before invoicing started. Created silently (no email) and dated by the deposit.
+async function backfillOld(co) {
+  if (co.backfilled || !co.start_after) return
+  const { data: deps, error } = await supabase.from('deposits')
+    .select('id, asset, amount, confirmed_at').eq('status', 'confirmed').lt('confirmed_at', co.start_after).order('confirmed_at').limit(1000)
+  if (error) throw error
+  const list = deps || []
+  let failed = 0
+  if (list.length) {
+    const { data: have } = await supabase.from('invoices').select('deposit_id').in('deposit_id', list.map(d => d.id))
+    const done = new Set((have || []).map(h => h.deposit_id))
+    for (const d of list.filter(x => !done.has(x.id))) {
+      try {
+        const rate = STABLE.has(d.asset) ? 1 : await getPrice(d.asset)
+        const { data: id, error: e } = await supabase.rpc('create_invoice', { p_deposit: d.id, p_usd: Number(d.amount) * rate, p_rate: rate })
+        if (e) throw e
+        if (id) await supabase.from('invoices').update({ issued_at: d.confirmed_at, emailed_at: new Date().toISOString() }).eq('id', id)
+      } catch (e) { failed++; console.error(`[invoices] backfill ${d.id}: ${e.message}`) }
+    }
+  }
+  if (failed === 0 && list.length < 1000) await saveSetting('invoice', { backfilled: true })
+}
+
 export async function processInvoices() {
   const co = await getSetting('invoice')
   if (!co.start_after) { await saveSetting('invoice', { start_after: new Date().toISOString() }); return null }
+  await backfillOld(co).catch(e => console.error('[invoices] backfill:', e.message))
   const { data: deps, error } = await supabase.from('deposits')
     .select('id, user_id, asset, amount').eq('status', 'confirmed').gte('confirmed_at', co.start_after).order('confirmed_at').limit(50)
   if (error) throw error

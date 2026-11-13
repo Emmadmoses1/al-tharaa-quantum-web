@@ -7,6 +7,7 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useQueryClient } from '@tanstack/react-query'
+import { useWalletBalances } from '../../hooks/useWallet'
 import { PageStyles, PageHeader, Pill, Empty } from '../../components/PageKit'
 
 const RISK_COLORS: Record<string, { bg: string; text: string; label: string }> = {
@@ -27,6 +28,8 @@ export default function TradingPage() {
   const [saving, setSaving] = useState(false)
 
   const { data: portfolio, isLoading: portLoading, isError: portError, refetch: portRefetch } = useTradingPortfolio()
+  const wallet = useWalletBalances()
+  const tradeWallet = wallet.data?.find(w => w.ledger_type === 'trading' && w.asset === 'USDT')?.balance ?? 0
   const { data: trades, isLoading: tradesLoading } = useTrades()
   const { data: strategies, isLoading: stratLoading } = useStrategies()
 
@@ -64,7 +67,7 @@ export default function TradingPage() {
   const blocked = !selectedStrategy || saving || isEmergencyStopped
 
   const stats = [
-    { label: 'الرصيد المتاح', value: portfolio ? usdt(portfolio.available_balance) : '—', icon: <Shield size={18} color="#D4AF37" />, c: '#fff' },
+    { label: 'رصيد محفظة التداول', value: wallet.isLoading ? '—' : usdt(tradeWallet), icon: <Shield size={18} color="#D4AF37" />, c: '#fff' },
     { label: 'إجمالي الصفقات', value: String(portfolio?.total_trades || 0), icon: <BarChart2 size={18} color="#D4AF37" />, c: '#fff' },
     { label: 'الربح/الخسارة المحقق', value: portfolio ? `${pnl >= 0 ? '+' : ''}${usdt(pnl)}` : '—', icon: pnl >= 0 ? <TrendingUp size={18} color="#10b981" /> : <TrendingDown size={18} color="#ef4444" />, c: pnl >= 0 ? '#10b981' : '#ef4444' },
     { label: 'أقصى تراجع', value: portfolio ? `${Number(portfolio.max_drawdown || 0).toFixed(2)}%` : '—', icon: <TrendingDown size={18} color="#ef4444" />, c: '#fff' },

@@ -45,6 +45,7 @@ export default function DashboardHome() {
   const bal = (type: 'investment' | 'trading') => (wallet.data || []).filter(b => b.ledger_type === type && b.balance !== 0)
   const invBal = bal('investment')
   const tradeBal = bal('trading')
+  const tradeUsdt = tradeBal.find(b => b.asset === 'USDT')?.balance ?? 0
 
   const allocs = (inv.data || []).filter(a => ['active', 'matured', 'pending'].includes(a.status))
   const byCur: Record<string, { invested: number; value: number }> = {}
@@ -186,17 +187,17 @@ export default function DashboardHome() {
             <h2 className="dq-h">التداول الذكي</h2>
             <Link to="/dashboard/trading" className="dq-more">عرض الكل</Link>
           </div>
-          {trade.isError ? <ErrorState onRetry={() => trade.refetch()} /> : !trade.data ? (
+          {trade.isError ? <ErrorState onRetry={() => trade.refetch()} /> : !trade.data && tradeBal.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '22px 0' }}>
               <Bot size={24} color="rgba(212,175,55,0.4)" style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo', marginBottom: 14 }}>لا يوجد نشاط تداول بعد</div>
               <Link to="/dashboard/deposit" className="dq-btn">إيداع للتداول</Link>
             </div>
           ) : [
-            ['الرصيد المتاح', `USDT ${Number(trade.data.available_balance).toFixed(2)}`],
-            ['رأس المال المخصص', `USDT ${Number(trade.data.allocated_capital).toFixed(2)}`],
-            ['الربح/الخسارة المحققة', `USDT ${Number(trade.data.realized_pnl).toFixed(2)}`],
-            ['حالة الذكاء الاصطناعي', trade.data.ai_status],
+            ['رصيد محفظة التداول', `USDT ${tradeUsdt.toFixed(2)}`],
+            ['رأس المال المخصص', `USDT ${Number(trade.data?.allocated_capital ?? 0).toFixed(2)}`],
+            ['الربح/الخسارة المحققة', `USDT ${Number(trade.data?.realized_pnl ?? 0).toFixed(2)}`],
+            ['حالة الذكاء الاصطناعي', trade.data?.ai_status === 'active' ? 'نشط' : trade.data?.ai_status === 'emergency_stopped' ? 'إيقاف طارئ' : 'غير مفعّل'],
           ].map(([k, v], i) => (
             <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < 3 ? '1px solid rgba(212,175,55,0.07)' : 'none' }}>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo' }}>{k}</span>

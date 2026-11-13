@@ -49,6 +49,7 @@ import adminStrategiesRouter from './routes/adminStrategies.js'
 import adminBinaryRouter from './routes/adminBinary.js'
 import adminRouter from './routes/admin.js'
 import reservesRouter from './routes/adminReserves.js'
+import adminMoneyRouter from './routes/adminMoney.js'
 import marketsRouter from './routes/markets.js'
 import aiStatusRouter from './routes/aiStatus.js'
 import { startLoop } from './services/loop.js'
@@ -144,6 +145,7 @@ app.use('/api/admin/nowpayments', adminPaymentsRouter)
 app.use('/api/track', trackRouter)
 app.use('/api/admin/analytics', adminAnalyticsRouter)
 app.use('/api/admin/reserves', reservesRouter)
+app.use('/api/admin/money', adminMoneyRouter)
 app.use('/api/markets', marketsRouter)
 app.use('/api/ai-status', aiStatusRouter)
 app.use('/api/admin/trades', adminTradesRouter)

@@ -72,6 +72,8 @@ export default function InvoicesPage() {
         <div style={{ ...card, textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo', fontSize: 13, padding: 28 }}>
           <Receipt size={26} color="rgba(212,175,55,0.5)" style={{ marginBottom: 8 }} />
           <div>لا توجد مستندات بعد</div>
+          <div style={{ fontSize: 12, marginTop: 6, lineHeight: 1.9 }}>تظهر فاتورتك هنا تلقائياً بعد تأكيد أول إيداع، ويظهر إيصال السحب بعد إرسال أول سحب.</div>
+          <Link to="/dashboard/deposit" className="btn-gold" style={{ display: 'inline-block', textDecoration: 'none', marginTop: 14, padding: '10px 22px', fontSize: 13 }}>إيداع الآن</Link>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 10 }}>

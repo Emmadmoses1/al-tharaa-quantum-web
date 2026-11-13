@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useNotifications, useMarkNotificationRead, useMarkAllRead } from '../../hooks/useData'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
   deposit: <ArrowDownCircle size={16} color="#10b981" />,
@@ -41,6 +41,13 @@ export default function NotificationsPage() {
   const navigate = useNavigate()
   const markRead = useMarkNotificationRead()
   const markAll = useMarkAllRead()
+  const hasUnread = (notifications || []).some(n => !n.is_read)
+  useEffect(() => {
+    if (!hasUnread) return
+    const t = window.setTimeout(() => markAll.mutate(), 1500)
+    return () => window.clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasUnread])
 
   const filtered = filter === 'all'
     ? (notifications || [])
