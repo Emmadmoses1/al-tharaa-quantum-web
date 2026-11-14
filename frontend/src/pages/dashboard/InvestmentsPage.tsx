@@ -13,6 +13,8 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { InvAmt } from '../../components/LocalAmt'
 import InvestAction from '../../components/InvestAction'
 import GalleryCover from '../../components/GalleryCover'
+import OppVideo from '../../components/OppVideo'
+import OppUpdates from '../../components/OppUpdates'
 
 const CATEGORIES = [
   { key: 'all', label: 'الكل' },
@@ -372,6 +374,8 @@ export default function InvestmentsPage() {
               {selectedOpp.description_ar || selectedOpp.description}
             </p>
           ) : null}
+          {selectedOpp.video_url ? <OppVideo url={selectedOpp.video_url} /> : null}
+          <OppUpdates oppId={selectedOpp.id} />
         </div>
 
         {/* Calculator */}

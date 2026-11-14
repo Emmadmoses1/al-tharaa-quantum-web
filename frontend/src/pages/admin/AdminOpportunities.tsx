@@ -4,6 +4,7 @@ import { useAdminOpportunities, useAdminCreateOpportunity, useAdminUpdateOpportu
 import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
 import OpportunityMedia from '../../components/OpportunityMedia'
+import AdminVideoField from '../../components/AdminVideoField'
 import { InvAmt } from '../../components/LocalAmt'
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
@@ -27,7 +28,7 @@ const EMPTY_FORM = {
   minimum_investment: '', target_amount: '', currency: 'USDT',
   risk_level: 'medium', duration_days: '',
   projected_return_min: '', projected_return_max: '',
-  fees_percent: '1.5', status: 'draft',  cover_image_url: '', gallery_urls: '',
+  fees_percent: '1.5', status: 'draft',  cover_image_url: '', gallery_urls: '', video_url: '',
 }
 
 export default function AdminOpportunities() {
@@ -69,6 +70,7 @@ export default function AdminOpportunities() {
       fees_percent: String(opp.fees_percent || '1.5'),
       status: String(opp.status || 'draft'),
       cover_image_url: String(opp.cover_image_url || ''),
+      video_url: String(opp.video_url || ''),
       gallery_urls: Array.isArray(opp.gallery_urls) ? (opp.gallery_urls as string[]).join('\n') : '',
     })
     setEditingId(opp.id as string)
@@ -99,6 +101,7 @@ export default function AdminOpportunities() {
       fees_percent: Number(form.fees_percent),
       status: form.status,
       cover_image_url: form.cover_image_url || null,
+      video_url: form.video_url.trim() || null,
       gallery_urls: form.gallery_urls.split('\n').map(x => x.trim()).filter(Boolean).slice(0, 12),
     }
 
@@ -216,6 +219,7 @@ export default function AdminOpportunities() {
               </div>
 
               <OpportunityMedia form={form} setF={setF} />
+              <AdminVideoField value={form.video_url} onChange={v => setForm(f => ({ ...f, video_url: v }))} />
 
               <div>
                 <label style={labelStyle}>DESCRIPTION (EN)</label>

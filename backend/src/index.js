@@ -6,6 +6,7 @@ const compression = await import('compression').then(m => m.default).catch(() =>
 import 'dotenv/config'
 
 import healthRouter from './routes/health.js'
+import { publicUpdatesRouter, adminUpdatesRouter } from './routes/opportunityUpdates.js'
 import publicPayoutsRouter from './routes/publicPayouts.js'
 import currencyRouter from './routes/currency.js'
 import publicCurrencyRouter from './routes/publicCurrency.js'
@@ -161,6 +162,8 @@ app.use('/api/public/status', publicStatusRouter)
 app.use('/api/public/legal', publicLegalRouter)
 app.use('/api/admin/legal', adminLegalRouter)
 app.use('/api/account', accountRouter)
+app.use('/api/public/opportunity-updates', publicUpdatesRouter)
+app.use('/api/admin/opportunity-updates', adminUpdatesRouter)
 app.use('/api/public/payouts', publicPayoutsRouter)
 app.use('/api/currency', currencyRouter)
 app.use('/api/public/currencies', publicCurrencyRouter)

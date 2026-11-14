@@ -61,6 +61,7 @@ export interface InvestmentOpportunity {
   projected_return_min: number | null
   projected_return_max: number | null
   cover_image_url: string | null
+  video_url?: string | null
   status: string
   created_at: string
 }

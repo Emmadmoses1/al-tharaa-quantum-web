@@ -74,6 +74,8 @@ import HelpPage from './pages/HelpPage'
 import StatusPage from './pages/StatusPage'
 import AdminReadiness from './pages/admin/AdminReadiness'
 
+import CertificatePage from './pages/dashboard/CertificatePage'
+import AdminUpdates from './pages/admin/AdminUpdates'
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
@@ -134,6 +136,7 @@ export default function App() {
         <Route path="/dashboard/transactions" element={<UserPage><TransactionsPage /></UserPage>} />
         <Route path="/dashboard/notifications" element={<UserPage><NotificationsPage /></UserPage>} />
         <Route path="/dashboard/profile" element={<UserPage><ProfilePage /></UserPage>} />
+        <Route path="/dashboard/certificate/:id" element={<UserPage><CertificatePage /></UserPage>} />
         <Route path="/dashboard/verify-face" element={<UserPage><FacePage /></UserPage>} />
         <Route path="/dashboard/settings" element={<UserPage><SettingsPage /></UserPage>} />
         <Route path="/dashboard/support" element={<UserPage><SupportPage /></UserPage>} />
@@ -149,6 +152,7 @@ export default function App() {
         <Route path="/admin/ledger" element={<AdminPage><AdminLedger /></AdminPage>} />
         <Route path="/admin/reserves" element={<AdminPage><AdminReserves /></AdminPage>} />
         <Route path="/admin/balances" element={<AdminPage><AdminBalances /></AdminPage>} />
+        <Route path="/admin/updates" element={<AdminPage><AdminUpdates /></AdminPage>} />
         <Route path="/admin/opportunities" element={<AdminPage><AdminOpportunities /></AdminPage>} />
         <Route path="/admin/allocations" element={<AdminPage><AdminAllocations /></AdminPage>} />
         <Route path="/admin/ai" element={<AdminPage><AdminAiOverview /></AdminPage>} />

@@ -33,6 +33,7 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   { title: 'INVESTMENT', items: [
     { icon: TrendingUp, label: 'Opportunities', href: '/admin/opportunities' },
     { icon: Briefcase, label: 'Allocations', href: '/admin/allocations' },
+    { icon: TrendingUp, label: 'Project Updates', href: '/admin/updates' },
   ]},
   { title: 'AI TRADING', items: [
     { icon: Bot, label: 'Signal Engine', href: '/admin/signal-engine' },
