@@ -18,6 +18,16 @@ export async function uploadImage(file: File): Promise<string> {
   return supabase.storage.from('opportunity-images').getPublicUrl(path).data.publicUrl
 }
 
+export async function uploadDoc(file: File): Promise<string> {
+  if (file.size > 20 * 1024 * 1024) throw new Error('File is larger than 20MB. Upload it elsewhere and paste the https link.')
+  if (!(file.type === 'application/pdf' || file.type.startsWith('image/'))) throw new Error('Choose a PDF or an image')
+  const ext = file.type === 'application/pdf' ? 'pdf' : (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'jpg'
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+  const { error } = await supabase.storage.from('opportunity-docs').upload(path, file, { contentType: file.type, upsert: false })
+  if (error) throw error
+  return supabase.storage.from('opportunity-docs').getPublicUrl(path).data.publicUrl
+}
+
 // Videos go straight to storage with a progress callback. The size limit is the one set in Supabase (Storage settings).
 export async function uploadVideo(file: File, onProgress: (pct: number) => void): Promise<string> {
   if (!file.type.startsWith('video/')) throw new Error('Choose a video file')

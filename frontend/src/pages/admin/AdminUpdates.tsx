@@ -5,6 +5,7 @@ import { api } from '../../lib/api'
 import { Pill, inputCss, btn, labelCss, cardCss, ago } from '../../components/ui/AdminKit'
 import AdminVideoField from '../../components/AdminVideoField'
 import OppVideo from '../../components/OppVideo'
+import AdminDocs from '../../components/AdminDocs'
 import { uploadImage } from '../../lib/mediaUpload'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
@@ -118,6 +119,7 @@ export default function AdminUpdates() {
           ))}
         </div>
       )}
+      {oppId && <AdminDocs oppId={oppId} />}
     </div>
   )
 }

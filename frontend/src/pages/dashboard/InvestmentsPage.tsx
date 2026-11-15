@@ -16,6 +16,7 @@ import InvestAction from '../../components/InvestAction'
 import GalleryCover from '../../components/GalleryCover'
 import OppVideo from '../../components/OppVideo'
 import OppUpdates from '../../components/OppUpdates'
+import OppDocs from '../../components/OppDocs'
 
 const CATEGORIES = [
   { key: 'all', label: 'الكل' },
@@ -377,6 +378,7 @@ export default function InvestmentsPage() {
             </p>
           ) : null}
           {selectedOpp.video_url ? <OppVideo url={selectedOpp.video_url} /> : null}
+          <OppDocs oppId={selectedOpp.id} />
           <OppUpdates oppId={selectedOpp.id} />
         </div>
 

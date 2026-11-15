@@ -76,6 +76,8 @@ import { syncPendingPayments } from './services/nowpaymentsSync.js'
 
 import withdrawalGate from './routes/withdrawalGate.js'
 import publicTrack from './routes/publicTrack.js'
+import goalsRouter from './routes/goals.js'
+import { publicDocsRouter, adminDocsRouter } from './routes/opportunityDocs.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -165,7 +167,10 @@ app.use('/api/password', passwordRouter)
 app.use('/api/public/status', publicStatusRouter)
 app.use('/api/public/legal', publicLegalRouter)
 app.use('/api/admin/legal', adminLegalRouter)
+app.use('/api/goals', goalsRouter)
 app.use('/api/account', accountRouter)
+app.use('/api/public/opportunity-docs', publicDocsRouter)
+app.use('/api/admin/opportunity-docs', adminDocsRouter)
 app.use('/api/public/opportunity-updates', publicUpdatesRouter)
 app.use('/api/admin/opportunity-updates', adminUpdatesRouter)
 app.use('/api/public/payouts', publicPayoutsRouter)
