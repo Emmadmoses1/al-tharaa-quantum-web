@@ -1,4 +1,5 @@
 import { useOppUpdates } from '../lib/useUpdates'
+import { Link } from 'react-router-dom'
 import OppVideo from './OppVideo'
 
 const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -26,6 +27,7 @@ export default function OppUpdates({ oppId }: { oppId: string }) {
           ))}
         </div>
       )}
+      <Link to="/track-record" style={{ display: 'inline-block', marginTop: 16, fontSize: 12, color: '#D4AF37', fontFamily: 'Cairo' }}>سجل المشاريع المكتملة ←</Link>
     </div>
   )
 }

@@ -75,6 +75,7 @@ import { runEngagement } from './services/engagement.js'
 import { syncPendingPayments } from './services/nowpaymentsSync.js'
 
 import withdrawalGate from './routes/withdrawalGate.js'
+import publicTrack from './routes/publicTrack.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -123,6 +124,7 @@ app.set('trust proxy', 1)
 app.use('/api/health', healthRouter)
 app.use('/api/statistics', statisticsRouter)
 app.use('/api/deposits', depositsRouter)
+app.use('/api/public/track-record', publicTrack)
 app.use('/api/withdrawals', withdrawalGate)
 app.use('/api/withdrawals', withdrawalsRouter)
 app.use('/api/address-book', addressBookRouter)

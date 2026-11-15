@@ -28,7 +28,7 @@ const EMPTY_FORM = {
   minimum_investment: '', target_amount: '', currency: 'USDT',
   risk_level: 'medium', duration_days: '',
   projected_return_min: '', projected_return_max: '',
-  fees_percent: '1.5', status: 'draft',  cover_image_url: '', gallery_urls: '', video_url: '',
+  fees_percent: '1.5', status: 'draft',  cover_image_url: '', gallery_urls: '', video_url: '', actual_return_percent: '',
 }
 
 export default function AdminOpportunities() {
@@ -71,6 +71,7 @@ export default function AdminOpportunities() {
       status: String(opp.status || 'draft'),
       cover_image_url: String(opp.cover_image_url || ''),
       video_url: String(opp.video_url || ''),
+      actual_return_percent: opp.actual_return_percent == null ? '' : String(opp.actual_return_percent),
       gallery_urls: Array.isArray(opp.gallery_urls) ? (opp.gallery_urls as string[]).join('\n') : '',
     })
     setEditingId(opp.id as string)
@@ -102,6 +103,7 @@ export default function AdminOpportunities() {
       status: form.status,
       cover_image_url: form.cover_image_url || null,
       video_url: form.video_url.trim() || null,
+      actual_return_percent: form.status === 'completed' && form.actual_return_percent !== '' ? Number(form.actual_return_percent) : null,
       gallery_urls: form.gallery_urls.split('\n').map(x => x.trim()).filter(Boolean).slice(0, 12),
     }
 
@@ -220,6 +222,12 @@ export default function AdminOpportunities() {
 
               <OpportunityMedia form={form} setF={setF} />
               <AdminVideoField value={form.video_url} onChange={v => setForm(f => ({ ...f, video_url: v }))} />
+              {form.status === 'completed' && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', fontFamily: 'Montserrat', marginBottom: 4 }}>ACHIEVED RETURN % (REAL OUTCOME, OPTIONAL)</div>
+                  <input type="number" step="0.01" value={form.actual_return_percent} onChange={e => setForm(f => ({ ...f, actual_return_percent: e.target.value }))} placeholder="Leave empty if not known" style={{ width: '100%', background: 'rgba(11,11,11,0.5)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 13, fontFamily: 'Montserrat', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              )}
 
               <div>
                 <label style={labelStyle}>DESCRIPTION (EN)</label>

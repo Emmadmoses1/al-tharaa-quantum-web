@@ -77,6 +77,7 @@ import AdminReadiness from './pages/admin/AdminReadiness'
 import CertificatePage from './pages/dashboard/CertificatePage'
 import AdminUpdates from './pages/admin/AdminUpdates'
 import ConfirmAddressPage from './pages/dashboard/ConfirmAddressPage'
+import TrackRecordPage from './pages/TrackRecordPage'
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
@@ -108,6 +109,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/track-record" element={<TrackRecordPage />} />
         <Route path="/terms" element={<LegalPage kind="terms" />} />
         <Route path="/privacy" element={<LegalPage kind="privacy" />} />
         <Route path="/risk" element={<LegalPage kind="risk" />} />
