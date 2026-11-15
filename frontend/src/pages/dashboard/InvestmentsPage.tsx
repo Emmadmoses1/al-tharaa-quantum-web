@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import {
   TrendingUp, MapPin, Clock,
@@ -252,6 +253,7 @@ function PortfolioSection() {
                       ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
                     padding: '2px 8px', borderRadius: 4,
                   }}>{alloc.status}</span>
+                  <Link to={`/dashboard/certificate/${alloc.id}`} style={{ fontSize: 10, color: '#D4AF37', fontFamily: 'Cairo', textDecoration: 'underline' }}>الشهادة</Link>
                   {alloc.investment_opportunities?.category && (
                     <span style={{
                       fontSize: 10, fontFamily: 'Cairo',
