@@ -21,14 +21,16 @@ async function settlePrice(o) {
 
 export async function settleBinary() {
   if (Date.now() < pauseUntil) return null
-  const { data: due, error } = await supabase.from('binary_orders').select('id, asset, expires_at')
+  const { data: due, error } = await supabase.from('binary_orders').select('id, asset, expires_at, entry_price')
     .eq('status', 'open').lte('expires_at', new Date().toISOString()).order('expires_at').limit(200)
   if (error) throw error
   if (!due || due.length === 0) return null
   let done = 0, failed = 0
   for (const o of due) {
     let p
-    try { p = await settlePrice(o) } catch (e) {
+    // The database function refunds any order more than 60s past expiry and ignores the price, so a dead price feed must never leave it stuck.
+    const lateMs = Date.now() - new Date(o.expires_at).getTime()
+    try { p = lateMs > 61000 ? Number(o.entry_price) : await settlePrice(o) } catch (e) {
       failed++
       if (Date.now() - new Date(o.expires_at).getTime() > STUCK_MS) console.error(`[binary] order ${o.id} is stuck (${o.asset}): ${e.message}`)
       continue
