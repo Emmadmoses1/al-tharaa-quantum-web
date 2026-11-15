@@ -5,7 +5,7 @@ import { useUnreadCount } from '../../hooks/useData'
 import { LogoMark } from '../Logo'
 import {
   LayoutDashboard, TrendingUp, Briefcase, ArrowDownCircle, ArrowUpCircle, Receipt,
-  Bell, User, Settings, LogOut, Bot, LineChart, History, Target,
+  Bell, User, Settings, LogOut, Bot, LineChart, History, Target, FileText,
 } from 'lucide-react'
 
 const GROUPS = [
@@ -21,6 +21,7 @@ const GROUPS = [
     { icon: ArrowUpCircle, label: 'سحب', href: '/dashboard/withdraw' },
     { icon: History, label: 'المعاملات', href: '/dashboard/transactions' },
     { icon: Receipt, label: 'الفواتير', href: '/dashboard/invoices' },
+    { icon: FileText, label: 'كشف الحساب', href: '/dashboard/statement' },
     { icon: Target, label: 'أهدافي', href: '/dashboard/goals' },
   ] },
   { label: 'الحساب', items: [

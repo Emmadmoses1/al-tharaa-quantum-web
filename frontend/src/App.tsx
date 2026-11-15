@@ -79,6 +79,7 @@ import AdminUpdates from './pages/admin/AdminUpdates'
 import ConfirmAddressPage from './pages/dashboard/ConfirmAddressPage'
 import TrackRecordPage from './pages/TrackRecordPage'
 import GoalsPage from './pages/dashboard/GoalsPage'
+import StatementPage from './pages/dashboard/StatementPage'
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
@@ -143,6 +144,7 @@ export default function App() {
         <Route path="/dashboard/certificate/:id" element={<UserPage><CertificatePage /></UserPage>} />
         <Route path="/dashboard/confirm-address" element={<UserPage><ConfirmAddressPage /></UserPage>} />
         <Route path="/dashboard/goals" element={<UserPage><GoalsPage /></UserPage>} />
+        <Route path="/dashboard/statement" element={<UserPage><StatementPage /></UserPage>} />
         <Route path="/dashboard/verify-face" element={<UserPage><FacePage /></UserPage>} />
         <Route path="/dashboard/settings" element={<UserPage><SettingsPage /></UserPage>} />
         <Route path="/dashboard/support" element={<UserPage><SupportPage /></UserPage>} />
