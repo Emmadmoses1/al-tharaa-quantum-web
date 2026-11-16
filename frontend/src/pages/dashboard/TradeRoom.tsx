@@ -31,6 +31,7 @@ export default function TradeRoom() {
   const qc = useQueryClient()
   const wallet = useWalletBalances()
   const balance = wallet.data?.find(w => w.ledger_type === 'trading' && w.asset === 'USDT')?.balance ?? 0
+  const balanceLoading = wallet.data === undefined
   const [asset, setAsset] = useState('BTC')
   const [seconds, setSeconds] = useState(60)
   const [amount, setAmount] = useState('10')
@@ -92,7 +93,7 @@ export default function TradeRoom() {
           <Wallet size={20} color="#D4AF37" />
           <div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>رصيد محفظة التداول</div>
-            <b style={{ fontSize: 20, color: '#D4AF37', ...mono }}>{num(balance)} USDT</b>
+            <b style={{ fontSize: 20, color: '#D4AF37', ...mono }}>{balanceLoading ? '—' : `${num(balance)} USDT`}</b>
           </div>
         </div>
         <Link to="/dashboard/deposit" className="btn-gold" style={{ textDecoration: 'none', fontSize: 12, padding: '10px 18px' }}>إيداع</Link>
@@ -141,7 +142,7 @@ export default function TradeRoom() {
             </div>
 
             {err && <div role="alert" style={{ marginBottom: 10, fontSize: 12.5, color: DOWN, fontFamily: 'Cairo', lineHeight: 1.8 }}>{err}</div>}
-            {amt > balance && <div style={{ marginBottom: 10, fontSize: 12, color: '#f59e0b', fontFamily: 'Cairo' }}>الرصيد غير كافٍ. <Link to="/dashboard/deposit" style={{ color: '#D4AF37' }}>أودِع الآن</Link></div>}
+            {!balanceLoading && amt > balance && <div style={{ marginBottom: 10, fontSize: 12, color: '#f59e0b', fontFamily: 'Cairo' }}>الرصيد غير كافٍ. <Link to="/dashboard/deposit" style={{ color: '#D4AF37' }}>أودِع الآن</Link></div>}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <button type="button" disabled={busy || !amountOk} onClick={() => place('up')}
