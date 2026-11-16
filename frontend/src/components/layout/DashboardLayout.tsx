@@ -16,6 +16,7 @@ import { LogoMark } from '../Logo'
 import { useAuth } from '../../context/AuthContext'
 import { useUnreadCount } from '../../hooks/useData'
 
+import VoiceAnnouncer from '../VoiceAnnouncer'
 const TABS = [
   { href: '/dashboard', label: 'الرئيسية', icon: LayoutDashboard },
   { href: '/dashboard/investments', label: 'الفرص', icon: Briefcase },
@@ -115,7 +116,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="dl-content" style={{ padding: '24px 32px 40px', maxWidth: 1280, margin: '0 auto' }}><WinCelebration /><MarketTicker /><FaceBanner /><InstallBanner /><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
+        <div className="dl-content" style={{ padding: '24px 32px 40px', maxWidth: 1280, margin: '0 auto' }}><WinCelebration /><VoiceAnnouncer /><MarketTicker /><FaceBanner /><InstallBanner /><PushPrompt /><ErrorBoundary key={pathname}>{children}</ErrorBoundary></div>
       </main>
 
       <nav className="dl-bottom">
