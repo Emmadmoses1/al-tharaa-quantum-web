@@ -79,6 +79,7 @@ import publicTrack from './routes/publicTrack.js'
 import goalsRouter from './routes/goals.js'
 import { publicDocsRouter, adminDocsRouter } from './routes/opportunityDocs.js'
 import adminOppTools from './routes/adminOppTools.js'
+import publicDevice from './routes/publicDevice.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -173,6 +174,7 @@ app.use('/api/account', accountRouter)
 app.use('/api/public/opportunity-docs', publicDocsRouter)
 app.use('/api/admin/opportunity-docs', adminDocsRouter)
 app.use('/api/admin/opp-tools', adminOppTools)
+app.use('/api/public/device-check', publicDevice)
 app.use('/api/public/opportunity-updates', publicUpdatesRouter)
 app.use('/api/admin/opportunity-updates', adminUpdatesRouter)
 app.use('/api/public/payouts', publicPayoutsRouter)

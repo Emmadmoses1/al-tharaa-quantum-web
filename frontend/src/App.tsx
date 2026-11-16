@@ -81,6 +81,7 @@ import TrackRecordPage from './pages/TrackRecordPage'
 import GoalsPage from './pages/dashboard/GoalsPage'
 import StatementPage from './pages/dashboard/StatementPage'
 import AdminRss from './pages/admin/AdminRss'
+import './lib/deviceGate'
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>

@@ -4,6 +4,7 @@ import { requireAdmin } from '../middleware/authGuard.js'
 import { logEvent } from '../lib/client.js'
 import { sendMail, esc } from '../lib/mailer.js'
 
+import { banDevicesOf, unbanDevicesOf } from '../lib/deviceBan.js'
 const router = Router()
 router.use(requireAdmin)
 const bad = (res, s, m) => res.status(s).json({ success: false, error: { message: m, code: 'BAD_REQUEST' } })
@@ -109,7 +110,8 @@ router.post('/:id/suspend', async (req, res, next) => {
     const reason = String(req.body?.reason || 'Suspended by admin').slice(0, 200)
     await supabase.from('profiles').update({ account_status: 'suspended', suspended_reason: reason, suspended_at: new Date().toISOString() }).eq('id', id)
     await supabase.auth.admin.updateUserById(id, { ban_duration: '876000h' })
-    await logEvent(supabase, id, 'suspended', req, { by: req.user.id, reason })
+    const banned = await banDevicesOf(id, reason).catch(() => 0)
+    await logEvent(supabase, id, 'suspended', req, { by: req.user.id, reason, devices_blocked: banned })
     res.json({ success: true, data: { ok: true } })
   } catch (err) { next(err) }
 })
@@ -121,6 +123,7 @@ router.post('/:id/unsuspend', async (req, res, next) => {
     if (!UUID.test(id)) return bad(res, 400, 'Bad id')
     await supabase.from('profiles').update({ account_status: 'active', suspended_reason: null, suspended_at: null, flagged: false, flag_reason: null }).eq('id', id)
     await supabase.auth.admin.updateUserById(id, { ban_duration: 'none' })
+    await unbanDevicesOf(id).catch(() => {})
     await logEvent(supabase, id, 'unsuspended', req, { by: req.user.id })
     res.json({ success: true, data: { ok: true } })
   } catch (err) { next(err) }

@@ -45,7 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!profile?.id) return
     try { if (sessionStorage.getItem('aq_sess') === profile.id) return; sessionStorage.setItem('aq_sess', profile.id) } catch { /* ignore */ }
-    getDevice().then(device => api.post('/api/account/session', { device })).catch(() => {})
+    getDevice().then(device => api.post<{ account_status?: string }>('/api/account/session', { device })).then(r => { if (r?.account_status === 'suspended') window.location.reload() }).catch(() => {})
   }, [profile?.id])
 
   // Warm up the main pages in the background so tab switches feel instant (skipped on data-saver).

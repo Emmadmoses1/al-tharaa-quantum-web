@@ -6,6 +6,7 @@ import { sendMail, esc } from '../lib/mailer.js'
 import { clientIp, clientCountry, logEvent } from '../lib/client.js'
 import { validCurrency, lockRate } from '../lib/fx.js'
 
+import { isBlockedDevice } from '../lib/deviceBan.js'
 const router = Router()
 const PEPPER = process.env.OTP_PEPPER || process.env.SUPABASE_SERVICE_ROLE_KEY || 'aq'
 const fail = (res, status, message, code) => res.status(status).json({ success: false, error: { message, code } })

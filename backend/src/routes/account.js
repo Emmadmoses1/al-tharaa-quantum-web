@@ -5,6 +5,7 @@ import { requireAuth } from '../middleware/authGuard.js'
 import { clientIp, clientCountry, logEvent } from '../lib/client.js'
 import { newLoginAlert } from '../lib/securityAlerts.js'
 
+import { isBlockedDevice } from '../lib/deviceBan.js'
 const router = Router()
 router.use(requireAuth)
 
@@ -20,25 +21,39 @@ router.post('/session', async (req, res, next) => {
     const uid = req.user.id
     const ip = clientIp(req)
     const country = await clientCountry(req)
-    const { data: me } = await supabase.from('profiles').select('role, country, account_status, flagged').eq('id', uid).single()
+    const { data: me } = await supabase.from('profiles').select('role, country, account_status, flagged, created_at').eq('id', uid).single()
     const patch = {}
     if (country && me?.country !== country) patch.country = country
-    if (value.device && me?.role === 'user') {
+    let newlySuspended = false
+    if (value.device && me?.role === 'user' && me?.account_status !== 'suspended' && await isBlockedDevice({ id: value.device.id })) {
+      Object.assign(patch, { account_status: 'suspended', suspended_reason: 'Device blocked', suspended_at: new Date().toISOString(), flagged: true, flag_reason: 'Logged in from a blocked device' })
+      newlySuspended = true
+    }
+    if (value.device && me?.role === 'user' && !newlySuspended) {
       const { id, fp } = value.device
       const { data: mine } = await supabase.from('device_accounts').select('id').eq('device_id', id).eq('user_id', uid).maybeSingle()
       if (!mine) {
         const { data: onDevice } = await supabase.from('device_accounts').select('user_id').eq('device_id', id).neq('user_id', uid)
         if (onDevice?.length) {
-          const { data: ps } = await supabase.from('profiles').select('id, role').in('id', [...new Set(onDevice.map(d => d.user_id))])
-          if ((ps || []).some(p => p.role === 'user')) { patch.flagged = true; patch.flag_reason = 'Logged in from a device used by another account' }
+          const { data: ps } = await supabase.from('profiles').select('id, role, created_at').in('id', [...new Set(onDevice.map(d => d.user_id))])
+          const others = (ps || []).filter(p => p.role === 'user')
+          if (others.length) {
+            patch.flagged = true; patch.flag_reason = 'Logged in from a device used by another account'
+            // Keep the first account, suspend the one that was added later.
+            if (me?.account_status !== 'suspended' && me?.created_at && others.some(p => new Date(p.created_at) < new Date(me.created_at))) {
+              Object.assign(patch, { account_status: 'suspended', suspended_reason: 'Multiple accounts on one device', suspended_at: new Date().toISOString() })
+              newlySuspended = true
+            }
+          }
         }
       }
       await supabase.from('device_accounts').upsert({ device_id: id, fp: fp || null, user_id: uid, ip, last_seen: new Date().toISOString() }, { onConflict: 'device_id,user_id' })
     }
     if (Object.keys(patch).length) await supabase.from('profiles').update(patch).eq('id', uid)
+    if (newlySuspended) await supabase.auth.admin.updateUserById(uid, { ban_duration: '876000h' })
     await newLoginAlert(supabase, uid, req, country).catch(e => console.error('[security] alert failed:', e.message))
     await logEvent(supabase, uid, 'login', req, { country })
-    res.json({ success: true, data: { account_status: me?.account_status || 'active' } })
+    res.json({ success: true, data: { account_status: newlySuspended ? 'suspended' : (me?.account_status || 'active') } })
   } catch (err) { next(err) }
 })
 
