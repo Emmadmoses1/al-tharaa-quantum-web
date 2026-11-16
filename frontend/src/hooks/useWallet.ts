@@ -8,30 +8,39 @@ export interface WalletBalance {
   balance: number
 }
 
-// Wallet balance = latest ledger balance_after per (ledger_type, asset).
+const LEDGERS = ['investment', 'trading'] as const
+const ASSETS = ['USDT', 'USDC', 'BTC', 'ETH'] as const
+const ck = (uid: string) => `aq_wb_${uid}`
+
+// The last balances this device saw for this account, so a refresh shows real numbers at once while the fresh ones load.
+function cached(uid?: string): WalletBalance[] | undefined {
+  if (!uid) return undefined
+  try { const v = JSON.parse(localStorage.getItem(ck(uid)) || 'null'); return Array.isArray(v) ? v : undefined } catch { return undefined }
+}
+
+// Wallet balance = latest ledger balance_after per (ledger_type, asset). One tiny query per wallet, run in parallel.
 export function useWalletBalances() {
   const { user } = useAuth()
+  const uid = user?.id
   return useQuery({
-    queryKey: ['wallet-balances', user?.id],
-    enabled: !!user?.id,
-    refetchInterval: 20000,
+    queryKey: ['wallet-balances', uid],
+    enabled: !!uid,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchInterval: 15000,
     refetchOnWindowFocus: true,
+    placeholderData: () => cached(uid),
     queryFn: async (): Promise<WalletBalance[]> => {
-      const { data, error } = await supabase
-        .from('ledger_entries')
-        .select('ledger_type, asset, balance_after, created_at')
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false })
-        .limit(1000)
-      if (error) throw error
-      const seen = new Map<string, WalletBalance>()
-      for (const row of data || []) {
-        const key = `${row.ledger_type}:${row.asset}`
-        if (!seen.has(key)) {
-          seen.set(key, { ledger_type: row.ledger_type, asset: row.asset, balance: Number(row.balance_after) })
-        }
-      }
-      return Array.from(seen.values())
+      const res = await Promise.all(LEDGERS.flatMap(l => ASSETS.map(async a => {
+        const { data, error } = await supabase.from('ledger_entries').select('balance_after')
+          .eq('user_id', uid!).eq('ledger_type', l).eq('asset', a)
+          .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(1)
+        if (error) throw error
+        return data && data.length ? { ledger_type: l, asset: a, balance: Number(data[0].balance_after) } as WalletBalance : null
+      })))
+      const out = res.filter((x): x is WalletBalance => !!x)
+      try { localStorage.setItem(ck(uid!), JSON.stringify(out)) } catch { /* ignore */ }
+      return out
     },
   })
 }

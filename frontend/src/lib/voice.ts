@@ -11,11 +11,13 @@ const MALE = /\bmale\b|maged|majed|naayf|hamed|tarik|shakir|bassel/i
 
 function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   return new Promise(resolve => {
-    const have = window.speechSynthesis.getVoices()
-    if (have.length) return resolve(have)
-    const done = () => resolve(window.speechSynthesis.getVoices())
-    window.speechSynthesis.addEventListener('voiceschanged', done, { once: true })
-    setTimeout(done, 1500)
+    let tries = 0
+    const tick = () => {
+      const have = window.speechSynthesis.getVoices()
+      if (have.length || ++tries > 12) return resolve(have)
+      setTimeout(tick, 250) // some Android browsers fill the list late and never fire an event
+    }
+    tick()
   })
 }
 
@@ -28,16 +30,37 @@ async function pickVoice(): Promise<{ v: SpeechSynthesisVoice; female: boolean }
   return { v: neutral || ar[0], female: !!neutral }
 }
 
-export async function speak(text: string): Promise<void> {
-  if (!voiceSupported() || !voiceEnabled() || !text) return
-  try {
-    const pick = await pickVoice()
-    if (!pick) return // no Arabic voice on this device: stay silent rather than read Arabic with a wrong voice
-    const u = new SpeechSynthesisUtterance(text)
-    u.voice = pick.v; u.lang = pick.v.lang || 'ar-SA'
-    u.rate = 0.95; u.pitch = pick.female ? 1.05 : 1.25 // a slightly higher pitch makes a non-female voice sound softer
-    window.speechSynthesis.speak(u)
-  } catch { /* speech is optional */ }
+export type SpeakResult = 'ok' | 'off' | 'unsupported' | 'blocked' | 'novoice' | 'error'
+
+// Resolves when the sentence has finished. "blocked" = the browser refused because the person has not tapped the page yet.
+export async function speak(text: string): Promise<SpeakResult> {
+  if (!voiceSupported()) return 'unsupported'
+  if (!voiceEnabled() || !text) return 'off'
+  const pick = await pickVoice()
+  return new Promise<SpeakResult>(resolve => {
+    try {
+      const synth = window.speechSynthesis
+      const u = new SpeechSynthesisUtterance(text)
+      if (pick) u.voice = pick.v
+      u.lang = pick?.v.lang || 'ar-SA'
+      u.rate = 0.95; u.pitch = pick?.female ? 1.05 : 1.25 // a slightly higher pitch softens a non-female voice
+      let started = false, done = false
+      const finish = (r: SpeakResult) => { if (!done) { done = true; resolve(r) } }
+      u.onstart = () => { started = true }
+      u.onend = () => finish('ok')
+      u.onerror = () => finish(pick ? 'error' : 'novoice')
+      setTimeout(() => { if (!started) { try { synth.cancel() } catch { /* ignore */ } finish(pick ? 'blocked' : 'novoice') } }, 4000)
+      setTimeout(() => finish('ok'), 40000)
+      synth.resume()
+      synth.speak(u)
+    } catch { resolve('error') }
+  })
+}
+
+// Called from a tap: lets the browser speak later without another tap.
+export function unlockSpeech() {
+  if (!voiceSupported()) return
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u) } catch { /* ignore */ }
 }
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]
