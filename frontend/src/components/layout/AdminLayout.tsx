@@ -34,6 +34,7 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
     { icon: TrendingUp, label: 'Opportunities', href: '/admin/opportunities' },
     { icon: Briefcase, label: 'Allocations', href: '/admin/allocations' },
     { icon: TrendingUp, label: 'Project Updates', href: '/admin/updates' },
+    { icon: TrendingUp, label: 'RSS Finder', href: '/admin/rss' },
   ]},
   { title: 'AI TRADING', items: [
     { icon: Bot, label: 'Signal Engine', href: '/admin/signal-engine' },

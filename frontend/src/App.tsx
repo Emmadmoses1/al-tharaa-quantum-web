@@ -80,6 +80,7 @@ import ConfirmAddressPage from './pages/dashboard/ConfirmAddressPage'
 import TrackRecordPage from './pages/TrackRecordPage'
 import GoalsPage from './pages/dashboard/GoalsPage'
 import StatementPage from './pages/dashboard/StatementPage'
+import AdminRss from './pages/admin/AdminRss'
 function UserPage({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
@@ -161,6 +162,7 @@ export default function App() {
         <Route path="/admin/reserves" element={<AdminPage><AdminReserves /></AdminPage>} />
         <Route path="/admin/balances" element={<AdminPage><AdminBalances /></AdminPage>} />
         <Route path="/admin/updates" element={<AdminPage><AdminUpdates /></AdminPage>} />
+        <Route path="/admin/rss" element={<AdminPage><AdminRss /></AdminPage>} />
         <Route path="/admin/opportunities" element={<AdminPage><AdminOpportunities /></AdminPage>} />
         <Route path="/admin/allocations" element={<AdminPage><AdminAllocations /></AdminPage>} />
         <Route path="/admin/ai" element={<AdminPage><AdminAiOverview /></AdminPage>} />

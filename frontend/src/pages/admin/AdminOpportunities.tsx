@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Plus, TrendingUp, AlertTriangle, Edit } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, TrendingUp, AlertTriangle, Edit, Trash2 } from 'lucide-react'
+import { api } from '../../lib/api'
 import { useAdminOpportunities, useAdminCreateOpportunity, useAdminUpdateOpportunity } from '../../hooks/useData'
 import { TableRowSkeleton } from '../../components/ui/Skeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
@@ -41,8 +42,26 @@ export default function AdminOpportunities() {
   const createOpp = useAdminCreateOpportunity()
   const updateOpp = useAdminUpdateOpportunity()
 
+  // An article picked in the RSS Finder arrives here as a pre-filled DRAFT.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('aq_opp_prefill')
+      if (!raw) return
+      sessionStorage.removeItem('aq_opp_prefill')
+      const p = JSON.parse(raw) as Record<string, string>
+      setForm({ ...EMPTY_FORM, name: p.name || '', description: p.description || '', cover_image_url: p.cover_image_url || '', video_url: p.video_url || '', status: 'draft' })
+      setEditingId(null); setFormError(null); setShowModal(true)
+    } catch { /* ignore */ }
+  }, [])
+
   function setF(key: string, val: string) {
     setForm(f => ({ ...f, [key]: val }))
+  }
+
+  async function delOpp(id: string, name: string) {
+    if (!window.confirm(`Delete "${name}" permanently? This cannot be undone.`)) return
+    try { await api.post(`/api/admin/opp-tools/delete-opportunity/${id}`, {}); await refetch() }
+    catch (e) { window.alert(e instanceof Error ? e.message : 'Delete failed') }
   }
 
   function openCreate() {
@@ -313,7 +332,7 @@ export default function AdminOpportunities() {
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 100px 120px 80px 100px 80px',
+          gridTemplateColumns: '1fr 100px 120px 80px 100px 110px',
           padding: '12px 20px',
           borderBottom: '1px solid rgba(212,175,55,0.07)', gap: 10,
         }}>
@@ -342,7 +361,7 @@ export default function AdminOpportunities() {
             return (
               <div key={opp.id} style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 100px 120px 80px 100px 80px',
+                gridTemplateColumns: '1fr 100px 120px 80px 100px 110px',
                 padding: '13px 20px',
                 borderBottom: i < opps.length - 1 ? '1px solid rgba(212,175,55,0.05)' : 'none',
                 gap: 10, alignItems: 'center',
@@ -373,6 +392,12 @@ export default function AdminOpportunities() {
                 }}>
                   {opp.status.toUpperCase()}
                 </span>
+                <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  onClick={() => delOpp(opp.id, opp.name)} title="Delete"
+                  style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, padding: '5px 8px', cursor: 'pointer', color: '#ef4444', display: 'flex' }}>
+                  <Trash2 size={13} />
+                </button>
                 <button
                   onClick={() => openEdit(opp as unknown as Record<string, unknown>)}
                   style={{
@@ -383,6 +408,7 @@ export default function AdminOpportunities() {
                   }}>
                   <Edit size={13} />
                 </button>
+                </div>
               </div>
             )
           })
