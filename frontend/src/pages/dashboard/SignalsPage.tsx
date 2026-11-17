@@ -103,7 +103,7 @@ export default function SignalsPage() {
             <Wallet size={20} color="#D4AF37" />
             <div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontFamily: 'Cairo' }}>رصيد التداول</div>
-              <div className="pk-mono" style={{ fontSize: 18, fontWeight: 800, color: '#D4AF37' }}>{num(balance, 2)} USDT</div>
+              <div className="pk-mono" style={{ fontSize: 18, fontWeight: 800, color: '#D4AF37' }}>{wallet.data === undefined ? '—' : `${num(balance, 2)} USDT`}</div>
             </div>
             <Link to="/dashboard/deposit" className="btn-gold" style={{ textDecoration: 'none', fontSize: 12, padding: '8px 14px' }}>إيداع</Link>
           </div>
@@ -215,7 +215,7 @@ export default function SignalsPage() {
                   style={{ flex: 1, padding: '8px 0', textAlign: 'center', fontSize: 12, color: '#D4AF37' }}>{p}%</button>
               ))}
             </div>
-            <div style={{ fontSize: 11, color: amt > balance ? '#ef4444' : 'rgba(255,255,255,0.45)', marginBottom: 12 }}>المتاح: {num(balance, 2)} USDT</div>
+            <div style={{ fontSize: 11, color: amt > balance ? '#ef4444' : 'rgba(255,255,255,0.45)', marginBottom: 12 }}>المتاح: {wallet.data === undefined ? '—' : `${num(balance, 2)} USDT`}</div>
             <div className="pk-note" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', color: 'rgba(245,158,11,0.9)', marginBottom: 12 }}>
               <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: 3 }} />
               <span>التداول ينطوي على مخاطر. لا تتداول بمبلغ لا تتحمل خسارته.</span>

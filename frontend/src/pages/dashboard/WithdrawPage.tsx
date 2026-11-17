@@ -65,6 +65,7 @@ export default function WithdrawPage() {
   const canNext = !!asset && !!network && addrOk && amountOk
 
   const balText = (l: 'trading' | 'investment') => {
+    if (wallet.data === undefined) return '—'
     const rows = (wallet.data || []).filter(w => w.ledger_type === l && Number(w.balance) > 0)
     return rows.length ? rows.map(w => `${num(w.balance)} ${w.asset}`).join(' · ') : '0'
   }
@@ -171,7 +172,7 @@ export default function WithdrawPage() {
                 <button type="button" onClick={() => setAmount(String(balance))} className="btn-outline-gold" style={{ fontSize: 12, padding: '0 16px' }}>الأقصى</button>
               </div>
               <div style={{ fontSize: 11, marginTop: 6, fontFamily: 'Cairo', color: amount && !amountOk ? '#ef4444' : 'rgba(255,255,255,0.45)', lineHeight: 1.8 }}>
-                المتاح: <span className="pk-mono">{num(balance)} {asset}</span> · الحد الأدنى: <span className="pk-mono">{min} {asset}</span>
+                المتاح: <span className="pk-mono">{wallet.data === undefined ? '—' : `${num(balance)} ${asset}`}</span> · الحد الأدنى: <span className="pk-mono">{min} {asset}</span>
               </div>
               {amt > 0 && (
                 <div style={{ marginTop: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 10, fontSize: 12, fontFamily: 'Cairo', color: 'rgba(255,255,255,0.6)', lineHeight: 2 }}>

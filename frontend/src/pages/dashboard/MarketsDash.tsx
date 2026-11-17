@@ -49,7 +49,7 @@ export default function MarketsDash() {
 
       <div className="glass-card" style={{ padding: '12px 16px', marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'Cairo' }}>رصيد محفظة التداول</div>
-          <b style={{ fontSize: 20, color: '#D4AF37', fontFamily: 'Montserrat', direction: 'ltr', display: 'inline-block' }}>{num(tbal)} USDT</b></div>
+          <b style={{ fontSize: 20, color: '#D4AF37', fontFamily: 'Montserrat', direction: 'ltr', display: 'inline-block' }}>{wallet.data === undefined ? '—' : `${num(tbal)} USDT`}</b></div>
         <Link to="/dashboard/deposit" className="btn-gold" style={{ textDecoration: 'none', padding: '9px 18px', fontSize: 12 }}>إيداع</Link>
       </div>
 
